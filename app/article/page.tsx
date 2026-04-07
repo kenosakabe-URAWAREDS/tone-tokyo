@@ -59,23 +59,23 @@ function ProgressBar() {
   return (<div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: 3, zIndex: 1000 }}><div style={{ height: "100%", width: p + "%", background: C.indigo, transition: "width 0.1s linear" }} /></div>);
 }
 
-function StickyHeader({ visible }) {
+function StickyHeader({ visible }: { visible: boolean }) {
   return (<div style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 999, background: C.offWhite + "F2", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderBottom: "1px solid " + C.lightWarm, transform: visible ? "translateY(0)" : "translateY(-100%)", transition: "transform 0.3s ease" }}><div style={{ maxWidth: 720, margin: "0 auto", padding: "12px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}><a href="/" style={{ textDecoration: "none", fontFamily: F.display, fontSize: 18, fontWeight: 700, color: C.charcoal }}>TONE <span style={{ fontFamily: F.ui, fontWeight: 400, fontSize: 14, letterSpacing: "0.15em" }}>TOKYO</span></a><span style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray }}>{A.pillar} · {A.readTime}</span></div></div>);
 }
 
-function InfoBox({ title, items }) {
+function InfoBox({ title, items }: { title: string; items: { label: string; value: string }[] }) {
   return (<div style={{ background: C.cream, border: "1px solid " + C.lightWarm, padding: "28px 32px", margin: "40px 0", borderRadius: 2 }}><div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: C.indigo, marginBottom: 20 }}>{title}</div>{items.map((item, i) => (<div key={i} style={{ marginBottom: i < items.length - 1 ? 14 : 0, display: "flex", gap: 12 }}><span style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, color: C.charcoal, minWidth: 90, flexShrink: 0 }}>{item.label}</span><span style={{ fontFamily: F.body, fontSize: 14, color: C.charcoal, lineHeight: 1.5 }}>{item.value}</span></div>))}</div>);
 }
 
-function PullQuote({ text, attribution }) {
+function PullQuote({ text, attribution }: { text: string; attribution?: string }) {
   return (<blockquote style={{ margin: "48px 0", padding: "0 0 0 28px", borderLeft: "3px solid " + C.indigo }}><p style={{ fontFamily: F.display, fontSize: "clamp(20px, 3vw, 26px)", fontStyle: "italic", lineHeight: 1.45, color: C.charcoal, margin: 0 }}>{text}</p>{attribution && <cite style={{ display: "block", marginTop: 14, fontFamily: F.ui, fontSize: 12, color: C.warmGray, fontStyle: "normal" }}>{"\u2014 " + attribution}</cite>}</blockquote>);
 }
 
-function ArticleImage({ src, caption, alt }) {
+function ArticleImage({ src, caption, alt }: { src: string; caption?: string; alt: string }) {
   return (<figure className="article-image-wide" style={{ margin: "40px -40px", padding: 0 }}><div style={{ width: "100%", aspectRatio: "3/2", overflow: "hidden", background: C.cream }}><img src={src} alt={alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>{caption && <figcaption style={{ fontFamily: F.ui, fontSize: 12, color: C.warmGray, lineHeight: 1.5, padding: "10px 40px 0", fontStyle: "italic" }}>{caption}</figcaption>}</figure>);
 }
 
-function Block({ block, i }) {
+function Block({ block, i }: { block: any; i: number }) {
   if (block.type === "lead") return (<p key={i} style={{ fontFamily: F.body, fontSize: "clamp(18px, 2.2vw, 20px)", lineHeight: 1.75, color: C.charcoal, marginBottom: 28 }}><span style={{ fontFamily: F.display, fontSize: "clamp(44px, 5vw, 56px)", float: "left", lineHeight: 0.82, marginRight: 10, marginTop: 6, color: C.indigo, fontWeight: 700 }}>{block.text[0]}</span>{block.text.slice(1)}</p>);
   if (block.type === "paragraph") return (<p key={i} style={{ fontFamily: F.body, fontSize: "clamp(16px, 1.8vw, 18px)", lineHeight: 1.8, color: C.charcoal, marginBottom: 24 }}>{block.text}</p>);
   if (block.type === "heading") return (<h2 key={i} style={{ fontFamily: F.display, fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 700, color: C.charcoal, margin: "44px 0 18px", lineHeight: 1.3 }}>{block.text}</h2>);
@@ -87,7 +87,7 @@ function Block({ block, i }) {
 
 export default function ArticlePage() {
   const [stickyVisible, setStickyVisible] = useState(false);
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const fn = () => { if (heroRef.current) setStickyVisible(heroRef.current.getBoundingClientRect().bottom < 0); };
     window.addEventListener("scroll", fn, { passive: true }); return () => window.removeEventListener("scroll", fn);
