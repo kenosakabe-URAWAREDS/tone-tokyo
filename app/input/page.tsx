@@ -63,7 +63,7 @@ export default function InputPage() {
             <div style={{ fontSize: 28, marginBottom: 8 }}>{"\ud83d\udcf7"}</div>
             <div style={{ fontSize: 14, color: "#A39E93" }}>Tap to add photos</div>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" multiple capture="environment" onChange={e => addImages(e.target.files)} style={{ display: "none" }} />
+          <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => addImages(e.target.files)} style={{ display: "none" }} />
         </div>
         {previews.length > 0 && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
