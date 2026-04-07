@@ -222,10 +222,10 @@ function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
             <a href="#" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INDIGO, textDecoration: "none" }}>ALL →</a>
       </div>
       <div className="articles-mobile">
-        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle, image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}), readTime: a.readTime})) : ARTICLES).map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
+        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.filter(a => a.title && a.pillar).map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle || "", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "", readTime: a.readTime || ""})) : ARTICLES).map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
       </div>
       <div className="articles-desktop">
-        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle, image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}), readTime: a.readTime})) : ARTICLES).map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
+        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.filter(a => a.title && a.pillar).map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle || "", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "", readTime: a.readTime || ""})) : ARTICLES).map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
       </div>
     </section>
   );
