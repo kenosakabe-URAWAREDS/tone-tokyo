@@ -212,7 +212,7 @@ function ArticleCard({ a, i, vis }: { a: typeof ARTICLES[0]; i: number; vis: boo
   );
 }
 
-function ArticlesSection() {
+function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
   return (
@@ -222,10 +222,10 @@ function ArticlesSection() {
             <a href="#" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INDIGO, textDecoration: "none" }}>ALL →</a>
       </div>
       <div className="articles-mobile">
-        {ARTICLES.map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
+        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle, image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}), readTime: a.readTime})) : ARTICLES).map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
       </div>
       <div className="articles-desktop">
-        {ARTICLES.map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
+        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.map(a => ({pillar: a.pillar, title: a.title, excerpt: a.subtitle, image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}), readTime: a.readTime})) : ARTICLES).map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
       </div>
     </section>
   );
@@ -355,7 +355,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
           Japan, through the eyes of someone who lives it
         </span>
       </div>
-      <ArticlesSection />
+      <ArticlesSection articles={articles} />
       <PicksSection />
       <About />
       <Footer />
