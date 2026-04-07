@@ -37,7 +37,7 @@ function Tag({ p }: { p: string }) {
 }
 
 function useVisible(ref: React.RefObject<HTMLElement | null>, t = 0.1) {
-  const [v, setV] = useState(false);
+  const [v, setV] = useState(true);
   useEffect(() => {
     const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) setV(true); }, { threshold: t });
     if (ref.current) o.observe(ref.current);
