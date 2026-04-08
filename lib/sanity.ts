@@ -4,7 +4,7 @@ export const client = createClient({
   projectId: 'w757ks40',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: true,
+  useCdn: false,
 });
 
 export async function getArticles() {
