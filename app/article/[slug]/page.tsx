@@ -5,7 +5,7 @@ import ArticleClient from "./ArticleClient";
 async function getArticle(slug: string) {
   const query = `*[_type == "article" && slug.current == $slug][0] {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
-    "heroImage": heroImage.asset->url, heroImageUrl, heroCaption,
+    "heroImage": heroImage.asset->url, heroImageUrl, heroCaption, "gallery": gallery[].asset->url,
     body, locationName, locationNameJa,
     tags, readTime, publishedAt, sourceType, officialUrl, googleMapsUrl, tabelogUrl, address, priceRange
   }`;
