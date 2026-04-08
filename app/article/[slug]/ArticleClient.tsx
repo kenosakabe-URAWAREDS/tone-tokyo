@@ -190,7 +190,7 @@ export default function ArticleClient({ article, related }: { article: any; rela
           </nav>
 
           {/* Hero Image */}
-          <div style={{ position: "relative", width: "100%", height: "70vh", minHeight: 420, maxHeight: 700, overflow: "hidden" }}>
+          <div style={{ position: "relative", width: "100%", height: "80vh", minHeight: 420, maxHeight: 900, overflow: "hidden" }}>
             <img src={heroImage} alt={article.title} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", height: "50%" }} />
             {article.heroCaption && (
