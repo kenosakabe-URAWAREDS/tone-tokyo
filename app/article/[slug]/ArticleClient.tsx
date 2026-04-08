@@ -255,6 +255,15 @@ export default function ArticleClient({ article, related }: { article: any; rela
           </div>
 
           {/* ── RELATED ARTICLES ── */}
+{article.gallery && article.gallery.length > 0 && (
+        <div style={{ padding: "20px 16px 40px", maxWidth: 800, margin: "0 auto" }}>
+          {article.gallery.map((url: string, i: number) => (
+            <img key={i} src={url} alt={article.title + " " + (i + 2)} style={{
+              width: "100%", borderRadius: 4, marginBottom: 16,
+            }} />
+          ))}
+        </div>
+      )}
           {related.length > 0 && (
             <div style={{ padding: "40px 0", borderTop: `1px solid ${C.lightWarm}` }}>
               <div style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 24 }}>Related Articles</div>
