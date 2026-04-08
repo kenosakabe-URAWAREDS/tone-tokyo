@@ -129,13 +129,13 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
 function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
   return (
     <section style={{ position: "relative", height: "85vh", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: `url(${(featured && featured.heroImage) || FEATURED.image})`,
-        backgroundSize: "cover", backgroundPosition: "center center",
+      <img src={(featured && featured.heroImage) || FEATURED.image} alt="" style={{
+        position: "absolute", inset: 0, width: "100%", height: "100%",
+        objectFit: "cover", objectPosition: "center 60%",
         filter: "brightness(0.48) saturate(0.8)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
+        pointerEvents: "none",
       }} />
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "75%", background: "linear-gradient(transparent, rgba(0,0,0,0.7))", pointerEvents: "none" }} />
       <div style={{
