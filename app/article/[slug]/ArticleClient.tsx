@@ -191,7 +191,7 @@ export default function ArticleClient({ article, related }: { article: any; rela
 
           {/* Hero Image */}
           <div style={{ position: "relative", width: "100%", height: "70vh", minHeight: 420, maxHeight: 700, overflow: "hidden" }}>
-            <img src={heroImage} alt={article.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img src={heroImage} alt={article.title} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }} />
             <div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", height: "50%" }} />
             {article.heroCaption && (
               <div style={{ position: "absolute", bottom: 16, right: 24, fontFamily: F.ui, fontSize: 11, color: "rgba(255,255,255,0.65)", fontStyle: "italic" }}>{article.heroCaption}</div>
