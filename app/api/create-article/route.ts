@@ -94,16 +94,20 @@ export async function POST(req: NextRequest) {
     const slug = slugify(article.title);
 
     // Upload first image to Sanity as heroImage
-    let heroImageAsset = null;
-    if (images && images.length > 0) {
+    let heroImageAsset: any = null;
+  const galleryAssets: any[] = [];
+  if (images && images.length > 0) {
+    for (let i = 0; i < images.length; i++) {
       try {
-        const base64 = images[0].replace(/^data:image\/\w+;base64,/, "");
+        const base64 = images[i].replace(/^data:image\/\w+;base64,/, "");
         const buffer = Buffer.from(base64, "base64");
-        heroImageAsset = await sanity.assets.upload("image", buffer, { filename: slug + ".jpg", contentType: "image/jpeg" });
+        const asset = await sanity.assets.upload("image", buffer, { filename: slug + "-" + i + ".jpg", contentType: "image/jpeg" });
+        if (i === 0) { heroImageAsset = asset; } else { galleryAssets.push(asset); }
       } catch (e) {
         console.error("Image upload failed:", e);
       }
     }
+  }
 
     const doc = await sanity.create({
       _type: 'article',
@@ -113,6 +117,7 @@ export async function POST(req: NextRequest) {
       pillar: article.pillar,
       subtitle: article.subtitle,
       heroImage: heroImageAsset ? { _type: "image", asset: { _type: "reference", _ref: heroImageAsset._id } } : undefined,
+      gallery: galleryAssets.length > 0 ? galleryAssets.map((a, i) => ({ _type: "image", _key: "img" + i, asset: { _type: "reference", _ref: a._id } })) : undefined,
       body: [{ _type: 'block', _key: 'body0', style: 'normal', children: [{ _type: 'span', _key: 'span0', text: article.body }] }],
       tags: article.tags,
       readTime: article.readTime,
