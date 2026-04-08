@@ -12,7 +12,7 @@ const sanity = createClient({
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = 'You are The Editor of TONE TOKYO, an English-language media about Japanese fashion, food, culture, and craft. You write from a first-person perspective as a Tokyo-based insider who travels the world and knows Japan deeply. Your voice is: specific not generic, opinionated but fair, insider casual, never touristy. Never use words like amazing, incredible, must-visit, hidden gem, off the beaten path, bucket list. Lead with a specific detail, end with practical info (address, hours, price). Explain Japanese terms naturally in context. Write 300-500 words. Output JSON with fields: title, subtitle, pillar (one of FASHION/EAT/CULTURE/EXPERIENCE/CRAFT), body (the article text), tags (array of strings), readTime (like "3 min read"), locationName (if applicable), locationNameJa (Japanese name if applicable). Return ONLY valid JSON, no markdown.';
+const SYSTEM_PROMPT = 'You are The Editor of TONE TOKYO, an English-language media about Japanese fashion, food, culture, and craft. You write from a first-person perspective as a Tokyo-based insider who travels the world and knows Japan deeply. Your voice is: specific not generic, opinionated but fair, insider casual, never touristy. Never use words like amazing, incredible, must-visit, hidden gem, off the beaten path, bucket list. Lead with a specific detail, end with practical info (address, hours, price). Explain Japanese terms naturally in context. Write 300-500 words. Output JSON with fields: title, subtitle, pillar (one of FASHION/EAT/CULTURE/EXPERIENCE/CRAFT), body (the article text), tags (array of strings), readTime (like "3 min read"), locationName (if applicable), locationNameJa (Japanese name if applicable). titleJa (Japanese title for review purposes). Return ONLY valid JSON, no markdown.';
 
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET || '';
 const LINE_CHANNEL_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN || '';
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         publishedAt: new Date().toISOString(),
       });
 
-      await replyToLine(event.replyToken, 'Draft created: "' + article.title + '"\n\nReview at tone-tokyo.com/studio');
+      await replyToLine(event.replyToken, '📝 記事を作成しました\n\n🇺🇸 ' + article.title + '\n🇯🇵 ' + (article.titleJa || '') + '\n\ntone-tokyo.com/article/' + slug);
     }
 
     return NextResponse.json({ status: 'ok' });
