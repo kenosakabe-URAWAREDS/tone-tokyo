@@ -132,7 +132,7 @@ function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
       <img src={(featured && featured.heroImage) || FEATURED.image} alt="" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover", objectPosition: "center 60%",
-        filter: "brightness(0.48) saturate(0.8)",
+        filter: "brightness(0.6) saturate(0.85)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
         pointerEvents: "none",
