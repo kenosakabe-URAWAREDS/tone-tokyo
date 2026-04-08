@@ -283,7 +283,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                 fontSize: '0.75rem',
                 color: WARM_GRAY,
               }}>
-                {article.readTime} min read
+                {article.readTime}
               </span>
             </>
           )}
