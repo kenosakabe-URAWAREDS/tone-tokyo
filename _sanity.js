@@ -5,6 +5,7 @@ const c = createClient({
   apiVersion: '2024-01-01',
   useCdn: false
 });
-c.fetch('*[_type == "article"][0..2]{"heroImage": coalesce(heroImage.asset->url, heroImageUrl), title}').then(a => {
-  a.forEach(x => console.log(x.title + ' => ' + x.heroImage));
+const query = '*[_type == "article"] | order(publishedAt desc) { _id, title, "slug": slug.current, pillar, subtitle, "heroImage": coalesce(heroImage.asset->url, heroImageUrl), heroCaption, tags, readTime, publishedAt, sourceType }';
+c.fetch(query).then(a => {
+  a.forEach(x => console.log(x.title + ' => ' + (x.heroImage || 'NULL')));
 });

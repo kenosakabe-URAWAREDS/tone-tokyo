@@ -1,4 +1,5 @@
-﻿import { client } from '../lib/sanity';
+﻿export const revalidate = 0;
+import { client } from '../lib/sanity';
 import HomeClient from './HomeClient';
 
 async function getArticles() {
