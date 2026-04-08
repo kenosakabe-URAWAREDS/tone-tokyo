@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
       await sanity.create({
         _type: 'article',
         title: article.title,
+titleJa: article.titleJa || '',
         slug: { _type: 'slug', current: slug },
         pillar: article.pillar,
         subtitle: article.subtitle,

@@ -6,6 +6,7 @@ const article = defineType({
   type: 'document',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: (r) => r.required() }),
+defineField({ name: 'titleJa', title: 'Title (Japanese)', type: 'string' }),
     defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: (r) => r.required() }),
     defineField({ name: 'pillar', title: 'Pillar', type: 'string', options: { list: ['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT'] }, validation: (r) => r.required() }),
     defineField({ name: 'subtitle', title: 'Subtitle', type: 'text', rows: 3 }),
