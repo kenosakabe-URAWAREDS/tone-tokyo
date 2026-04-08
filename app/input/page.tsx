@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useRef } from "react";
 
 const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
@@ -26,6 +26,7 @@ function compressImage(file: File): Promise<string> {
 
 export default function InputPage() {
   const [memo, setMemo] = useState("");
+  const [officialUrl, setOfficialUrl] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [tabelogUrl, setTabelogUrl] = useState("");
   const [images, setImages] = useState<File[]>([]);
@@ -62,13 +63,13 @@ export default function InputPage() {
       const res = await fetch("/api/create-article", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memo, images: base64Images, googleMapsUrl: googleMapsUrl.trim(), tabelogUrl: tabelogUrl.trim() }),
+        body: JSON.stringify({ memo, images: base64Images, officialUrl: officialUrl.trim(), googleMapsUrl: googleMapsUrl.trim(), tabelogUrl: tabelogUrl.trim() }),
       });
       const data = await res.json();
       if (data.success) {
         setStatus("done");
         setResult(`📝 ${data.title}\n🇯🇵 ${data.titleJa || ""}\n\ntone-tokyo.com/article/${data.slug}`);
-        setMemo(""); setGoogleMapsUrl(""); setTabelogUrl(""); setImages([]); setPreviews([]);
+        setMemo(""); setOfficialUrl(""); setGoogleMapsUrl(""); setTabelogUrl(""); setImages([]); setPreviews([]);
       } else {
         setStatus("error");
         setResult(data.error || "Failed");
@@ -99,6 +100,9 @@ export default function InputPage() {
 
         <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>Memo / メモ</label>
         <textarea value={memo} onChange={e => setMemo(e.target.value)} placeholder="代官山の新しいラーメン屋。元アフリのシェフ。柚子塩が完璧。" rows={4} style={{ ...inputStyle, resize: "vertical" as const, marginBottom: 20 }} />
+
+        <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>🔗 Official Site URL（任意）</label>
+        <input type="url" value={officialUrl} onChange={e => setOfficialUrl(e.target.value)} placeholder="https://example.com" style={{ ...inputStyle, marginBottom: 20 }} />
 
         <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>📍 Google Maps URL（任意）</label>
         <input type="url" value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/... or https://maps.app.goo.gl/..." style={{ ...inputStyle, marginBottom: 20 }} />

@@ -222,6 +222,7 @@ export default function ArticleClient({ article, related }: { article: any; rela
               {(article.locationName) && (
                 <div style={{ fontFamily: F.ui, fontSize: 12, color: C.warmGray, display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
                   <span>📍</span> {article.locationName}{article.locationNameJa ? ` (${article.locationNameJa})` : ""}
+                  {article.officialUrl && <a href={article.officialUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.indigo, marginLeft: 8, fontSize: 11, textDecoration: "underline" }}>Official Site</a>}
                   {article.googleMapsUrl && <a href={article.googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.indigo, marginLeft: 8, fontSize: 11, textDecoration: "underline" }}>Google Maps</a>}
                 </div>
               )}

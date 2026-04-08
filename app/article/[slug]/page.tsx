@@ -7,7 +7,7 @@ async function getArticle(slug: string) {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": heroImage.asset->url, heroImageUrl, heroCaption,
     body, locationName, locationNameJa,
-    tags, readTime, publishedAt, sourceType, googleMapsUrl, tabelogUrl, address, priceRange
+    tags, readTime, publishedAt, sourceType, officialUrl, googleMapsUrl, tabelogUrl, address, priceRange
   }`;
   return client.fetch(query, { slug });
 }

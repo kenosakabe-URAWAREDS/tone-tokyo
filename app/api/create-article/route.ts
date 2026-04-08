@@ -44,7 +44,7 @@ async function fetchUrlContent(url: string): Promise<string> {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { memo, images, googleMapsUrl, tabelogUrl } = data;
+    const { memo, images, googleMapsUrl, tabelogUrl, officialUrl } = data;
 
     if (!memo && (!images || images.length === 0)) {
       return NextResponse.json({ error: 'Memo or image required' }, { status: 400 });
@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
       readTime: article.readTime,
       locationName: article.locationName || '',
       locationNameJa: article.locationNameJa || '',
+      officialUrl: officialUrl || '',
       googleMapsUrl: googleMapsUrl || '',
       tabelogUrl: tabelogUrl || '',
       address: article.address || '',
