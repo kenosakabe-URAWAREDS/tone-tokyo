@@ -215,7 +215,8 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
 function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
-  return (
+  console.log("SANITY DATA:", sanityArticles?.map((a: any) => ({title: a.title, img: a.heroImage})));
+return (
     <section ref={ref} style={{ padding: "40px 16px", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20, borderBottom: `1px solid ${LIGHT_WARM}`, paddingBottom: 10 }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600, color: CHARCOAL }}>Latest</h2>
