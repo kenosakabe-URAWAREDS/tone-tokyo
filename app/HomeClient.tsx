@@ -240,7 +240,7 @@ function PicksSection() {
       <div style={{ maxWidth: 1200, margin: "0 auto" }} className="picks-outer">
         <div className="picks-main">
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 20 }}>
-            <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600, color: CHARCOAL }}>Kentaro{"\u2019"}s Picks</h2>
+            <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600, color: CHARCOAL }}>The Editor{"\u2019"}s Selection</h2>
             <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY }}>Today</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
