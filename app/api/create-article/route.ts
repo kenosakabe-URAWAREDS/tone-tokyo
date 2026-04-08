@@ -93,6 +93,18 @@ export async function POST(req: NextRequest) {
 
     const slug = slugify(article.title);
 
+    // Upload first image to Sanity as heroImage
+    let heroImageAsset = null;
+    if (images && images.length > 0) {
+      try {
+        const base64 = images[0].replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64, "base64");
+        heroImageAsset = await sanity.assets.upload("image", buffer, { filename: slug + ".jpg", contentType: "image/jpeg" });
+      } catch (e) {
+        console.error("Image upload failed:", e);
+      }
+    }
+
     const doc = await sanity.create({
       _type: 'article',
       title: article.title,
@@ -100,6 +112,7 @@ export async function POST(req: NextRequest) {
       slug: { _type: 'slug', current: slug },
       pillar: article.pillar,
       subtitle: article.subtitle,
+      heroImage: heroImageAsset ? { _type: "image", asset: { _type: "reference", _ref: heroImageAsset._id } } : undefined,
       body: [{ _type: 'block', _key: 'body0', style: 'normal', children: [{ _type: 'span', _key: 'span0', text: article.body }] }],
       tags: article.tags,
       readTime: article.readTime,
