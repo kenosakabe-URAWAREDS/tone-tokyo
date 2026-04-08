@@ -189,7 +189,7 @@ function ArticleRow({ a, i, vis }: { a: any; i: number; vis: boolean }) {
 function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
   const [h, setH] = useState(false);
   return (
-    <a href="#" style={{
+    <a href={a.slug ? "/article/" + a.slug : "#"} style={{
       display: "block", textDecoration: "none",
       opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(24px)",
       transition: `all 0.7s ease ${i * 0.1}s`,
@@ -363,4 +363,5 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
     </div>
   );
 }
+
 
