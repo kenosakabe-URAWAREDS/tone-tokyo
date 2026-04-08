@@ -132,7 +132,7 @@ function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         backgroundImage: `url(${(featured && featured.heroImage) || FEATURED.image})`,
-        backgroundSize: "cover", backgroundPosition: "center 30%",
+        backgroundSize: "cover", backgroundPosition: "center center",
         filter: "brightness(0.48) saturate(0.8)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
