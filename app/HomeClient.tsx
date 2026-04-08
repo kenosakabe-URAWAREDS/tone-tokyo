@@ -137,7 +137,7 @@ function Hero({ vis }: { vis: boolean }) {
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
       }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "75%", background: "linear-gradient(transparent, rgba(0,0,0,0.7))" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "75%", background: "linear-gradient(transparent, rgba(0,0,0,0.7))", pointerEvents: "none" }} />
       <div style={{
         position: "relative", zIndex: 2, height: "100%",
         display: "flex", flexDirection: "column" as const, justifyContent: "flex-end",
