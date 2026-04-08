@@ -126,12 +126,12 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
-function Hero({ vis }: { vis: boolean }) {
+function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
   return (
     <section style={{ position: "relative", height: "85vh", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: `url(${FEATURED.image})`,
+        backgroundImage: `url(${(featured && featured.heroImage) || FEATURED.image})`,
         backgroundSize: "cover", backgroundPosition: "center 30%",
         filter: "brightness(0.48) saturate(0.8)",
         transform: vis ? "scale(1)" : "scale(1.05)",
@@ -144,15 +144,15 @@ function Hero({ vis }: { vis: boolean }) {
         padding: "0 16px 36px 16px", maxWidth: 1200, margin: "0 auto",
       }}>
         <div style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(20px)", transition: "all 0.9s ease 0.2s" }}>
-          <Tag p={FEATURED.pillar} />
+          <Tag p={(featured && featured.pillar) || FEATURED.pillar} />
           <h1 style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px, 6.5vw, 48px)", fontWeight: 700, color: "#fff", lineHeight: 1.15, margin: "8px 0", letterSpacing: "-0.015em" }}>
-            {FEATURED.title}
+            {(featured && featured.title) || FEATURED.title}
           </h1>
           <p style={{ fontFamily: "var(--body)", fontSize: 14, color: "rgba(255,255,255,0.65)", lineHeight: 1.5, margin: "0 0 12px 0" }}>
-            {FEATURED.excerpt}
+            {(featured && featured.subtitle) || FEATURED.excerpt}
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{FEATURED.date}</span>
+            <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{(featured && featured.publishedAt) ? new Date(featured.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : FEATURED.date}</span>
             <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
             <span style={{ fontFamily: "var(--sans)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{FEATURED.readTime}</span>
           </div>
@@ -350,7 +350,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
     <div style={{ background: OFF_WHITE, minHeight: "100vh", overflowX: "hidden" as const }}>
       <Nav scrolled={scrolled} onMenu={() => setMenuOpen(true)} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <a href={"/article/" + FEATURED.slug} style={{ textDecoration: "none", display: "block", color: "inherit" }}><Hero vis={heroVis} /></a>
+      <a href={"/article/" + FEATURED.slug} style={{ textDecoration: "none", display: "block", color: "inherit" }}><Hero vis={heroVis} featured={articles && articles.length > 0 ? articles[0] : undefined} /></a>
       <div style={{ background: CHARCOAL, padding: "12px 16px", textAlign: "center" as const }}>
         <span style={{ fontFamily: "var(--sans)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)" }}>
           Japan, through the eyes of someone who lives it
