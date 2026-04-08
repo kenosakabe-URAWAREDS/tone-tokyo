@@ -130,7 +130,7 @@ function Hero({ vis }: { vis: boolean }) {
   return (
     <section style={{ position: "relative", height: "85vh", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
       <div style={{
-        position: "absolute", inset: 0,
+        position: "absolute", inset: 0, pointerEvents: "none",
         backgroundImage: `url(${FEATURED.image})`,
         backgroundSize: "cover", backgroundPosition: "center 30%",
         filter: "brightness(0.48) saturate(0.8)",
