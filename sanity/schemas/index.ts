@@ -11,6 +11,7 @@ const article = defineType({
     defineField({ name: 'subtitle', title: 'Subtitle', type: 'text', rows: 3 }),
     defineField({ name: 'heroImage', title: 'Hero Image', type: 'image', options: { hotspot: true } }),
     defineField({ name: 'heroCaption', title: 'Hero Caption', type: 'string' }),
+defineField({ name: 'heroImageUrl', title: 'Hero Image URL', type: 'url' }),
     defineField({ name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }, { type: 'image', options: { hotspot: true }, fields: [{ name: 'caption', type: 'string', title: 'Caption' }, { name: 'alt', type: 'string', title: 'Alt Text' }] }] }),
     defineField({ name: 'locationName', title: 'Location Name', type: 'string' }),
     defineField({ name: 'locationNameJa', title: 'Location Name (Japanese)', type: 'string' }),
