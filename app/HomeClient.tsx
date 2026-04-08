@@ -350,7 +350,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
     <div style={{ background: OFF_WHITE, minHeight: "100vh", overflowX: "hidden" as const }}>
       <Nav scrolled={scrolled} onMenu={() => setMenuOpen(true)} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <a href={"/article/" + FEATURED.slug} style={{ textDecoration: "none", display: "block", color: "inherit" }}><Hero vis={heroVis} featured={articles && articles.length > 0 ? articles[0] : undefined} /></a>
+      <a href={"/article/" + ((articles && articles.length > 0 && articles[0].slug) || FEATURED.slug)} style={{ textDecoration: "none", display: "block", color: "inherit" }}><Hero vis={heroVis} featured={articles && articles.length > 0 ? articles[0] : undefined} /></a>
       <div style={{ background: CHARCOAL, padding: "12px 16px", textAlign: "center" as const }}>
         <span style={{ fontFamily: "var(--sans)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)" }}>
           Japan, through the eyes of someone who lives it
