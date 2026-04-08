@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from 'next-sanity';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -16,7 +16,7 @@ const SYSTEM_PROMPT = `You are The Editor of TONE TOKYO, an English-language med
 
 When Google Maps or Tabelog URLs are provided, use the extracted information (address, hours, rating, menu items, price range, reviews) to make the article more accurate and detailed. Do NOT copy reviews verbatim - use them only as reference for factual details like popular dishes, atmosphere, and practical tips.
 
-Output JSON with fields: title, subtitle, pillar (one of FASHION/EAT/CULTURE/EXPERIENCE/CRAFT), body (the article text as a single string), tags (array of strings), readTime (like "3 min read"), locationName (English name), locationNameJa (Japanese name if applicable), titleJa (Japanese title for review purposes), address (full address if available), hours (business hours if available), priceRange (e.g. "¥1,000-2,000"). Return ONLY valid JSON, no markdown.`;
+Output JSON with fields: title, subtitle, pillar (one of FASHION/EAT/CULTURE/EXPERIENCE/CRAFT), body (the article text as a single string), tags (array of strings), readTime (like "3 min read"), locationName (English name), locationNameJa (Japanese name if applicable), titleJa (Japanese title for review purposes), address (full address if available), hours (business hours if available), priceRange (e.g. "ﾂ･1,000-2,000"). Return ONLY valid JSON, no markdown.`;
 
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET || '';
 const LINE_CHANNEL_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN || '';
@@ -152,11 +152,15 @@ export async function POST(req: NextRequest) {
         readTime: article.readTime,
         locationName: article.locationName || '',
         locationNameJa: article.locationNameJa || '',
+      googleMapsUrl: (googleMapsUrls && googleMapsUrls[0]) || '',
+      tabelogUrl: (tabelogUrls && tabelogUrls[0]) || '',
+      address: article.address || '',
+      priceRange: article.priceRange || '',
         sourceType: 'kentaro-initiated',
         publishedAt: new Date().toISOString(),
       });
 
-      await replyToLine(event.replyToken, '📝 記事を作成しました\n\n🇬🇧 ' + article.title + '\n🇯🇵 ' + (article.titleJa || '') + '\n\ntone-tokyo.com/article/' + slug);
+      await replyToLine(event.replyToken, '統 險倅ｺ九ｒ菴懈・縺励∪縺励◆\n\n・・ ' + article.title + '\n・・ ' + (article.titleJa || '') + '\n\ntone-tokyo.com/article/' + slug);
     }
 
     return NextResponse.json({ status: 'ok' });
@@ -165,3 +169,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ status: 'error' }, { status: 500 });
   }
 }
+

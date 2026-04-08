@@ -1,4 +1,4 @@
-import { client } from "@/lib/sanity";
+﻿import { client } from "@/lib/sanity";
 import { notFound } from "next/navigation";
 import ArticleClient from "./ArticleClient";
 
@@ -7,7 +7,7 @@ async function getArticle(slug: string) {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": heroImage.asset->url, heroImageUrl, heroCaption,
     body, locationName, locationNameJa,
-    tags, readTime, publishedAt, sourceType
+    tags, readTime, publishedAt, sourceType, googleMapsUrl, tabelogUrl, address, priceRange
   }`;
   return client.fetch(query, { slug });
 }
