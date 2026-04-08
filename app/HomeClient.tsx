@@ -10,7 +10,7 @@ const CREAM = "#F0EDE6";
 const LIGHT_WARM = "#E8E4DB";
 
 const FEATURED = {
-  pillar: "CRAFT",
+  pillar: "CRAFT", slug: "okayama-selvedge-denim-weavers",
   title: "Inside Okayama\u2019s Last Generation of Selvedge Denim Weavers",
   excerpt: "At Collect Mills, three master weavers operate vintage shuttle looms that most factories abandoned decades ago.",
   image: "https://images.unsplash.com/photo-1582552938357-32b906df40cb?w=1200&q=80",
@@ -350,7 +350,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
     <div style={{ background: OFF_WHITE, minHeight: "100vh", overflowX: "hidden" as const }}>
       <Nav scrolled={scrolled} onMenu={() => setMenuOpen(true)} />
       <Menu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Hero vis={heroVis} />
+      <a href={"/article/" + FEATURED.slug} style={{ textDecoration: "none", display: "block", color: "inherit" }}><Hero vis={heroVis} /></a>
       <div style={{ background: CHARCOAL, padding: "12px 16px", textAlign: "center" as const }}>
         <span style={{ fontFamily: "var(--sans)", fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.35)" }}>
           Japan, through the eyes of someone who lives it
