@@ -259,7 +259,7 @@ export default function ArticleClient({ article, related }: { article: any; rela
         <div style={{ padding: "20px 16px 40px", maxWidth: 800, margin: "0 auto" }}>
           {article.gallery.map((url: string, i: number) => (
             <img key={i} src={url} alt={article.title + " " + (i + 2)} style={{
-              width: "100%", borderRadius: 4, marginBottom: 16,
+              width: "100%", maxWidth: 500, borderRadius: 4, marginBottom: 16, display: "block", margin: "0 auto 16px",
             }} />
           ))}
         </div>
