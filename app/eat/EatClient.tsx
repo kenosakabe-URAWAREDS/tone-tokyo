@@ -1,0 +1,143 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+
+const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
+const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
+
+const GENRES = ["All", "Ramen", "Sushi", "Yakitori", "Yakiniku", "Curry", "Soba / Udon", "Italian", "French", "Chinese", "Cafe", "Bar", "Izakaya", "Bakery", "Sweets"];
+const BOOKING = ["Walk-in OK", "Easy to book", "Book ahead", "Hard to get"];
+const DRINKS = ["Sake", "Natural Wine", "Craft Beer", "Whisky / Bourbon", "Cocktails", "Shochu / Awamori", "Non-alcohol"];
+const SCENES = ["Solo dining", "Date", "Business dinner", "Friends", "Late night (after 22:00)", "Breakfast / Brunch", "Family"];
+const PRICES = ["~\u00a51,000", "~\u00a53,000", "~\u00a55,000", "~\u00a510,000", "\u00a510,000+"];
+
+function bookingColor(b: string) {
+  if (b === "Walk-in OK" || b === "Easy to book") return { bg: "#EAF3DE", color: "#3B6D11" };
+  if (b === "Book ahead") return { bg: "#FAEEDA", color: "#854F0B" };
+  if (b === "Hard to get") return { bg: "#FCEBEB", color: "#A32D2D" };
+  return { bg: C.cream, color: C.warmGray };
+}
+
+function Stars({ n }: { n: number }) {
+  return <span style={{ color: "#BA7517", fontSize: 12, letterSpacing: 1 }}>{"\u2605".repeat(n)}</span>;
+}
+
+function Pill({ text, bg, color }: { text: string; bg?: string; color?: string }) {
+  return <span style={{ fontFamily: F.ui, fontSize: 10, padding: "2px 8px", borderRadius: 10, background: bg || C.cream, color: color || C.warmGray }}>{text}</span>;
+}
+
+function FilterBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick} style={{
+      fontFamily: F.ui, fontSize: 12, padding: "6px 14px", borderRadius: 20,
+      border: active ? "1px solid " + C.indigo : "1px solid " + C.lightWarm,
+      background: active ? C.indigo : C.offWhite,
+      color: active ? C.offWhite : C.charcoal,
+      cursor: "pointer", transition: "all 0.15s",
+    }}>{label}</button>
+  );
+}
+
+export default function EatClient({ articles }: { articles: any[] }) {
+  const [genre, setGenre] = useState("All");
+  const [booking, setBooking] = useState<string[]>([]);
+  const [drinks, setDrinks] = useState<string[]>([]);
+  const [scenes, setScenes] = useState<string[]>([]);
+  const [price, setPrice] = useState<string[]>([]);
+  const [showMore, setShowMore] = useState(false);
+
+  const tog = (arr: string[], val: string) => arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
+
+  const filtered = articles.filter(a => {
+    if (genre !== "All" && a.eatGenre !== genre) return false;
+    if (booking.length > 0 && !booking.includes(a.bookingDifficulty)) return false;
+    if (drinks.length > 0 && !(a.drinks || []).some((d: string) => drinks.includes(d))) return false;
+    if (scenes.length > 0 && !(a.scene || []).some((s: string) => scenes.includes(s))) return false;
+    if (price.length > 0 && !price.includes(a.eatPriceRange)) return false;
+    return true;
+  });
+
+  const hasFilters = genre !== "All" || booking.length > 0 || drinks.length > 0 || scenes.length > 0 || price.length > 0;
+
+  return (
+    <div style={{ background: C.offWhite, minHeight: "100vh" }}>
+      <div style={{ padding: "20px 16px 0", maxWidth: 800, margin: "0 auto" }}>
+        <Link href="/" style={{ textDecoration: "none", display: "inline-block", marginBottom: 16 }}>
+          <span style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, letterSpacing: "0.08em" }}>TONE TOKYO</span>
+        </Link>
+        <h1 style={{ fontFamily: F.display, fontSize: 32, fontWeight: 700, color: C.indigo, marginBottom: 4 }}>EAT</h1>
+        <p style={{ fontFamily: F.ui, fontSize: 13, color: C.warmGray, letterSpacing: "0.04em", marginBottom: 20 }}>The Editor's picks — where to eat and drink in Japan</p>
+        <div style={{ height: 1, background: C.lightWarm, marginBottom: 20 }} />
+
+        <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 10 }}>Genre</div>
+        <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 16 }}>
+          {GENRES.map(g => <FilterBtn key={g} label={g} active={genre === g} onClick={() => setGenre(g)} />)}
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 8 }}>
+          {BOOKING.map(b => <FilterBtn key={b} label={b} active={booking.includes(b)} onClick={() => setBooking(tog(booking, b))} />)}
+        </div>
+
+        <button onClick={() => setShowMore(!showMore)} style={{ fontFamily: F.ui, fontSize: 12, color: C.indigo, background: "none", border: "none", cursor: "pointer", padding: "8px 0", textDecoration: "underline" }}>
+          {showMore ? "Hide filters" : "More filters (drinks, scene, price)"}
+        </button>
+
+        {showMore && (
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 8 }}>Drinks</div>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 16 }}>
+              {DRINKS.map(d => <FilterBtn key={d} label={d} active={drinks.includes(d)} onClick={() => setDrinks(tog(drinks, d))} />)}
+            </div>
+            <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 8 }}>Scene</div>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 16 }}>
+              {SCENES.map(s => <FilterBtn key={s} label={s} active={scenes.includes(s)} onClick={() => setScenes(tog(scenes, s))} />)}
+            </div>
+            <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 8 }}>Price</div>
+            <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8, marginBottom: 16 }}>
+              {PRICES.map(p => <FilterBtn key={p} label={p} active={price.includes(p)} onClick={() => setPrice(tog(price, p))} />)}
+            </div>
+          </div>
+        )}
+
+        {hasFilters && (
+          <button onClick={() => { setGenre("All"); setBooking([]); setDrinks([]); setScenes([]); setPrice([]); }} style={{ fontFamily: F.ui, fontSize: 12, color: "#A32D2D", background: "none", border: "none", cursor: "pointer", padding: "4px 0" }}>
+            Clear all filters
+          </button>
+        )}
+
+        <div style={{ height: 1, background: C.lightWarm, margin: "16px 0" }} />
+        <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 16 }}>
+          {filtered.length} {filtered.length === 1 ? "place" : "places"}
+        </div>
+      </div>
+
+      <div style={{ padding: "0 16px 60px", maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ display: "flex", flexDirection: "column" as const, gap: 12 }}>
+          {filtered.map((a: any) => (
+            <Link key={a._id} href={"/article/" + a.slug} style={{ textDecoration: "none", color: "inherit" }}>
+              <div style={{ display: "flex", gap: 14, padding: 12, borderRadius: 8, border: "1px solid " + C.lightWarm, background: "#fff", cursor: "pointer", transition: "all 0.15s" }}>
+                <img src={a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=220&q=80"} alt={a.title} style={{ width: 100, height: 100, borderRadius: 6, objectFit: "cover" as const, flexShrink: 0 }} />
+                <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, justifyContent: "center", minWidth: 0 }}>
+                  <div style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 3 }}>
+                    {a.eatGenre || "Eat"}{a.neighborhood ? " \u00b7 " + a.neighborhood : a.area ? " \u00b7 " + a.area : ""}
+                  </div>
+                  <div style={{ fontFamily: F.body, fontSize: 15, fontWeight: 600, lineHeight: 1.3, marginBottom: 3, color: C.charcoal }}>{a.title}</div>
+                  <div style={{ fontFamily: F.body, fontSize: 12, color: C.warmGray, lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{a.subtitle}</div>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6, flexWrap: "wrap" as const }}>
+                    {a.editorRating && <Stars n={a.editorRating} />}
+                    {a.bookingDifficulty && <Pill text={a.bookingDifficulty} bg={bookingColor(a.bookingDifficulty).bg} color={bookingColor(a.bookingDifficulty).color} />}
+                    {a.drinks && a.drinks.slice(0, 2).map((d: string) => <Pill key={d} text={d} />)}
+                    {a.eatPriceRange && <Pill text={a.eatPriceRange} />}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+          {filtered.length === 0 && (
+            <div style={{ textAlign: "center" as const, padding: 40, color: C.warmGray, fontFamily: F.ui, fontSize: 14 }}>No places match your filters. Try adjusting them.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
