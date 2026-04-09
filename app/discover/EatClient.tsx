@@ -65,7 +65,24 @@ export default function EatClient({ articles }: { articles: any[] }) {
   return (
     <div style={{ background: C.offWhite, minHeight: "100vh" }}>
       <div style={{ padding: "20px 16px 0", maxWidth: 800, margin: "0 auto" }}>
-        <Link href="/" style={{ textDecoration: "none", display: "inline-block", marginBottom: 16 }}><span style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, letterSpacing: "0.08em" }}>TONE TOKYO</span></Link>
+        <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(248,246,241,0.95)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid #E8E4DB` }}>
+        <div style={{ padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 52, maxWidth: 1200, margin: "0 auto" }}>
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#2D2D2D", letterSpacing: "-0.02em", lineHeight: 1 }}>TONE</span>
+                <span style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 6.5, fontWeight: 500, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#A39E93", lineHeight: 1 }}>TOKYO</span>
+              </div>
+              <div style={{ fontFamily: "var(--jp)", fontSize: 5.5, fontWeight: 300, letterSpacing: "0.45em", color: "rgba(255,255,255,0.4)", marginTop: 1, lineHeight: 1 }}>{"\u97F3 \u6771\u4EAC"}</div>
+            </div>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Link href="/discover" style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "#1B3A5C", textDecoration: "none", textTransform: "uppercase" as const }}>Discover</Link>
+            <a href="#newsletter" style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: "#F8F6F1", textDecoration: "none", background: "#1B3A5C", padding: "6px 14px", borderRadius: 20, textTransform: "uppercase" as const }}>Subscribe</a>
+          </div>
+        </div>
+      </header>
+      <div style={{ height: 52 }} />
         <h1 style={{ fontFamily: F.display, fontSize: 32, fontWeight: 700, color: C.indigo, marginBottom: 4 }}>{title}</h1>
         <p style={{ fontFamily: F.ui, fontSize: 13, color: C.warmGray, letterSpacing: "0.04em", marginBottom: 20 }}>{subtitle}</p>
         <div style={{ height: 1, background: C.lightWarm, marginBottom: 20 }} />
