@@ -32,8 +32,8 @@ function pillarEmoji(p?: string) {
   const m: Record<string, string> = { EAT: "\uD83C\uDF7D", FASHION: "\uD83E\uDDE5", CRAFT: "\uD83E\uDDF5", CULTURE: "\uD83C\uDFB6", EXPERIENCE: "\uD83D\uDDFE" };
   return m[p?.toUpperCase() || ""] || "";
 }
-export default function EatClient({ articles }: { articles: any[] }) {
-  const [pillar, setPillar] = useState("All");
+export default function EatClient({ articles, initialPillar = "All" }: { articles: any[]; initialPillar?: string }) {
+  const [pillar, setPillar] = useState(initialPillar);
   const [area, setArea] = useState("All");
   const [genre, setGenre] = useState("All");
   const [booking, setBooking] = useState<string[]>([]);
@@ -155,3 +155,6 @@ export default function EatClient({ articles }: { articles: any[] }) {
     </div>
   );
 }
+
+
+

@@ -5,7 +5,8 @@ const query = '*[_type == "article"] | order(publishedAt desc) { _id, title, "sl
 
 export const revalidate = 60;
 
-export default async function EatPage() {
+export default async function EatPage({ searchParams }: { searchParams: Promise<{ pillar?: string }> }) {
+  const params = await searchParams;
   const articles = await client.fetch(query);
-  return <EatClient articles={articles} />;
+  return <EatClient articles={articles} initialPillar={params.pillar || "All"} />;
 }
