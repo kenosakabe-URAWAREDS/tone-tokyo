@@ -121,8 +121,8 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: OFF_WHITE, fontSize: 28, lineHeight: 1, padding: 4 }}>{"\u00D7"}</button>
       </div>
       <nav style={{ display: "flex", flexDirection: "column" as const, flex: 1 }}>
-        {["Discover", "Fashion", "Eat", "Culture", "Experience", "Craft", "Family"].map((p, i) => (
-            <a key={p} href={p === "Discover" ? "/discover" : `/discover?pillar=${p.toUpperCase()}`} onClick={onClose} style={{
+        {["Discover", "Fashion", "Eat", "Culture", "Experience", "Craft", "Family", "About"].map((p, i) => (
+            <a key={p} href={p === "Discover" ? "/discover" : p === "About" ? "/about" : `/discover?pillar=${p.toUpperCase()}`} onClick={onClose} style={{
             fontFamily: "var(--serif)", fontSize: 28, fontWeight: 600, color: OFF_WHITE,
             textDecoration: "none", padding: "14px 0",
             borderBottom: "1px solid rgba(255,255,255,0.06)",
@@ -405,7 +405,7 @@ function Footer() {
         </div>
         <div style={{ display: "flex", gap: 12 }}>
           {["About", "Contact"].map(l => (
-            <a key={l} href="#" style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY, textDecoration: "none" }}>{l}</a>
+            <a key={l} href={l === "About" ? "/about" : "#"} style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY, textDecoration: "none" }}>{l}</a>
           ))}
           <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY }}>{"\u00A9"} 2026</span>
         </div>
