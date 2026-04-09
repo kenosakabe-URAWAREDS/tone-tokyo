@@ -107,8 +107,8 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: OFF_WHITE, fontSize: 28, lineHeight: 1, padding: 4 }}>{"\u00D7"}</button>
       </div>
       <nav style={{ display: "flex", flexDirection: "column" as const, flex: 1 }}>
-        {["Fashion", "Eat", "Culture", "Experience", "Craft"].map((p, i) => (
-          <a key={p} href="#" onClick={onClose} style={{
+        {["Discover", "Fashion", "Eat", "Culture", "Experience", "Craft"].map((p, i) => (
+            <a key={p} href={p === "Discover" ? "/discover" : `/discover?pillar=${p.toUpperCase()}`} onClick={onClose} style={{
             fontFamily: "var(--serif)", fontSize: 28, fontWeight: 600, color: OFF_WHITE,
             textDecoration: "none", padding: "14px 0",
             borderBottom: "1px solid rgba(255,255,255,0.06)",
