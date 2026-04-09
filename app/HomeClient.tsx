@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
+import { sizedImage } from "@/lib/image";
 
 const INDIGO = "#1B3A5C";
 const CHARCOAL = "#2D2D2D";
@@ -140,11 +141,13 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
+  const rawSrc = (featured && featured.heroImage) || FEATURED.image;
   return (
     <section className="hero-section" style={{ position: "relative", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
-      <img src={(featured && featured.heroImage) || FEATURED.image} alt="" style={{
+      <img src={sizedImage(rawSrc, 2000)} alt="" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover",
+        objectPosition: "center center",
         filter: "brightness(0.6) saturate(0.85)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
@@ -184,7 +187,7 @@ function ArticleRow({ a, i, vis }: { a: any; i: number; vis: boolean }) {
       transition: `all 0.6s ease ${i * 0.08}s`,
     }}>
       <div style={{ width: 88, height: 88, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
-        <img src={a.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, filter: "saturate(0.85)" }} />
+        <img src={sizedImage(a.image, 240)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.85)" }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <Tag p={a.pillar} />
@@ -207,9 +210,10 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
       opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(24px)",
       transition: `all 0.7s ease ${i * 0.1}s`,
     }} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}>
-      <div style={{ overflow: "hidden", aspectRatio: "3/2", marginBottom: 12, background: LIGHT_WARM }}>
-        <img src={a.image} alt="" style={{
+      <div style={{ overflow: "hidden", height: 220, marginBottom: 12, background: LIGHT_WARM }}>
+        <img src={sizedImage(a.image, 800)} alt="" style={{
           width: "100%", height: "100%", objectFit: "cover" as const,
+          objectPosition: "center center",
           filter: "saturate(0.85)",
           transform: h ? "scale(1.04)" : "scale(1)", transition: "transform 0.6s ease",
         }} />
@@ -281,7 +285,7 @@ function PicksSection({ articles }: { articles?: any[] }) {
                 transition: `all 0.5s ease ${i * 0.08}s`,
               }}>
                 <div style={{ width: 60, height: 60, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
-                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, filter: "saturate(0.8)" }} />
+                  <img src={sizedImage(pk.image, 200)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.8)" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Tag p={pk.pillar} />

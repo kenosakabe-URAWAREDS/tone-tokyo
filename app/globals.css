@@ -34,14 +34,15 @@ body {
 /*
  * Hero section height.
  *
- * On mobile a tall hero (85vh) reads as immersive. On desktop the same
- * 85vh forces the source image to upscale aggressively to fill a wide
- * viewport, which softens the photo. Capping at 70vh on desktop keeps
- * the visible image area closer to the source resolution. Defined as a
- * class because React inline styles can't express @media queries.
+ * Mobile: 85vh — tall and immersive on a narrow viewport.
+ * Desktop: 60vh — a wide-and-tall hero forces the source image to
+ * upscale aggressively, which softens the photo. 60vh keeps the
+ * rendered area closer to the source resolution. The hero src is
+ * also requested at width=2000 via lib/image.sizedImage so the
+ * Sanity / Unsplash CDN serves a high-res variant on PC.
  *
- * object-position is left at the CSS default (center center) for the
- * hero image — explicit cropping helped one viewport but hurt another.
+ * Defined as a class because React inline styles can't express
+ * @media queries.
  */
 .hero-section {
   height: 85vh;
@@ -57,6 +58,6 @@ body {
     gap: 24px;
   }
   .hero-section {
-    height: 70vh;
+    height: 60vh;
   }
 }
