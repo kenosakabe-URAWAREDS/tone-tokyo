@@ -1,4 +1,3 @@
-﻿
 "use client";
 import { useState, useEffect, useRef } from "react";
 
@@ -212,10 +211,11 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
   );
 }
 
+
 function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
-  console.log("SANITY DATA:", sanityArticles?.map((a: any) => ({title: a.title, img: a.heroImage})));
+ 
 return (
     <section ref={ref} style={{ padding: "40px 16px", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20, borderBottom: `1px solid ${LIGHT_WARM}`, paddingBottom: 10 }}>
@@ -232,9 +232,10 @@ return (
   );
 }
 
-function PicksSection() {
+function PicksSection({ articles }: { articles?: any[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
+  const picks = (articles || []).slice(0, 3).map(a => ({ title: a.title, pillar: a.pillar?.toUpperCase() || "EAT", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400&q=80", slug: a.slug }));
   return (
     <section ref={ref} style={{ background: CREAM, padding: "60px 16px 48px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }} className="picks-outer">
@@ -244,8 +245,8 @@ function PicksSection() {
             <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY }}>Today</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 14 }}>
-            {PICKS.map((pk, i) => (
-              <a key={i} href="#" style={{
+            {picks.map((pk, i) => (
+              <a key={i} href={pk.slug ? "/article/" + pk.slug : "#"} style={{
                 display: "flex", gap: 12, textDecoration: "none", alignItems: "flex-start",
                 paddingBottom: 14, borderBottom: `1px solid ${LIGHT_WARM}`,
                 opacity: vis ? 1 : 0, transform: vis ? "translateX(0)" : "translateX(14px)",
@@ -357,7 +358,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
         </span>
       </div>
       <ArticlesSection articles={articles} />
-      <PicksSection />
+      <PicksSection articles={articles} />
       <About />
       <Footer />
     </div>
