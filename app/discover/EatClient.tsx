@@ -45,14 +45,15 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
   const tog = (arr: string[], val: string) => arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
   const isEat = pillar === "All" || pillar === "EAT";
   // "JAPANESE ABROAD" is a cross-cutting filter rather than a real
-  // pillar value — it matches isJapaneseAbroad === true regardless
-  // of the article's actual pillar. Treated as mutually exclusive
-  // with the pillar buttons for simplicity.
+  // pillar value — it matches any article whose country is set and
+  // not "Japan", or which has the legacy isJapaneseAbroad flag set.
+  // Treated as mutually exclusive with the pillar buttons for simplicity.
   const isAbroadFilter = pillar === "JAPANESE ABROAD";
+  const isAbroadArticle = (a: any) => a?.isJapaneseAbroad === true || (typeof a?.country === "string" && a.country.length > 0 && a.country !== "Japan");
 
   const filtered = articles.filter(a => {
     if (isAbroadFilter) {
-      if (!a.isJapaneseAbroad) return false;
+      if (!isAbroadArticle(a)) return false;
     } else if (pillar !== "All" && a.pillar?.toUpperCase() !== pillar) {
       return false;
     }
@@ -142,7 +143,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
                 <img src={a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=220&q=80"} alt={a.title} style={{ width: 100, height: 100, borderRadius: 6, objectFit: "cover" as const, flexShrink: 0 }} />
                 <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, justifyContent: "center", minWidth: 0 }}>
                   <div style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: pillarColor(a.pillar), marginBottom: 3 }}>
-                    {a.eatGenre || a.pillar || "Eat"}{a.neighborhood ? " \u00B7 " + a.neighborhood : a.area ? " \u00B7 " + a.area : ""}
+                    {a.eatGenre || a.pillar || "Eat"}{isAbroadArticle(a) && a.city ? " \u00B7 " + a.city : a.neighborhood ? " \u00B7 " + a.neighborhood : a.area ? " \u00B7 " + a.area : ""}
                   </div>
                   <div style={{ fontFamily: F.body, fontSize: 15, fontWeight: 600, lineHeight: 1.3, color: C.charcoal, marginBottom: 3 }}>{a.title}</div>
                   <div style={{ fontFamily: F.body, fontSize: 12, color: C.warmGray, lineHeight: 1.4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{a.subtitle}</div>
