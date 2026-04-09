@@ -383,7 +383,7 @@ function About() {
           <span style={{ fontFamily: "var(--serif)", fontSize: 24, fontWeight: 700, color: OFF_WHITE, letterSpacing: "-0.03em" }}>T</span>
         </div>
         <p style={{ fontFamily: "var(--body)", fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.65, fontStyle: "italic" }}>
-          TONE TOKYO is curated by Kentaro Osakabe {"\u2014"} fashion industry professional, brand owner, and lifelong Tokyo resident. Every recommendation comes from personal experience.
+          TONE TOKYO {"\u2014"} Japan, through the eyes of someone who lives it. Every recommendation comes from personal experience.
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 16 }}>
           {["Instagram", "X", "YouTube"].map(s => (
