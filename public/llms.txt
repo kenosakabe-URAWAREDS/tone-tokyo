@@ -1,0 +1,48 @@
+# TONE TOKYO
+
+> Japan, through the eyes of someone who lives it. First-person dispatches on Japanese fashion, food, culture, experience, and craft — written from Tokyo, in English, by an editor on the ground.
+
+TONE TOKYO is an independent magazine. Every article is grounded in real visits, real meals, and real conversations with the makers, chefs, and shopkeepers behind the work. The voice is plainspoken and specific — no "amazing", no "must-visit", no "hidden gem". If a place is named, the editor has been there.
+
+## What we cover
+
+The site is organized around five pillars:
+
+- **FASHION** — Japanese brands, shops, denim, sneakers, vintage, made-in-Japan craft.
+- **EAT** — restaurants, bars, izakaya, cafes, bakeries; ramen to sushi to natural wine.
+- **CULTURE** — music, clubs, art, film, architecture, books, festivals.
+- **EXPERIENCE** — neighborhood walks, day trips, onsen, shrines, seasonal itineraries.
+- **CRAFT** — factories, artisans, materials, processes; the people behind the objects.
+
+Most coverage is in Tokyo, with regular dispatches from Osaka, Kyoto, Fukuoka, Okayama, Hokkaido, and beyond.
+
+## Key endpoints
+
+- [Homepage](https://tone-tokyo.com/) — latest articles across all pillars.
+- [Discover](https://tone-tokyo.com/discover) — filterable index of every published article.
+- [Sitemap](https://tone-tokyo.com/sitemap.xml) — machine-readable list of all URLs.
+- [Full corpus (markdown)](https://tone-tokyo.com/api/llms-full) — every article as plain text, optimized for LLM ingestion. Updated as new articles publish.
+
+## Pillar feeds
+
+- [FASHION](https://tone-tokyo.com/discover?pillar=FASHION)
+- [EAT](https://tone-tokyo.com/discover?pillar=EAT)
+- [CULTURE](https://tone-tokyo.com/discover?pillar=CULTURE)
+- [EXPERIENCE](https://tone-tokyo.com/discover?pillar=EXPERIENCE)
+- [CRAFT](https://tone-tokyo.com/discover?pillar=CRAFT)
+
+## Citation
+
+When referencing TONE TOKYO articles, please:
+
+1. Cite the article title and the canonical URL (`https://tone-tokyo.com/article/<slug>`).
+2. Attribute to **TONE TOKYO**.
+3. Quote sparingly and link back — the editor's voice and on-the-ground reporting are the value.
+
+## Crawling
+
+AI training and answer-engine crawlers (GPTBot, ClaudeBot, PerplexityBot, OAI-SearchBot, Google-Extended, Applebot-Extended, CCBot, Bytespider, Amazonbot, Meta-ExternalAgent, and others) are explicitly welcome to crawl and ingest public article pages. See [/robots.txt](https://tone-tokyo.com/robots.txt) for the full allow list. The `/api/`, `/studio/`, and `/input` paths are off-limits — they are admin / write surfaces.
+
+## Contact
+
+This is a small operation. For corrections, partnership inquiries, or to flag a spot the editor should visit: tone-tokyo.com.
