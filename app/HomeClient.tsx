@@ -1,6 +1,6 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
-import { sizedImage } from "@/lib/image";
+import { sizedImage, urlForArticleImage } from "@/lib/image";
 
 const INDIGO = "#1B3A5C";
 const CHARCOAL = "#2D2D2D";
@@ -141,10 +141,15 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
-  const rawSrc = (featured && featured.heroImage) || FEATURED.image;
+  // Prefer the Sanity image builder (honors crop & hotspot from
+  // Studio, server-side crops at the rendered aspect). Fall back to
+  // sizedImage for the static FEATURED.image placeholder.
+  const heroSrc = featured
+    ? urlForArticleImage(featured, { w: 2400, h: 1000, q: 85 })
+    : sizedImage(FEATURED.image, 2000);
   return (
     <section className="hero-section" style={{ position: "relative", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
-      <img src={sizedImage(rawSrc, 2000)} alt="" style={{
+      <img src={heroSrc} alt="" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover",
         objectPosition: "center center",
@@ -187,7 +192,8 @@ function ArticleRow({ a, i, vis }: { a: any; i: number; vis: boolean }) {
       transition: `all 0.6s ease ${i * 0.08}s`,
     }}>
       <div style={{ width: 88, height: 88, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
-        <img src={sizedImage(a.image, 240)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.85)" }} />
+        {/* a.image is pre-sized at the mapping site (urlForArticleImage / sizedImage). */}
+        <img src={a.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.85)" }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <Tag p={a.pillar} />
@@ -211,7 +217,8 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
       transition: `all 0.7s ease ${i * 0.1}s`,
     }} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}>
       <div style={{ overflow: "hidden", height: 220, marginBottom: 12, background: LIGHT_WARM }}>
-        <img src={sizedImage(a.image, 800)} alt="" style={{
+        {/* a.image is pre-sized at the mapping site (urlForArticleImage / sizedImage). */}
+        <img src={a.image} alt="" style={{
           width: "100%", height: "100%", objectFit: "cover" as const,
           objectPosition: "center center",
           filter: "saturate(0.85)",
@@ -234,18 +241,53 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
 function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
- 
-return (
+
+  // Build two pre-sized variants of the same data set:
+  //  - rows: 88×88 mobile thumbnail → request a 240×240 square crop.
+  //  - cards: ~384×220 PC card → request a 900×520 landscape crop
+  //    (oversized for retina; matches the card's ~1.73:1 aspect).
+  // urlForArticleImage uses Sanity's image builder when the raw asset
+  // ref is available so the editor's crop & hotspot are honored.
+  const sanityList = (sanityArticles || []).filter((a) => a.title && a.pillar);
+  const useSanity = sanityList.length > 0;
+  const fallbackImg = "https://images.unsplash.com/photo-1542051841857-5f90071e7989";
+
+  const toBase = (a: any) => ({
+    pillar: a.pillar,
+    title: a.title,
+    slug: a.slug,
+    excerpt: a.subtitle || "",
+    date: a.publishedAt
+      ? new Date(a.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      : "",
+    readTime: a.readTime || "",
+  });
+
+  const rows = useSanity
+    ? sanityList.map((a) => ({
+        ...toBase(a),
+        image: urlForArticleImage(a, { w: 240, h: 240 }) || sizedImage(fallbackImg, 240),
+      }))
+    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 240) }));
+
+  const cards = useSanity
+    ? sanityList.map((a) => ({
+        ...toBase(a),
+        image: urlForArticleImage(a, { w: 900, h: 520, q: 85 }) || sizedImage(fallbackImg, 900),
+      }))
+    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 900) }));
+
+  return (
     <section ref={ref} style={{ padding: "40px 16px", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20, borderBottom: `1px solid ${LIGHT_WARM}`, paddingBottom: 10 }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600, color: CHARCOAL }}>Latest</h2>
             <a href="/discover" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INDIGO, textDecoration: "none" }}>ALL →</a>
       </div>
       <div className="articles-mobile">
-        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.filter(a => a.title && a.pillar).map(a => ({pillar: a.pillar, title: a.title, slug: a.slug, excerpt: a.subtitle || "", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "", readTime: a.readTime || ""})) : ARTICLES).map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
+        {rows.map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
       </div>
       <div className="articles-desktop">
-        {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.filter(a => a.title && a.pillar).map(a => ({pillar: a.pillar, title: a.title, slug: a.slug, excerpt: a.subtitle || "", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "", readTime: a.readTime || ""})) : ARTICLES).map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
+        {cards.map((a, i) => <ArticleCard key={i} a={a} i={i} vis={vis} />)}
       </div>
     </section>
   );
@@ -267,7 +309,16 @@ function PicksSection({ articles }: { articles?: any[] }) {
   };
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
-  const picks = (articles || []).slice(0, 3).map(a => ({ title: a.title, pillar: a.pillar?.toUpperCase() || "EAT", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400&q=80", slug: a.slug }));
+  // 60×60 thumb on screen → request a 240×240 square crop so it stays
+  // sharp on retina; urlForArticleImage routes through Sanity's
+  // builder when the asset ref is available.
+  const fallbackPick = "https://images.unsplash.com/photo-1542051841857-5f90071e7989";
+  const picks = (articles || []).slice(0, 3).map(a => ({
+    title: a.title,
+    pillar: a.pillar?.toUpperCase() || "EAT",
+    image: urlForArticleImage(a, { w: 240, h: 240 }) || sizedImage(fallbackPick, 240),
+    slug: a.slug,
+  }));
   return (
     <section ref={ref} style={{ background: CREAM, padding: "60px 16px 48px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }} className="picks-outer">
@@ -285,7 +336,8 @@ function PicksSection({ articles }: { articles?: any[] }) {
                 transition: `all 0.5s ease ${i * 0.08}s`,
               }}>
                 <div style={{ width: 60, height: 60, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
-                  <img src={sizedImage(pk.image, 200)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.8)" }} />
+                  {/* pk.image is pre-sized at the mapping site. */}
+                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.8)" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Tag p={pk.pillar} />

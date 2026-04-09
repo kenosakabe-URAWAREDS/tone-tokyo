@@ -1,18 +1,23 @@
+import { createImageUrlBuilder } from "@sanity/image-url";
+import { client } from "./sanity";
+
+const builder = createImageUrlBuilder(client);
+
 /**
- * Inject width / quality params into an image URL.
+ * Inject width / quality params into a plain image URL.
  *
- * Our GROQ queries already collapse `heroImage` to a URL string via
- *   "heroImage": coalesce(heroImage.asset->url, heroImageUrl)
- * so we can't hand the value to `@sanity/image-url`'s builder (which
- * needs the raw asset reference). Instead we mutate the URL's query
- * string — works for the two CDNs we actually serve from:
+ * Used as the fallback path when we *don't* have a Sanity image
+ * reference (e.g. an Unsplash placeholder URL or a `heroImageUrl`
+ * supplied by hand). Mutates the URL's query string via the URL
+ * constructor:
  *
- *   - Sanity CDN (cdn.sanity.io) — its image pipeline reads ?w=, ?q=,
- *     ?auto=format, ?fit=max from any asset URL.
- *   - Unsplash and other source URLs — we set/replace ?w= and ?q=.
+ *   - Sanity CDN (cdn.sanity.io): also sets auto=format & fit=max,
+ *     which the Sanity image pipeline reads from any asset URL.
+ *   - Other CDNs (Unsplash, etc.): just sets ?w=&q=.
  *
- * If a future article uses a host whose image transforms work
- * differently, the worst case is the URL passes through unchanged.
+ * Prefer `urlForArticleImage` for hero/card art — it honors the crop
+ * and hotspot the editor set in Sanity Studio, which `sizedImage` on
+ * the raw asset URL cannot do.
  */
 export function sizedImage(
   url: string | undefined | null,
@@ -37,4 +42,58 @@ export function sizedImage(
   }
 
   return u.toString();
+}
+
+type ArticleImageSource = {
+  /** Raw Sanity image object (with crop & hotspot). Pulled into the
+   *  GROQ query as `"heroImageRef": heroImage`. Preferred when set. */
+  heroImageRef?: { _type?: string; asset?: unknown; crop?: unknown; hotspot?: unknown } | null;
+  /** Coalesced URL string from `coalesce(heroImage.asset->url, heroImageUrl)`.
+   *  Used as a fallback when heroImageRef is absent. */
+  heroImage?: string | null;
+  /** Hand-supplied external URL (Unsplash, etc.). Lowest priority. */
+  heroImageUrl?: string | null;
+};
+
+type ImageOpts = {
+  /** Output width in pixels. */
+  w: number;
+  /** Output height in pixels. When provided, fit=crop is used so
+   *  Sanity will crop server-side around the editor's hotspot. */
+  h?: number;
+  /** JPEG/WebP quality 1–100. */
+  q?: number;
+};
+
+/**
+ * Build the URL for an article's hero image at a specific output size.
+ *
+ * When the raw Sanity image reference is available (`heroImageRef`),
+ * we use `@sanity/image-url`'s builder so the Studio-set crop and
+ * hotspot are honored AND so Sanity does the server-side crop at the
+ * exact width/height we render at — much sharper than letting the
+ * browser cover-crop a `fit=max` portrait into a wide hero.
+ *
+ * Falls back to `sizedImage()` on the URL string when we only have a
+ * resolved URL (e.g. articles whose hero is supplied as a heroImageUrl
+ * rather than a Sanity asset).
+ */
+export function urlForArticleImage(
+  article: ArticleImageSource | null | undefined,
+  opts: ImageOpts
+): string {
+  if (!article) return "";
+  const { w, h, q = 82 } = opts;
+
+  const ref = article.heroImageRef;
+  if (ref && ref.asset) {
+    let b = builder.image(ref).width(w).quality(q).auto("format");
+    if (h) b = b.height(h).fit("crop");
+    else b = b.fit("max");
+    return b.url() || "";
+  }
+
+  // No Sanity reference — fall back to whatever URL we have.
+  const url = article.heroImage || article.heroImageUrl || "";
+  return sizedImage(url, w, q);
 }
