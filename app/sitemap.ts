@@ -4,7 +4,7 @@ import { client } from '@/lib/sanity';
 export const revalidate = 3600;
 
 const SITE = 'https://tone-tokyo.com';
-const PILLARS = ['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT'] as const;
+const PILLARS = ['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT', 'FAMILY'] as const;
 
 type ArticleRow = { slug: string; publishedAt?: string; _updatedAt?: string };
 

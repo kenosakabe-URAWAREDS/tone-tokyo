@@ -13,7 +13,7 @@ const sanity = createClient({
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const VALID_PILLARS = new Set(['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT']);
+const VALID_PILLARS = new Set(['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT', 'FAMILY']);
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 96);

@@ -24,7 +24,7 @@ function compressImage(file: File): Promise<string> {
   });
 }
 
-type Pillar = "FASHION" | "EAT" | "CULTURE" | "EXPERIENCE" | "CRAFT";
+type Pillar = "FASHION" | "EAT" | "CULTURE" | "EXPERIENCE" | "CRAFT" | "FAMILY";
 
 const PILLARS: Array<{ key: Pillar; label: string; emoji: string }> = [
   { key: "FASHION", label: "Fashion", emoji: "👕" },
@@ -32,6 +32,7 @@ const PILLARS: Array<{ key: Pillar; label: string; emoji: string }> = [
   { key: "CULTURE", label: "Culture", emoji: "🎭" },
   { key: "EXPERIENCE", label: "Experience", emoji: "🗺️" },
   { key: "CRAFT", label: "Craft", emoji: "🛠️" },
+  { key: "FAMILY", label: "Family", emoji: "🧸" },
 ];
 
 // Pillar-specific question schemas. Each field maps to a label.
@@ -73,6 +74,13 @@ const PILLAR_FIELDS: Record<Pillar, Array<{ key: string; label: string; placehol
     { key: "when", label: "いつ行った？", placeholder: "2026年3月、工場見学" },
     { key: "audience", label: "誰向け？", placeholder: "デニム好き、Made in Japan に興味のある人" },
     { key: "comment", label: "一言コメント *", placeholder: "三人の織り手のうち一人が引退する" },
+  ],
+  FAMILY: [
+    { key: "name", label: "名前 / 場所", placeholder: "国営昭和記念公園 / 渋谷区立広尾図書館" },
+    { key: "feature", label: "何が特徴？", placeholder: "ベビーカーOK、おむつ替え台あり、室内遊び場、芝生広場など" },
+    { key: "ages", label: "想定する子供の年齢", placeholder: "0-3歳 / 未就学児 / 小学生" },
+    { key: "audience", label: "誰向け？", placeholder: "週末の子連れお出かけ、雨の日の選択肢など" },
+    { key: "comment", label: "一言コメント *", placeholder: "親の負担が少なく、子供が飽きずに過ごせた" },
   ],
 };
 
@@ -310,7 +318,7 @@ export default function InputPage() {
         <div style={{ marginTop: 40, padding: 24, background: C.cream, borderRadius: 4 }}>
           <div style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 12 }}>使い方</div>
           <div style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.8, color: C.charcoal }}>
-            <p style={{ marginBottom: 8 }}>1. ピラーを選ぶ（FASHION / EAT / CULTURE / EXPERIENCE / CRAFT）</p>
+            <p style={{ marginBottom: 8 }}>1. ピラーを選ぶ（FASHION / EAT / CULTURE / EXPERIENCE / CRAFT / FAMILY）</p>
             <p style={{ marginBottom: 8 }}>2. わかる範囲でフィールドを埋める（必須は「一言コメント」のみ）</p>
             <p style={{ marginBottom: 8 }}>3. 必要なら Google Maps / 食べログ URL を貼付（自動取得）</p>
             <p style={{ marginBottom: 8 }}>4. 写真を追加（複数可・自動圧縮）</p>

@@ -6,13 +6,14 @@ TONE TOKYO is an independent magazine. Every article is grounded in real visits,
 
 ## What we cover
 
-The site is organized around five pillars:
+The site is organized around six pillars:
 
 - **FASHION** — Japanese brands, shops, denim, sneakers, vintage, made-in-Japan craft.
 - **EAT** — restaurants, bars, izakaya, cafes, bakeries; ramen to sushi to natural wine.
 - **CULTURE** — music, clubs, art, film, architecture, books, festivals.
 - **EXPERIENCE** — neighborhood walks, day trips, onsen, shrines, seasonal itineraries.
 - **CRAFT** — factories, artisans, materials, processes; the people behind the objects.
+- **FAMILY** — kid-friendly restaurants, indoor/outdoor activities, day-out spots, and places that work with children in tow.
 
 Most coverage is in Tokyo, with regular dispatches from Osaka, Kyoto, Fukuoka, Okayama, Hokkaido, and beyond.
 
@@ -30,6 +31,7 @@ Most coverage is in Tokyo, with regular dispatches from Osaka, Kyoto, Fukuoka, O
 - [CULTURE](https://tone-tokyo.com/discover?pillar=CULTURE)
 - [EXPERIENCE](https://tone-tokyo.com/discover?pillar=EXPERIENCE)
 - [CRAFT](https://tone-tokyo.com/discover?pillar=CRAFT)
+- [FAMILY](https://tone-tokyo.com/discover?pillar=FAMILY)
 
 ## Citation
 

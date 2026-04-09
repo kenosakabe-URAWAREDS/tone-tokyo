@@ -5,7 +5,7 @@ import Link from "next/link";
 const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
 const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
 
-const PILLARS = ["All", "EAT", "FASHION", "CRAFT", "CULTURE", "EXPERIENCE"];
+const PILLARS = ["All", "EAT", "FASHION", "CRAFT", "CULTURE", "EXPERIENCE", "FAMILY"];
 const AREAS = ["All", "Tokyo", "Osaka", "Kyoto", "Fukuoka", "Okayama", "Kurume", "Hokkaido", "Okinawa", "Nagoya", "Kobe", "Other"];
 const GENRES = ["All", "Ramen", "Sushi", "Yakitori", "Yakiniku", "Curry", "Soba / Udon", "Italian", "French", "Chinese", "Cafe", "Bar", "Izakaya", "Bakery", "Sweets"];
 const BOOKING = ["Walk-in OK", "Easy to book", "Book ahead", "Hard to get"];
@@ -25,11 +25,11 @@ function FilterBtn({ label, active, onClick }: { label: string; active: boolean;
   return (<button onClick={onClick} style={{ fontFamily: F.ui, fontSize: 12, padding: "6px 14px", borderRadius: 20, border: active ? "1px solid " + C.indigo : "1px solid " + C.lightWarm, background: active ? C.indigo : C.offWhite, color: active ? C.offWhite : C.charcoal, cursor: "pointer", transition: "all 0.15s" }}>{label}</button>);
 }
 function pillarColor(p?: string) {
-  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D" };
+  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D", FAMILY: "#C67050" };
   return m[p?.toUpperCase() || ""] || C.indigo;
 }
 function pillarEmoji(p?: string) {
-  const m: Record<string, string> = { EAT: "\uD83C\uDF7D", FASHION: "\uD83E\uDDE5", CRAFT: "\uD83E\uDDF5", CULTURE: "\uD83C\uDFB6", EXPERIENCE: "\uD83D\uDDFE" };
+  const m: Record<string, string> = { EAT: "\uD83C\uDF7D", FASHION: "\uD83E\uDDE5", CRAFT: "\uD83E\uDDF5", CULTURE: "\uD83C\uDFB6", EXPERIENCE: "\uD83D\uDDFE", FAMILY: "\uD83E\uDDF8" };
   return m[p?.toUpperCase() || ""] || "";
 }
 export default function EatClient({ articles, initialPillar = "All" }: { articles: any[]; initialPillar?: string }) {

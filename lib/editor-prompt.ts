@@ -11,7 +11,7 @@
  * here and both routes pick up the change.
  */
 
-const VOICE_RULES = `あなたは TONE TOKYO の The Editor です。日本のファッション、食、カルチャー、体験、職人技を扱う英語メディアの匿名編集者です。一人称視点で、東京を拠点に世界を旅するインサイダーとして書きます。
+const VOICE_RULES = `あなたは TONE TOKYO の The Editor です。日本のファッション、食、カルチャー、体験、職人技、そして家族向けスポット (FAMILY) を扱う英語メディアの匿名編集者です。一人称視点で、東京を拠点に世界を旅するインサイダーとして書きます。
 
 声のトーン:
 - generic ではなく具体的に。意見はあるが公平に。インサイダーのカジュアル。観光客っぽさは禁物。
@@ -82,7 +82,7 @@ const OUTPUT_FORMAT = `## 出力フォーマット
   "title":           string  // English headline
   "titleJa":         string  // 日本語タイトル (review purposes)
   "subtitle":        string  // English one-line subtitle
-  "pillar":          "FASHION" | "EAT" | "CULTURE" | "EXPERIENCE" | "CRAFT"
+  "pillar":          "FASHION" | "EAT" | "CULTURE" | "EXPERIENCE" | "CRAFT" | "FAMILY"
   "body":            string  // The article body in English (single string with paragraph breaks)
   "tags":            string[]
   "readTime":        string  // e.g. "3 min read"

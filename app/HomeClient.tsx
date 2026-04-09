@@ -30,7 +30,7 @@ const PICKS = [
   { title: "This yakitori spot in Ebisu has zero English menu and zero tourists", pillar: "EAT", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=80" },
 ];
 
-const PC: Record<string, string> = { CRAFT: "#8B6914", EAT: "#A0522D", FASHION: INDIGO, CULTURE: "#6B3A6B", EXPERIENCE: "#2E6B50" };
+const PC: Record<string, string> = { CRAFT: "#8B6914", EAT: "#A0522D", FASHION: INDIGO, CULTURE: "#6B3A6B", EXPERIENCE: "#2E6B50", FAMILY: "#C67050" };
 
 function Tag({ p }: { p: string }) {
   return <span style={{ fontFamily: "var(--serif)", fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: PC[p] || INDIGO, borderBottom: `1.5px solid ${PC[p] || INDIGO}`, paddingBottom: 1, display: "inline-block" }}>{p}</span>;
@@ -121,7 +121,7 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", cursor: "pointer", color: OFF_WHITE, fontSize: 28, lineHeight: 1, padding: 4 }}>{"\u00D7"}</button>
       </div>
       <nav style={{ display: "flex", flexDirection: "column" as const, flex: 1 }}>
-        {["Discover", "Fashion", "Eat", "Culture", "Experience", "Craft"].map((p, i) => (
+        {["Discover", "Fashion", "Eat", "Culture", "Experience", "Craft", "Family"].map((p, i) => (
             <a key={p} href={p === "Discover" ? "/discover" : `/discover?pillar=${p.toUpperCase()}`} onClick={onClose} style={{
             fontFamily: "var(--serif)", fontSize: 28, fontWeight: 600, color: OFF_WHITE,
             textDecoration: "none", padding: "14px 0",

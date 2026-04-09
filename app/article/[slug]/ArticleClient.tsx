@@ -17,7 +17,7 @@ const F = {
 const FALLBACK = "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=1200&q=80";
 
 function pillarColor(p?: string) {
-  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D" };
+  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D", FAMILY: "#C67050" };
   return m[p?.toUpperCase() || ""] || C.indigo;
 }
 function fmtDate(d?: string) {

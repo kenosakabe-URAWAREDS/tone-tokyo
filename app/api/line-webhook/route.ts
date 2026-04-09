@@ -89,7 +89,7 @@ type LineSession = {
   _type: 'lineSession';
   userId: string;
   state: 'awaiting-pillar' | 'collecting';
-  pillar?: 'FASHION' | 'EAT' | 'CULTURE' | 'EXPERIENCE' | 'CRAFT';
+  pillar?: 'FASHION' | 'EAT' | 'CULTURE' | 'EXPERIENCE' | 'CRAFT' | 'FAMILY';
   answers?: string[];
   imageAsset?: { _type: 'image'; asset: { _type: 'reference'; _ref: string } };
   googleMapsUrl?: string;
@@ -127,12 +127,13 @@ const PILLAR_LIST: Array<LineSession['pillar']> = [
   'CULTURE',
   'EXPERIENCE',
   'CRAFT',
+  'FAMILY',
 ];
 
 function parsePillar(text: string): LineSession['pillar'] | null {
   const t = text.trim().toLowerCase();
   // Numeric: "1" → Fashion, "2" → Eat, etc.
-  const numMatch = t.match(/^([1-5])\b/);
+  const numMatch = t.match(/^([1-6])\b/);
   if (numMatch) return PILLAR_LIST[Number(numMatch[1]) - 1];
   // English keyword
   if (t.startsWith('fashion')) return 'FASHION';
@@ -140,6 +141,7 @@ function parsePillar(text: string): LineSession['pillar'] | null {
   if (t.startsWith('culture')) return 'CULTURE';
   if (t.startsWith('experience')) return 'EXPERIENCE';
   if (t.startsWith('craft')) return 'CRAFT';
+  if (t.startsWith('family')) return 'FAMILY';
   // Japanese
   if (t.includes('ファッション') || t.includes('服') || t.includes('fashion'))
     return 'FASHION';
@@ -149,6 +151,8 @@ function parsePillar(text: string): LineSession['pillar'] | null {
   if (t.includes('体験') || t.includes('エクスペリエンス')) return 'EXPERIENCE';
   if (t.includes('クラフト') || t.includes('工芸') || t.includes('職人'))
     return 'CRAFT';
+  if (t.includes('ファミリー') || t.includes('家族') || t.includes('子連れ') || t.includes('子供'))
+    return 'FAMILY';
   return null;
 }
 
@@ -218,10 +222,21 @@ const PILLAR_PROMPTS: Record<NonNullable<LineSession['pillar']>, string> = {
     '',
     '答え終わったら「おわり」と送ってください。',
   ].join('\n'),
+  FAMILY: [
+    'FAMILY を選びました。以下の質問に答えてください（全部じゃなくてもOK）:',
+    '',
+    '・名前 / 場所は？',
+    '・何が特徴？（ベビーカーOK・室内・芝生・授乳室など）',
+    '・想定する子供の年齢は？',
+    '・誰向け？',
+    '・一言コメント',
+    '',
+    '答え終わったら「おわり」と送ってください。',
+  ].join('\n'),
 };
 
 const PILLAR_PICKER_TEXT =
-  '写真を受け取りました📸\n\nどのピラー？番号で答えてください:\n\n1. Fashion\n2. Eat\n3. Culture\n4. Experience\n5. Craft';
+  '写真を受け取りました📸\n\nどのピラー？番号で答えてください:\n\n1. Fashion\n2. Eat\n3. Culture\n4. Experience\n5. Craft\n6. Family';
 
 // =====================================================================
 // Article generation (called when user sends "おわり")
@@ -434,7 +449,7 @@ export async function POST(req: NextRequest) {
         if (!pillar) {
           await replyToLine(
             event.replyToken,
-            '番号 (1-5) かピラー名で答えてください:\n1. Fashion\n2. Eat\n3. Culture\n4. Experience\n5. Craft'
+            '番号 (1-6) かピラー名で答えてください:\n1. Fashion\n2. Eat\n3. Culture\n4. Experience\n5. Craft\n6. Family'
           );
           continue;
         }
