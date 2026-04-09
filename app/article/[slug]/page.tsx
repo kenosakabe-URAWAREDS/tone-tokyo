@@ -46,7 +46,9 @@ async function getArticle(slug: string): Promise<Article | null> {
   // and feeds @sanity/image-url so ArticleClient can render a properly
   // cropped, high-res hero. The coalesced `heroImage` URL string is
   // kept as a fallback for OG metadata and other consumers.
-  const query = `*[_type == "article" && slug.current == $slug][0] {
+  // status filter: published only; existing articles predate the field
+  // so `!defined(status)` keeps them visible.
+  const query = `*[_type == "article" && slug.current == $slug && (status == "published" || !defined(status))][0] {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,
@@ -59,7 +61,7 @@ async function getArticle(slug: string): Promise<Article | null> {
 }
 
 async function getRelatedArticles(pillar: string, currentSlug: string) {
-  const query = `*[_type == "article" && pillar == $pillar && slug.current != $currentSlug] | order(publishedAt desc) [0..2] {
+  const query = `*[_type == "article" && pillar == $pillar && slug.current != $currentSlug && (status == "published" || !defined(status))] | order(publishedAt desc) [0..2] {
     _id, title, "slug": slug.current, pillar,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,

@@ -7,7 +7,9 @@ async function getArticles() {
   // and feeds @sanity/image-url so we can request a server-side crop at
   // exact pixel dimensions. The coalesced `heroImage` URL string is kept
   // as a fallback for articles that only have a heroImageUrl.
-  const query = `*[_type == "article"] | order(publishedAt desc) {
+  // Public site only renders published articles. Existing articles
+  // predate the status field, so `!defined(status)` keeps them visible.
+  const query = `*[_type == "article" && (status == "published" || !defined(status))] | order(publishedAt desc) {
     _id, title, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,

@@ -35,6 +35,39 @@ export default function InputPage() {
   const [result, setResult] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // === Translate (Ja → En) widget state ===
+  // Self-contained so it doesn't tangle with the create-article form.
+  const [trSlug, setTrSlug] = useState("");
+  const [trBodyJa, setTrBodyJa] = useState("");
+  const [trStatus, setTrStatus] = useState<"idle"|"sending"|"done"|"error">("idle");
+  const [trBody, setTrBody] = useState("");
+  const [trError, setTrError] = useState("");
+
+  const submitTranslate = async () => {
+    if (!trSlug.trim() || !trBodyJa.trim()) return;
+    setTrStatus("sending");
+    setTrError("");
+    setTrBody("");
+    try {
+      const res = await fetch("/api/translate-body", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: trSlug.trim(), bodyJa: trBodyJa }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTrStatus("done");
+        setTrBody(data.body || "");
+      } else {
+        setTrStatus("error");
+        setTrError(data.error || "Translation failed");
+      }
+    } catch (e: unknown) {
+      setTrStatus("error");
+      setTrError(e instanceof Error ? e.message : String(e));
+    }
+  };
+
   const addImages = (files: FileList | null) => {
     if (!files) return;
     const newFiles = Array.from(files);
@@ -145,6 +178,73 @@ export default function InputPage() {
             <p style={{ marginBottom: 8 }}>4. 写真を追加（複数可・自動圧縮）</p>
             <p style={{ marginBottom: 0 }}>5.「記事を生成する」→ AIが英語記事を自動作成 → Sanityに下書き保存</p>
           </div>
+        </div>
+
+        {/* === Translate Body (Ja → En) ===
+            Operates on existing articles. Paste the article slug and the
+            Japanese body, click "翻訳して更新" — the API translates with
+            Claude in The Editor's voice and patches body + bodyJa in
+            Sanity. */}
+        <div style={{ marginTop: 32, padding: 24, background: "#fff", border: `1px solid ${C.lightWarm}`, borderRadius: 4 }}>
+          <div style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 4 }}>Translate Body (Ja → En)</div>
+          <p style={{ fontFamily: F.body, fontSize: 13, color: C.warmGray, marginTop: 0, marginBottom: 16 }}>
+            既存記事の <code>bodyJa</code>（日本語本文）を Editor のトーンで英訳し、Sanity の <code>body</code> を上書きします。
+          </p>
+
+          <label style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.charcoal, marginBottom: 6, display: "block" }}>Article Slug</label>
+          <input
+            type="text"
+            value={trSlug}
+            onChange={(e) => setTrSlug(e.target.value)}
+            placeholder="okayama-selvedge-denim-weavers"
+            style={{ ...inputStyle, marginBottom: 16 }}
+          />
+
+          <label style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.charcoal, marginBottom: 6, display: "block" }}>Body (日本語)</label>
+          <textarea
+            value={trBodyJa}
+            onChange={(e) => setTrBodyJa(e.target.value)}
+            placeholder="ここに日本語の記事本文を貼り付けてください..."
+            rows={10}
+            style={{ ...inputStyle, resize: "vertical" as const, marginBottom: 16, fontFamily: F.body, lineHeight: 1.6 }}
+          />
+
+          <button
+            onClick={submitTranslate}
+            disabled={trStatus === "sending" || !trSlug.trim() || !trBodyJa.trim()}
+            style={{
+              width: "100%",
+              padding: "14px",
+              background: trStatus === "sending" ? C.warmGray : C.indigo,
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              fontFamily: F.ui,
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              cursor: trStatus === "sending" ? "wait" : "pointer",
+              opacity: !trSlug.trim() || !trBodyJa.trim() ? 0.5 : 1,
+            }}
+          >
+            {trStatus === "sending" ? "⏳ 翻訳中..." : "翻訳して更新"}
+          </button>
+
+          {trStatus === "done" && (
+            <div style={{ marginTop: 16, padding: 16, background: "#e8f5e9", borderRadius: 4 }}>
+              <div style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, color: "#2e7d32", marginBottom: 8 }}>
+                ✅ Sanity の body を更新しました
+              </div>
+              <div style={{ fontFamily: F.body, fontSize: 13, color: C.charcoal, lineHeight: 1.6, whiteSpace: "pre-wrap" as const, maxHeight: 240, overflowY: "auto" as const }}>
+                {trBody}
+              </div>
+            </div>
+          )}
+          {trStatus === "error" && (
+            <div style={{ marginTop: 16, padding: 16, background: "#fce4ec", borderRadius: 4, fontFamily: F.ui, fontSize: 13, color: "#c62828" }}>
+              ❌ {trError}
+            </div>
+          )}
         </div>
       </div>
     </div>

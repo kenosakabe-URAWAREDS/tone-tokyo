@@ -10,7 +10,9 @@ type ArticleRow = { slug: string; publishedAt?: string; _updatedAt?: string };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles: ArticleRow[] = await client.fetch(
-    `*[_type == "article" && defined(slug.current)]{
+    // status filter: published only; existing articles without the
+    // field are still treated as published.
+    `*[_type == "article" && defined(slug.current) && (status == "published" || !defined(status))]{
        "slug": slug.current,
        publishedAt,
        _updatedAt

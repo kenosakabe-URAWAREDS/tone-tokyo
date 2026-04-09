@@ -1,7 +1,9 @@
 ﻿import { client } from "@/lib/sanity";
 import EatClient from "./EatClient";
 
-const query = '*[_type == "article"] | order(publishedAt desc) { _id, title, "slug": slug.current, pillar, subtitle, "heroImage": coalesce(heroImage.asset->url, heroImageUrl), tags, readTime, publishedAt, area, neighborhood, editorRating, eatGenre, bookingDifficulty, drinks, scene, eatPriceRange, fashionCategory, fashionPriceRange, cultureCategory, experienceCategory, craftCategory }';
+// Public site only renders published articles. Existing articles
+// predate the status field, so `!defined(status)` keeps them visible.
+const query = '*[_type == "article" && (status == "published" || !defined(status))] | order(publishedAt desc) { _id, title, "slug": slug.current, pillar, subtitle, "heroImage": coalesce(heroImage.asset->url, heroImageUrl), tags, readTime, publishedAt, area, neighborhood, editorRating, eatGenre, bookingDifficulty, drinks, scene, eatPriceRange, fashionCategory, fashionPriceRange, cultureCategory, experienceCategory, craftCategory }';
 
 export const revalidate = 60;
 

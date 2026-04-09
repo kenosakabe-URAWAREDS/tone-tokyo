@@ -15,6 +15,13 @@ const article = defineType({
     defineField({ name: 'heroImageUrl', title: 'Hero Image URL', type: 'url' }),
     defineField({ name: 'gallery', title: 'Gallery', type: 'array', of: [{ type: 'image', options: { hotspot: true } }] }),
     defineField({ name: 'body', title: 'Body', type: 'array', of: [{ type: 'block' }, { type: 'image', options: { hotspot: true }, fields: [{ name: 'caption', type: 'string', title: 'Caption' }, { name: 'alt', type: 'string', title: 'Alt Text' }] }] }),
+    defineField({
+      name: 'bodyJa',
+      title: 'Body (Japanese / 日本語本文)',
+      type: 'text',
+      rows: 10,
+      description: '記事内容を日本語で確認・編集するためのフィールド。ここを編集すると英語本文の更新基準になります（/input ページの「翻訳して更新」から body を上書きできます）。',
+    }),
 
     // === COMMON FILTERS ===
     defineField({ name: 'area', title: 'Area (Prefecture)', type: 'string', options: { list: ['Tokyo', 'Osaka', 'Kyoto', 'Fukuoka', 'Okayama', 'Kurume', 'Hokkaido', 'Okinawa', 'Nagoya', 'Kobe', 'Other'] } }),
@@ -31,6 +38,7 @@ const article = defineType({
     // === FASHION FILTERS ===
     defineField({ name: 'fashionCategory', title: 'FASHION: Category', type: 'string', options: { list: ['Denim', 'Sneakers', 'Outerwear', 'Knitwear', 'Shirts', 'Pants', 'Eyewear', 'Bags', 'Accessories', 'Leather shoes', 'Vintage'] }, hidden: ({ document }) => document?.pillar !== 'FASHION' }),
     defineField({ name: 'fashionType', title: 'FASHION: Type', type: 'string', options: { list: ['Brand profile', 'Shop guide', 'Collection', 'Buying guide', 'Styling'] }, hidden: ({ document }) => document?.pillar !== 'FASHION' }),
+    defineField({ name: 'articleType', title: 'FASHION: Article Type', type: 'string', options: { list: ['Brand Profile', 'Shop Guide', 'Collection Review', 'Street Style', 'Trend Analysis'] }, hidden: ({ document }) => document?.pillar !== 'FASHION' }),
     defineField({ name: 'fashionPriceRange', title: 'FASHION: Price Range', type: 'string', options: { list: ['~¥10,000', '~¥30,000', '~¥50,000', '~¥100,000', '¥100,000+'] }, hidden: ({ document }) => document?.pillar !== 'FASHION' }),
     defineField({ name: 'fashionFeature', title: 'FASHION: Features', type: 'array', of: [{ type: 'string' }], options: { list: ['Made in Japan', 'Selvedge', 'Vintage', 'Sustainable', 'One-of-a-kind / Limited'] }, hidden: ({ document }) => document?.pillar !== 'FASHION' }),
 
@@ -57,9 +65,24 @@ const article = defineType({
     defineField({ name: 'googleMapsUrl', title: 'Google Maps URL', type: 'url' }),
     defineField({ name: 'tabelogUrl', title: 'Tabelog URL', type: 'url' }),
     defineField({ name: 'address', title: 'Address', type: 'string' }),
-    defineField({ name: 'priceRange', title: 'Price Range (legacy)', type: 'string' }),
+    defineField({
+      name: 'priceRange',
+      title: 'EAT: Price Range (high-end tiers)',
+      type: 'string',
+      options: { list: ['~¥10,000', '¥10,000~¥30,000', '¥30,000~¥50,000', '¥50,000~'] },
+      hidden: ({ document }) => document?.pillar !== 'EAT',
+      description: '高級店向けの価格帯。カジュアルな店舗は eatPriceRange を使用。',
+    }),
     defineField({ name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     defineField({ name: 'readTime', title: 'Read Time', type: 'string' }),
+    defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      options: { list: ['draft', 'review', 'published'], layout: 'radio' },
+      initialValue: 'draft',
+      description: 'draft / review はサイト側のクエリでフィルタされ公開ページには表示されません。published のみ表示されます。既存記事は status 未設定として扱われ、自動的に公開状態になります。',
+    }),
     defineField({ name: 'publishedAt', title: 'Published At', type: 'datetime' }),
     defineField({ name: 'sourceType', title: 'Source Type', type: 'string', options: { list: ['kentaro-initiated', 'ai-curated'] } }),
   ],

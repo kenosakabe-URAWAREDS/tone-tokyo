@@ -126,7 +126,9 @@ function articleToMarkdown(a: ArticleRow): string {
 
 export async function GET() {
   const articles: ArticleRow[] = await client.fetch(
-    `*[_type == "article" && defined(slug.current)] | order(publishedAt desc) {
+    // status filter: published only; existing articles without the
+    // field are still treated as published.
+    `*[_type == "article" && defined(slug.current) && (status == "published" || !defined(status))] | order(publishedAt desc) {
        _id, title, titleJa, "slug": slug.current, pillar, subtitle, body,
        locationName, locationNameJa, area, neighborhood, address,
        officialUrl, googleMapsUrl, tabelogUrl, tags,
