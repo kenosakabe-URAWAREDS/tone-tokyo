@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { PortableText } from "@portabletext/react";
 import Link from "next/link";
-import { sizedImage, urlForArticleImage } from "@/lib/image";
+import { sizedImage, urlForArticleImage, urlForSanityImage } from "@/lib/image";
 
 const C = {
   indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93",
@@ -62,13 +62,44 @@ const ptComponents = {
 function InfoBox({ article: a }: { article: any }) {
   const items: { label: string; value: string }[] = [];
   if (a.address) items.push({ label: "Address", value: a.address });
+  if (a.phone) items.push({ label: "Phone", value: a.phone });
   if (a.area) items.push({ label: "Area", value: a.area });
   if (a.neighborhood) items.push({ label: "Neighborhood", value: a.neighborhood });
   if (a.eatPriceRange || a.priceRange) items.push({ label: "Price", value: a.eatPriceRange || a.priceRange });
   if (a.eatGenre) items.push({ label: "Genre", value: a.eatGenre });
   if (a.bookingDifficulty) items.push({ label: "Booking", value: a.bookingDifficulty });
   if (items.length === 0) return null;
-  return (<div style={{ background: C.cream, border: "1px solid " + C.lightWarm, padding: "28px 32px", margin: "40px 0", borderRadius: 2 }}><div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 20 }}>Details</div>{items.map((item, i) => (<div key={i} style={{ marginBottom: i < items.length - 1 ? 14 : 0, display: "flex", gap: 12 }}><span style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, color: C.charcoal, minWidth: 90, flexShrink: 0 }}>{item.label}</span><span style={{ fontFamily: F.body, fontSize: 14, color: C.charcoal, lineHeight: 1.5 }}>{item.value}</span></div>))}<div style={{ display: "flex", gap: 12, marginTop: 20 }}>{a.googleMapsUrl && <a href={a.googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: C.indigo, textDecoration: "none", padding: "8px 16px", border: "1px solid " + C.indigo, borderRadius: 2 }}>MAP</a>}{a.officialUrl && <a href={a.officialUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: C.indigo, textDecoration: "none", padding: "8px 16px", border: "1px solid " + C.indigo, borderRadius: 2 }}>WEBSITE</a>}{a.tabelogUrl && <a href={a.tabelogUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: C.indigo, textDecoration: "none", padding: "8px 16px", border: "1px solid " + C.indigo, borderRadius: 2 }}>TABELOG</a>}</div></div>);
+  return (<div style={{ background: C.cream, border: "1px solid " + C.lightWarm, padding: "28px 32px", margin: "40px 0", borderRadius: 2 }}><div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 20 }}>Details</div>{items.map((item, i) => (<div key={i} style={{ marginBottom: i < items.length - 1 ? 14 : 0, display: "flex", gap: 12 }}><span style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, color: C.charcoal, minWidth: 90, flexShrink: 0 }}>{item.label}</span><span style={{ fontFamily: F.body, fontSize: 14, color: C.charcoal, lineHeight: 1.5 }}>{item.value}</span></div>))}{(a.googleMapsUrl || a.officialUrl) && <div style={{ display: "flex", gap: 12, marginTop: 20 }}>{a.googleMapsUrl && <a href={a.googleMapsUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: C.indigo, textDecoration: "none", padding: "8px 16px", border: "1px solid " + C.indigo, borderRadius: 2 }}>MAP</a>}{a.officialUrl && <a href={a.officialUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: C.indigo, textDecoration: "none", padding: "8px 16px", border: "1px solid " + C.indigo, borderRadius: 2 }}>WEBSITE</a>}</div>}</div>);
+}
+
+function Gallery({ items }: { items: any[] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div style={{ padding: "48px 0 0" }}>
+      <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 24 }}>
+        GALLERY
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+        {items.map((item, i) => {
+          const src = urlForSanityImage(item, { w: 600, h: 450 });
+          if (!src) return null;
+          const alt = item?.alt || item?.caption || "";
+          return (
+            <figure key={item?._key || i} style={{ margin: 0 }}>
+              <div style={{ aspectRatio: "4/3", overflow: "hidden", background: C.cream }}>
+                <img src={src} alt={alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              {item?.caption && (
+                <figcaption style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, lineHeight: 1.5, marginTop: 8 }}>
+                  {item.caption}
+                </figcaption>
+              )}
+            </figure>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 export default function ArticleClient({ article, related }: { article: any; related: any[] }) {
   const [stickyVisible, setStickyVisible] = useState(false);
@@ -104,6 +135,7 @@ export default function ArticleClient({ article, related }: { article: any; rela
         if (block.type === "info_box") return <div key={i} style={{ background: C.cream, border: "1px solid " + C.lightWarm, padding: "28px 32px", margin: "40px 0", borderRadius: 2 }}><div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 20 }}>{block.title}</div>{block.items?.map((item: any, j: number) => <div key={j} style={{ marginBottom: j < block.items.length - 1 ? 14 : 0, display: "flex", gap: 12 }}><span style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, color: C.charcoal, minWidth: 90, flexShrink: 0 }}>{item.label}</span><span style={{ fontFamily: F.body, fontSize: 14, color: C.charcoal, lineHeight: 1.5 }}>{item.value}</span></div>)}</div>;
         return null;
       })) : <p style={{ fontFamily: F.body, fontSize: 16, color: C.warmGray, padding: "40px 0" }}>Article content is being prepared...</p>}</div>
+      <Gallery items={A.gallery} />
       <InfoBox article={A} />
       {A.tags && A.tags.length > 0 && <div style={{ padding: "36px 0", borderTop: "1px solid " + C.lightWarm, marginTop: 40 }}><div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>{A.tags.map((tag: string, i: number) => <span key={i} style={{ padding: "6px 14px", background: C.cream, border: "1px solid " + C.lightWarm, borderRadius: 2, fontFamily: F.ui, fontSize: 11, color: C.charcoal }}>{tag}</span>)}</div></div>}
       <div style={{ padding: 32, background: C.cream, border: "1px solid " + C.lightWarm, display: "flex", gap: 20, alignItems: "flex-start", borderRadius: 2, marginTop: 20 }}><div style={{ width: 56, height: 56, borderRadius: "50%", background: C.indigo, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.display, fontSize: 22, fontWeight: 700, color: C.offWhite }}>T</div><div><div style={{ fontFamily: F.ui, fontSize: 14, fontWeight: 600, color: C.charcoal, marginBottom: 6 }}>The Editor</div><p style={{ fontFamily: F.body, fontSize: 14, color: C.warmGray, lineHeight: 1.6, margin: 0 }}>Travels the world, comes home to Tokyo. How things are made, where to find a great meal, and what makes this country worth paying attention to. Someone who knows Japan from the inside{"\u2014"}and from the outside looking back in.</p></div></div>

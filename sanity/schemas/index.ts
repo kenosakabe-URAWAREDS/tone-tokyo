@@ -65,6 +65,7 @@ const article = defineType({
     defineField({ name: 'googleMapsUrl', title: 'Google Maps URL', type: 'url' }),
     defineField({ name: 'tabelogUrl', title: 'Tabelog URL', type: 'url' }),
     defineField({ name: 'address', title: 'Address', type: 'string' }),
+    defineField({ name: 'phone', title: 'Phone', type: 'string', description: '電話番号 (国番号なしでOK: 例 03-1234-5678)' }),
     defineField({
       name: 'priceRange',
       title: 'EAT: Price Range (high-end tiers)',

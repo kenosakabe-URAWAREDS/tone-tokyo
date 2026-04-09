@@ -97,3 +97,32 @@ export function urlForArticleImage(
   const url = article.heroImage || article.heroImageUrl || "";
   return sizedImage(url, w, q);
 }
+
+/**
+ * Build a CDN URL for any raw Sanity image object (not an article —
+ * e.g. items from an article's `gallery` array). Same builder path
+ * as `urlForArticleImage` so the editor's crop & hotspot are honored
+ * and Sanity serves a server-side cropped WebP at the requested
+ * width × height.
+ *
+ * Returns an empty string when the source has no asset reference, so
+ * callers can safely `urlForSanityImage(...).length ? ... : null`.
+ */
+type SanityImageSource = {
+  _type?: string;
+  asset?: unknown;
+  crop?: unknown;
+  hotspot?: unknown;
+} | null | undefined;
+
+export function urlForSanityImage(
+  source: SanityImageSource,
+  opts: ImageOpts
+): string {
+  if (!source || !source.asset) return "";
+  const { w, h, q = 82 } = opts;
+  let b = builder.image(source).width(w).quality(q).auto("format");
+  if (h) b = b.height(h).fit("crop");
+  else b = b.fit("max");
+  return b.url() || "";
+}

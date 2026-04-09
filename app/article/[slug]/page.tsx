@@ -31,6 +31,7 @@ type Article = {
   area?: string;
   neighborhood?: string;
   address?: string;
+  phone?: string;
   googleMapsUrl?: string;
   officialUrl?: string;
   tabelogUrl?: string;
@@ -39,6 +40,17 @@ type Article = {
   eatPriceRange?: string;
   bookingDifficulty?: string;
   editorRating?: number;
+  /** Raw Sanity image array for the gallery grid above the Details
+   *  block. Each item is an image object with asset / crop / hotspot. */
+  gallery?: Array<{
+    _key?: string;
+    _type?: string;
+    asset?: unknown;
+    crop?: unknown;
+    hotspot?: unknown;
+    alt?: string;
+    caption?: string;
+  }>;
 };
 
 async function getArticle(slug: string): Promise<Article | null> {
@@ -52,9 +64,9 @@ async function getArticle(slug: string): Promise<Article | null> {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,
-    heroCaption, body, locationName, locationNameJa,
+    heroCaption, body, gallery, locationName, locationNameJa,
     tags, readTime, publishedAt, _updatedAt, sourceType,
-    area, neighborhood, address, googleMapsUrl, officialUrl, tabelogUrl, priceRange,
+    area, neighborhood, address, phone, googleMapsUrl, officialUrl, tabelogUrl, priceRange,
     eatGenre, eatPriceRange, bookingDifficulty, editorRating
   }`;
   return client.fetch(query, { slug });
