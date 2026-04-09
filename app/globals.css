@@ -32,18 +32,19 @@ body {
 }
 
 /*
- * Hero photo cropping.
+ * Hero section height.
  *
- * On mobile the hero is a tall narrow box, so biasing the visible band
- * toward the lower portion (60%) keeps subjects from being clipped at
- * the bottom. On desktop the hero is a wide short box — the same crop
- * pushes subjects off-frame, so we bias toward the upper third instead.
+ * On mobile a tall hero (85vh) reads as immersive. On desktop the same
+ * 85vh forces the source image to upscale aggressively to fill a wide
+ * viewport, which softens the photo. Capping at 70vh on desktop keeps
+ * the visible image area closer to the source resolution. Defined as a
+ * class because React inline styles can't express @media queries.
  *
- * Defined as a CSS class (rather than inline style) so it can switch on
- * a media query; React inline styles can't express @media rules.
+ * object-position is left at the CSS default (center center) for the
+ * hero image — explicit cropping helped one viewport but hurt another.
  */
-.hero-image {
-  object-position: center 60%;
+.hero-section {
+  height: 85vh;
 }
 
 @media (min-width: 768px) {
@@ -55,7 +56,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
   }
-  .hero-image {
-    object-position: center 30%;
+  .hero-section {
+    height: 70vh;
   }
 }
