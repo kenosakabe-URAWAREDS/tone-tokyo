@@ -61,6 +61,12 @@ const ptComponents = {
 
 function InfoBox({ article: a }: { article: any }) {
   const items: { label: string; value: string }[] = [];
+  // JAPANESE ABROAD: surface city / country at the top of the
+  // details list when the article is tagged as an abroad dispatch.
+  if (a.isJapaneseAbroad) {
+    if (a.city) items.push({ label: "City", value: a.city });
+    if (a.country) items.push({ label: "Country", value: a.country });
+  }
   if (a.address) items.push({ label: "Address", value: a.address });
   if (a.phone) items.push({ label: "Phone", value: a.phone });
   if (a.area) items.push({ label: "Area", value: a.area });
@@ -120,7 +126,15 @@ export default function ArticleClient({ article, related }: { article: any; rela
     <div ref={heroRef} style={{ position: "relative", width: "100%", height: "70vh", minHeight: 420, maxHeight: 700, overflow: "hidden" }}><img src={heroImg} alt={A.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /><div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", height: "50%" }} />{A.heroCaption && <div style={{ position: "absolute", bottom: 16, right: 24, fontFamily: F.ui, fontSize: 11, color: "rgba(255,255,255,0.65)", fontStyle: "italic" }}>{A.heroCaption}</div>}</div>
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ padding: "40px 0 32px", borderBottom: "1px solid " + C.lightWarm, marginBottom: 36 }}>
-        <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: pColor, marginBottom: 16 }}>{A.pillar}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" as const, marginBottom: 16 }}>
+          <span style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: pColor }}>{A.pillar}</span>
+          {A.isJapaneseAbroad && (
+            <span style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: C.offWhite, background: C.indigo, padding: "3px 10px", borderRadius: 2 }}>
+              Japanese Abroad
+              {A.city && <span style={{ opacity: 0.75, marginLeft: 6 }}>{"\u00B7 " + A.city}</span>}
+            </span>
+          )}
+        </div>
         <h1 style={{ fontFamily: F.display, fontSize: "clamp(30px, 5vw, 44px)", fontWeight: 700, lineHeight: 1.18, color: C.charcoal, margin: "0 0 16px" }}>{A.title}</h1>
         {A.subtitle && <p style={{ fontFamily: F.body, fontSize: "clamp(16px, 2vw, 19px)", lineHeight: 1.55, color: C.warmGray, margin: "0 0 24px", fontStyle: "italic" }}>{A.subtitle}</p>}
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}><div style={{ width: 40, height: 40, borderRadius: "50%", background: C.indigo, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.ui, fontSize: 14, fontWeight: 600, color: C.offWhite }}>T</div><div><div style={{ fontFamily: F.ui, fontSize: 13, fontWeight: 600, color: C.charcoal }}>The Editor</div><div style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray }}>{fmtDate(A.publishedAt)}{A.readTime ? " \u00B7 " + A.readTime : ""}</div></div></div>

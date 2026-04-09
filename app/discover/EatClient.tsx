@@ -5,7 +5,7 @@ import Link from "next/link";
 const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
 const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
 
-const PILLARS = ["All", "EAT", "FASHION", "CRAFT", "CULTURE", "EXPERIENCE", "FAMILY"];
+const PILLARS = ["All", "EAT", "FASHION", "CRAFT", "CULTURE", "EXPERIENCE", "FAMILY", "JAPANESE ABROAD"];
 const AREAS = ["All", "Tokyo", "Osaka", "Kyoto", "Fukuoka", "Okayama", "Kurume", "Hokkaido", "Okinawa", "Nagoya", "Kobe", "Other"];
 const GENRES = ["All", "Ramen", "Sushi", "Yakitori", "Yakiniku", "Curry", "Soba / Udon", "Italian", "French", "Chinese", "Cafe", "Bar", "Izakaya", "Bakery", "Sweets"];
 const BOOKING = ["Walk-in OK", "Easy to book", "Book ahead", "Hard to get"];
@@ -25,11 +25,11 @@ function FilterBtn({ label, active, onClick }: { label: string; active: boolean;
   return (<button onClick={onClick} style={{ fontFamily: F.ui, fontSize: 12, padding: "6px 14px", borderRadius: 20, border: active ? "1px solid " + C.indigo : "1px solid " + C.lightWarm, background: active ? C.indigo : C.offWhite, color: active ? C.offWhite : C.charcoal, cursor: "pointer", transition: "all 0.15s" }}>{label}</button>);
 }
 function pillarColor(p?: string) {
-  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D", FAMILY: "#C67050" };
+  const m: Record<string, string> = { FASHION: "#1B3A5C", EAT: "#8B4513", CULTURE: "#6B2D5B", EXPERIENCE: "#2D5B3A", CRAFT: "#5B4B2D", FAMILY: "#C67050", "JAPANESE ABROAD": "#1B3A5C" };
   return m[p?.toUpperCase() || ""] || C.indigo;
 }
 function pillarEmoji(p?: string) {
-  const m: Record<string, string> = { EAT: "\uD83C\uDF7D", FASHION: "\uD83E\uDDE5", CRAFT: "\uD83E\uDDF5", CULTURE: "\uD83C\uDFB6", EXPERIENCE: "\uD83D\uDDFE", FAMILY: "\uD83E\uDDF8" };
+  const m: Record<string, string> = { EAT: "\uD83C\uDF7D", FASHION: "\uD83E\uDDE5", CRAFT: "\uD83E\uDDF5", CULTURE: "\uD83C\uDFB6", EXPERIENCE: "\uD83D\uDDFE", FAMILY: "\uD83E\uDDF8", "JAPANESE ABROAD": "\uD83C\uDF0D" };
   return m[p?.toUpperCase() || ""] || "";
 }
 export default function EatClient({ articles, initialPillar = "All" }: { articles: any[]; initialPillar?: string }) {
@@ -44,9 +44,18 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
 
   const tog = (arr: string[], val: string) => arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
   const isEat = pillar === "All" || pillar === "EAT";
+  // "JAPANESE ABROAD" is a cross-cutting filter rather than a real
+  // pillar value — it matches isJapaneseAbroad === true regardless
+  // of the article's actual pillar. Treated as mutually exclusive
+  // with the pillar buttons for simplicity.
+  const isAbroadFilter = pillar === "JAPANESE ABROAD";
 
   const filtered = articles.filter(a => {
-    if (pillar !== "All" && a.pillar?.toUpperCase() !== pillar) return false;
+    if (isAbroadFilter) {
+      if (!a.isJapaneseAbroad) return false;
+    } else if (pillar !== "All" && a.pillar?.toUpperCase() !== pillar) {
+      return false;
+    }
     if (area !== "All" && a.area !== area) return false;
     if (isEat) {
       if (genre !== "All" && a.eatGenre !== genre) return false;
@@ -60,7 +69,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
 
   const hasFilters = pillar !== "All" || area !== "All" || genre !== "All" || booking.length > 0 || drinks.length > 0 || scenes.length > 0 || price.length > 0;
   const title = pillar === "All" ? "DISCOVER" : pillar;
-  const subtitle = pillar === "All" ? "The Editor\u2019s picks \u2014 the best of Japan, curated" : pillar === "EAT" ? "The Editor\u2019s picks \uD83C\uDF7D \u00B7 where to eat and drink in Japan" : pillar === "FASHION" ? "The Editor\u2019s picks \uD83E\uDDE5 \u00B7 Japanese fashion worth knowing" : pillar === "CRAFT" ? "The Editor\u2019s picks \uD83E\uDDF5 \u00B7 makers, materials, and process" : pillar === "CULTURE" ? "The Editor\u2019s picks \uD83C\uDFB6 \u00B7 music, art, and nightlife" : "The Editor\u2019s picks \uD83D\uDDFE \u00B7 where to go and what to do";
+  const subtitle = pillar === "All" ? "The Editor\u2019s picks \u2014 the best of Japan, curated" : pillar === "EAT" ? "The Editor\u2019s picks \uD83C\uDF7D \u00B7 where to eat and drink in Japan" : pillar === "FASHION" ? "The Editor\u2019s picks \uD83E\uDDE5 \u00B7 Japanese fashion worth knowing" : pillar === "CRAFT" ? "The Editor\u2019s picks \uD83E\uDDF5 \u00B7 makers, materials, and process" : pillar === "CULTURE" ? "The Editor\u2019s picks \uD83C\uDFB6 \u00B7 music, art, and nightlife" : pillar === "JAPANESE ABROAD" ? "The Editor\u2019s dispatches \uD83C\uDF0D \u00B7 Japanese food and brands abroad, judged by Tokyo standards" : "The Editor\u2019s picks \uD83D\uDDFE \u00B7 where to go and what to do";
 
   return (
     <div style={{ background: C.offWhite, minHeight: "100vh" }}>

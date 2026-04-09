@@ -66,6 +66,31 @@ const article = defineType({
     defineField({ name: 'tabelogUrl', title: 'Tabelog URL', type: 'url' }),
     defineField({ name: 'address', title: 'Address', type: 'string' }),
     defineField({ name: 'phone', title: 'Phone', type: 'string', description: '電話番号 (国番号なしでOK: 例 03-1234-5678)' }),
+
+    // === JAPANESE ABROAD SERIES ===
+    // The Editor's overseas dispatches — Japanese restaurants and
+    // Japanese-brand shops abroad that meet Tokyo standards.
+    defineField({
+      name: 'isJapaneseAbroad',
+      title: 'Japanese Abroad series',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Check this for articles about Japanese restaurants or Japanese-brand shops located outside Japan.',
+    }),
+    defineField({
+      name: 'city',
+      title: 'City (abroad)',
+      type: 'string',
+      description: 'e.g. "London", "Paris", "New York". Leave empty for Japan articles.',
+      hidden: ({ document }) => !document?.isJapaneseAbroad,
+    }),
+    defineField({
+      name: 'country',
+      title: 'Country (abroad)',
+      type: 'string',
+      description: 'e.g. "UK", "France", "USA". Leave empty for Japan articles.',
+      hidden: ({ document }) => !document?.isJapaneseAbroad,
+    }),
     defineField({
       name: 'priceRange',
       title: 'EAT: Price Range (high-end tiers)',

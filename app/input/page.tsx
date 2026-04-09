@@ -85,10 +85,21 @@ const PILLAR_FIELDS: Record<Pillar, Array<{ key: string; label: string; placehol
 };
 
 /** Compose a structured memo string from form fields for the AI prompt. */
-function composeMemo(pillar: Pillar, fields: PillarFields): string {
+function composeMemo(
+  pillar: Pillar,
+  fields: PillarFields,
+  abroad?: { isAbroad: boolean; city: string; country: string },
+): string {
   const schema = PILLAR_FIELDS[pillar];
   const lines: string[] = [];
   lines.push(`[Editor's structured input — pillar: ${pillar}]`);
+  if (abroad?.isAbroad) {
+    lines.push(
+      `- JAPANESE ABROAD series: YES (location is outside Japan)`,
+    );
+    if (abroad.city) lines.push(`- City: ${abroad.city}`);
+    if (abroad.country) lines.push(`- Country: ${abroad.country}`);
+  }
   for (const f of schema) {
     const v = fields[f.key]?.trim();
     if (v) lines.push(`- ${f.label.replace(/ \*$/, "")}: ${v}`);
@@ -99,6 +110,9 @@ function composeMemo(pillar: Pillar, fields: PillarFields): string {
 export default function InputPage() {
   const [pillar, setPillar] = useState<Pillar | null>(null);
   const [fields, setFields] = useState<PillarFields>({});
+  const [isAbroad, setIsAbroad] = useState(false);
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
   const [officialUrl, setOfficialUrl] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [tabelogUrl, setTabelogUrl] = useState("");
@@ -169,7 +183,11 @@ export default function InputPage() {
         const b64 = await compressImage(f);
         base64Images.push(b64);
       }
-      const memo = composeMemo(pillar, fields);
+      const memo = composeMemo(pillar, fields, {
+        isAbroad,
+        city: city.trim(),
+        country: country.trim(),
+      });
       const res = await fetch("/api/create-article", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,6 +198,9 @@ export default function InputPage() {
           officialUrl: officialUrl.trim(),
           googleMapsUrl: googleMapsUrl.trim(),
           tabelogUrl: tabelogUrl.trim(),
+          isJapaneseAbroad: isAbroad,
+          city: isAbroad ? city.trim() : "",
+          country: isAbroad ? country.trim() : "",
         }),
       });
       const data = await res.json();
@@ -188,6 +209,9 @@ export default function InputPage() {
         setResult(`📝 ${data.title}\n🇯🇵 ${data.titleJa || ""}\n\ntone-tokyo.com/article/${data.slug}`);
         setPillar(null);
         setFields({});
+        setIsAbroad(false);
+        setCity("");
+        setCountry("");
         setOfficialUrl("");
         setGoogleMapsUrl("");
         setTabelogUrl("");
@@ -279,6 +303,48 @@ export default function InputPage() {
             ))}
           </div>
         )}
+
+        {/* JAPANESE ABROAD series toggle */}
+        <div style={{ marginBottom: 20, padding: "14px 16px", background: isAbroad ? C.cream : "transparent", border: `1px solid ${C.lightWarm}`, borderRadius: 4 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={isAbroad}
+              onChange={(e) => setIsAbroad(e.target.checked)}
+              style={{ width: 16, height: 16, accentColor: C.indigo, cursor: "pointer" }}
+            />
+            <span style={{ fontFamily: F.ui, fontSize: 13, fontWeight: 600, color: C.charcoal }}>
+              🌍 Japanese Abroad シリーズ
+            </span>
+          </label>
+          <p style={{ fontFamily: F.body, fontSize: 12, color: C.warmGray, margin: "6px 0 0 26px", lineHeight: 1.5 }}>
+            海外の日本食レストランや日本ブランド取扱店を紹介する記事の時にチェック。
+          </p>
+          {isAbroad && (
+            <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <label style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.charcoal, marginBottom: 4, display: "block" }}>City</label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="London / Paris / New York"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.charcoal, marginBottom: 4, display: "block" }}>Country</label>
+                <input
+                  type="text"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="UK / France / USA"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>🔗 Official Site URL（任意）</label>
         <input type="url" value={officialUrl} onChange={e => setOfficialUrl(e.target.value)} placeholder="https://example.com" style={{ ...inputStyle, marginBottom: 20 }} />

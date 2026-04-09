@@ -41,7 +41,20 @@ async function fetchUrlContent(url: string): Promise<string> {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { memo, images, googleMapsUrl, tabelogUrl, officialUrl, pillar } = data;
+    const {
+      memo,
+      images,
+      googleMapsUrl,
+      tabelogUrl,
+      officialUrl,
+      pillar,
+      // JAPANESE ABROAD series — explicit client hints. When the
+      // /input form user checks "Japanese Abroad", these override
+      // whatever the AI infers.
+      isJapaneseAbroad: clientIsAbroad,
+      city: clientCity,
+      country: clientCountry,
+    } = data;
 
     if (!memo && (!images || images.length === 0)) {
       return NextResponse.json({ error: 'Memo or image required' }, { status: 400 });
@@ -107,6 +120,21 @@ export async function POST(req: NextRequest) {
       article.pillar = lockedPillar;
     }
 
+    // JAPANESE ABROAD: prefer explicit client hints over AI inference.
+    // If the /input form user checked the box and entered a city /
+    // country, those win. Otherwise fall through to whatever the AI
+    // returned in the JSON (may be undefined for Japan articles).
+    const finalIsAbroad =
+      typeof clientIsAbroad === "boolean" ? clientIsAbroad : Boolean(article.isJapaneseAbroad);
+    const finalCity =
+      (typeof clientCity === "string" && clientCity.trim()) ||
+      (typeof article.city === "string" ? article.city : "") ||
+      "";
+    const finalCountry =
+      (typeof clientCountry === "string" && clientCountry.trim()) ||
+      (typeof article.country === "string" ? article.country : "") ||
+      "";
+
     const slug = slugify(article.title);
 
     // Upload first image to Sanity as heroImage
@@ -144,6 +172,9 @@ export async function POST(req: NextRequest) {
       tabelogUrl: tabelogUrl || '',
       address: article.address || '',
       priceRange: article.priceRange || '',
+      isJapaneseAbroad: finalIsAbroad,
+      city: finalCity,
+      country: finalCountry,
       sourceType: 'kentaro-initiated',
       publishedAt: new Date().toISOString(),
     });

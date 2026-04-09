@@ -326,6 +326,9 @@ The editor sent the following over LINE:
     locationNameJa?: string;
     address?: string;
     priceRange?: string;
+    isJapaneseAbroad?: boolean;
+    city?: string;
+    country?: string;
   };
 
   let article: AIArticle;
@@ -366,6 +369,9 @@ The editor sent the following over LINE:
     officialUrl: session.officialUrl || '',
     address: article.address || '',
     priceRange: article.priceRange || '',
+    isJapaneseAbroad: Boolean(article.isJapaneseAbroad),
+    city: article.city || '',
+    country: article.country || '',
     sourceType: 'kentaro-initiated',
     publishedAt: new Date().toISOString(),
   });

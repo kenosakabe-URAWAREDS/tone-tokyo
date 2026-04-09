@@ -32,6 +32,12 @@ type Article = {
   neighborhood?: string;
   address?: string;
   phone?: string;
+  /** JAPANESE ABROAD series — true when the location is outside Japan. */
+  isJapaneseAbroad?: boolean;
+  /** City name for abroad articles, e.g. "London". */
+  city?: string;
+  /** Country name for abroad articles, e.g. "UK". */
+  country?: string;
   googleMapsUrl?: string;
   officialUrl?: string;
   tabelogUrl?: string;
@@ -67,7 +73,8 @@ async function getArticle(slug: string): Promise<Article | null> {
     heroCaption, body, gallery, locationName, locationNameJa,
     tags, readTime, publishedAt, _updatedAt, sourceType,
     area, neighborhood, address, phone, googleMapsUrl, officialUrl, tabelogUrl, priceRange,
-    eatGenre, eatPriceRange, bookingDifficulty, editorRating
+    eatGenre, eatPriceRange, bookingDifficulty, editorRating,
+    isJapaneseAbroad, city, country
   }`;
   return client.fetch(query, { slug });
 }
