@@ -220,7 +220,7 @@ return (
     <section ref={ref} style={{ padding: "40px 16px", maxWidth: 1200, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20, borderBottom: `1px solid ${LIGHT_WARM}`, paddingBottom: 10 }}>
         <h2 style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600, color: CHARCOAL }}>Latest</h2>
-            <a href="#" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INDIGO, textDecoration: "none" }}>ALL →</a>
+            <a href="/discover" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: INDIGO, textDecoration: "none" }}>ALL →</a>
       </div>
       <div className="articles-mobile">
         {(sanityArticles && sanityArticles.length > 0 ? sanityArticles.filter(a => a.title && a.pillar).map(a => ({pillar: a.pillar, title: a.title, slug: a.slug, excerpt: a.subtitle || "", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=600&q=80", date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"}) : "", readTime: a.readTime || ""})) : ARTICLES).map((a, i) => <ArticleRow key={i} a={a} i={i} vis={vis} />)}
@@ -236,7 +236,7 @@ function PicksSection() {
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
   return (
-    <section ref={ref} style={{ background: CREAM, padding: "40px 16px" }}>
+    <section ref={ref} style={{ background: CREAM, padding: "60px 16px 48px" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }} className="picks-outer">
         <div className="picks-main">
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 20 }}>
@@ -262,7 +262,7 @@ function PicksSection() {
             ))}
           </div>
         </div>
-        <div className="nl-section" id="newsletter">
+        <div className="nl-section" id="newsletter" style={{ marginTop: 48 }}>
           <span style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: INDIGO, display: "block", marginBottom: 8 }}>Newsletter</span>
           <h2 style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, color: CHARCOAL, lineHeight: 1.2, marginBottom: 8 }}>This Week in Japan</h2>
           <p style={{ fontFamily: "var(--body)", fontSize: 13, color: WARM_GRAY, lineHeight: 1.5, marginBottom: 16 }}>
