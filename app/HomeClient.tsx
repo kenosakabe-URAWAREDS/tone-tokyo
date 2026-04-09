@@ -89,6 +89,19 @@ function Nav({ scrolled, onMenu }: { scrolled: boolean; onMenu: () => void }) {
 }
 
 function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlStatus, setNlStatus] = useState<"idle"|"loading"|"success"|"error"|"exists">("idle");
+  const handleSubscribe = async () => {
+    if (!nlEmail || !nlEmail.includes("@")) return;
+    setNlStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: nlEmail }) });
+      const data = await res.json();
+      if (data.message === "Already subscribed") setNlStatus("exists");
+      else if (data.message) { setNlStatus("success"); setNlEmail(""); }
+      else setNlStatus("error");
+    } catch { setNlStatus("error"); }
+  };
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 200, background: CHARCOAL,
@@ -234,6 +247,19 @@ return (
 }
 
 function PicksSection({ articles }: { articles?: any[] }) {
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlStatus, setNlStatus] = useState<"idle"|"loading"|"success"|"error"|"exists">("idle");
+  const handleSubscribe = async () => {
+    if (!nlEmail || !nlEmail.includes("@")) return;
+    setNlStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: nlEmail }) });
+      const data = await res.json();
+      if (data.message === "Already subscribed") setNlStatus("exists");
+      else if (data.message) { setNlStatus("success"); setNlEmail(""); }
+      else setNlStatus("error");
+    } catch { setNlStatus("error"); }
+  };
   const ref = useRef<HTMLDivElement>(null);
   const vis = useVisible(ref);
   const picks = (articles || []).slice(0, 3).map(a => ({ title: a.title, pillar: a.pillar?.toUpperCase() || "EAT", image: a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=400&q=80", slug: a.slug }));
@@ -271,18 +297,18 @@ function PicksSection({ articles }: { articles?: any[] }) {
             A weekly dispatch from inside Tokyo{"\u2019"}s fashion, food, and culture scene.
           </p>
           <div style={{ display: "flex" }}>
-            <input type="email" placeholder="your@email.com" style={{
+            <input type="email" placeholder="your@email.com" value={nlEmail} onChange={(e) => setNlEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSubscribe()} style={{
               flex: 1, padding: "11px 12px", fontFamily: "var(--sans)", fontSize: 14,
               border: `1px solid ${LIGHT_WARM}`, borderRight: "none", background: OFF_WHITE,
               color: CHARCOAL, outline: "none", borderRadius: 0, WebkitAppearance: "none" as const, minWidth: 0,
             }} />
-            <button style={{
+            <button onClick={handleSubscribe} disabled={nlStatus === "loading"} style={{
               padding: "11px 16px", fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600,
               letterSpacing: "0.08em", textTransform: "uppercase" as const, background: INDIGO,
               color: OFF_WHITE, border: "none", cursor: "pointer", whiteSpace: "nowrap" as const,
-            }}>Subscribe</button>
+            }}>{nlStatus === "loading" ? "..." : "Subscribe"}</button>
           </div>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY, marginTop: 6, display: "block" }}>Free. Every Friday.</span>
+            <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: nlStatus === "success" ? "#2E6B50" : nlStatus === "error" ? "#A32D2D" : nlStatus === "exists" ? INDIGO : WARM_GRAY, marginTop: 6, display: "block" }}>{nlStatus === "success" ? "You\u2019re in! First issue comes Friday." : nlStatus === "exists" ? "You\u2019re already subscribed!" : nlStatus === "error" ? "Something went wrong. Try again." : "Free. Every Friday."}</span>
         </div>
       </div>
     </section>
@@ -335,6 +361,32 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
   const [scrolled, setScrolled] = useState(false);
   const [heroVis, setHeroVis] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [nlEmail, setNlEmail] = useState("");
+  const [nlStatus, setNlStatus] = useState<"idle"|"loading"|"success"|"error"|"exists">("idle");
+  const handleSubscribe = async () => {
+    if (!nlEmail || !nlEmail.includes("@")) return;
+    setNlStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: nlEmail }) });
+      const data = await res.json();
+      if (data.message === "Already subscribed") setNlStatus("exists");
+      else if (data.message) { setNlStatus("success"); setNlEmail(""); }
+      else setNlStatus("error");
+    } catch { setNlStatus("error"); }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     setTimeout(() => setHeroVis(true), 80);
@@ -365,6 +417,7 @@ export default function HomeClient({ articles }: { articles?: any[] }) {
     </div>
   );
 }
+
 
 
 
