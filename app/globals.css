@@ -32,20 +32,26 @@ body {
 }
 
 /*
- * Hero section height.
+ * Hero section sizing.
  *
- * Mobile: 85vh — tall and immersive on a narrow viewport.
- * Desktop: 60vh — a wide-and-tall hero forces the source image to
- * upscale aggressively, which softens the photo. 60vh keeps the
- * rendered area closer to the source resolution. The hero src is
- * also requested at width=2000 via lib/image.sizedImage so the
- * Sanity / Unsplash CDN serves a high-res variant on PC.
+ * The hero is constrained to a 21:9 banner that caps at 280px on
+ * mobile and 420px on desktop. Both the homepage hero and the
+ * article-detail hero share these caps so the page lands closer to
+ * the headline / body without making the user scroll past a giant
+ * cover image.
  *
- * Defined as a class because React inline styles can't express
+ * object-fit:cover is set on the inner <img> via inline style so
+ * that aspect-ratio + max-height crop the photo around its hotspot
+ * (object-position is supplied separately from Sanity's hotspot).
+ *
+ * Defined as classes because React inline styles can't express
  * @media queries.
  */
-.hero-section {
-  height: 85vh;
+.hero-section,
+.article-hero-section {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  max-height: 280px;
 }
 
 @media (min-width: 768px) {
@@ -57,7 +63,8 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
   }
-  .hero-section {
-    height: 60vh;
+  .hero-section,
+  .article-hero-section {
+    max-height: 420px;
   }
 }

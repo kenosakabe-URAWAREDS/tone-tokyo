@@ -80,20 +80,26 @@ function InfoBox({ article: a }: { article: any }) {
 
 function Gallery({ items }: { items: any[] }) {
   if (!items || items.length === 0) return null;
+  // Match the READ NEXT card grid below (3 across on PC, gap 28,
+  // 3:2 aspect) so the gallery sits visually in line with the rest
+  // of the article footer. urlForSanityImage routes through the
+  // Sanity image builder so the editor's hotspot is honored at the
+  // server-side crop, with objectPositionFromHotspot as a CSS
+  // safety net for the rendered <img> box.
   return (
     <div style={{ padding: "48px 0 0" }}>
       <div style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: C.warmGray, marginBottom: 24 }}>
         GALLERY
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 28 }}>
         {items.map((item, i) => {
-          const src = urlForSanityImage(item, { w: 600, h: 450 });
+          const src = urlForSanityImage(item, { w: 800, h: 534, q: 80 });
           if (!src) return null;
           const alt = item?.alt || item?.caption || "";
           const pos = objectPositionFromHotspot(item?.hotspot);
           return (
             <figure key={item?._key || i} style={{ margin: 0 }}>
-              <div style={{ aspectRatio: "4/3", overflow: "hidden", background: C.cream }}>
+              <div style={{ aspectRatio: "3/2", overflow: "hidden", background: C.cream }}>
                 <img src={src} alt={alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos }} />
               </div>
               {item?.caption && (
@@ -118,14 +124,16 @@ export default function ArticleClient({ article, related }: { article: any; rela
   const A = article;
   // Route the hero through @sanity/image-url so the editor's crop &
   // hotspot are honored AND so Sanity does the server-side crop at
-  // 2400x1000 — same approach as HomeClient. urlForArticleImage falls
-  // back to the coalesced URL string when the raw asset ref is missing.
-  const heroImg = urlForArticleImage(A, { w: 2400, h: 1350, q: 85 }) || sizedImage(A.heroImage || FALLBACK, 2400);
+  // a matching 21:9 / 1400×600 aspect — same constraint as the
+  // homepage hero (.article-hero-section caps at 420px desktop /
+  // 280px mobile). urlForArticleImage falls back to the coalesced
+  // URL string when the raw asset ref is missing.
+  const heroImg = urlForArticleImage(A, { w: 1400, h: 600, q: 85 }) || sizedImage(A.heroImage || FALLBACK, 1400);
   const heroPos = objectPositionFromHotspot(A.heroImageHotspot);
   const pColor = pillarColor(A.pillar);
   return (<><ProgressBar /><StickyHeader visible={stickyVisible} pillar={A.pillar} readTime={A.readTime} /><div style={{ background: C.offWhite, minHeight: "100vh" }}>
     <nav style={{ position: "absolute", top: 0, left: 0, width: "100%", zIndex: 10, padding: "20px 28px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}><Link href="/" style={{ textDecoration: "none" }}><div style={{ fontFamily: F.display, fontSize: 24, fontWeight: 700, color: "#fff", lineHeight: 1 }}>TONE <span style={{ fontFamily: F.ui, fontWeight: 400, fontSize: 16, letterSpacing: "0.15em" }}>TOKYO</span></div><div style={{ fontFamily: F.jp, fontSize: 9, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3em", marginTop: 2 }}>{"\u97F3 \u6771\u4EAC"}</div></Link><Link href="/about" style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase" as const, color: "rgba(255,255,255,0.85)", textDecoration: "none", paddingTop: 6 }}>About</Link></nav>
-    <div ref={heroRef} style={{ position: "relative", width: "100%", aspectRatio: "16/9", minHeight: 420, maxHeight: 700, overflow: "hidden" }}><img src={heroImg} alt={A.title} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: heroPos }} /><div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", height: "50%" }} />{A.heroCaption && <div style={{ position: "absolute", bottom: 16, right: 24, fontFamily: F.ui, fontSize: 11, color: "rgba(255,255,255,0.65)", fontStyle: "italic" }}>{A.heroCaption}</div>}</div>
+    <div ref={heroRef} className="article-hero-section" style={{ position: "relative", overflow: "hidden" }}><img src={heroImg} alt={A.title} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: heroPos }} /><div style={{ position: "absolute", bottom: 0, left: 0, width: "100%", background: "linear-gradient(transparent, rgba(0,0,0,0.55))", height: "50%" }} />{A.heroCaption && <div style={{ position: "absolute", bottom: 16, right: 24, fontFamily: F.ui, fontSize: 11, color: "rgba(255,255,255,0.65)", fontStyle: "italic" }}>{A.heroCaption}</div>}</div>
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ padding: "40px 0 32px", borderBottom: "1px solid " + C.lightWarm, marginBottom: 36 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" as const, marginBottom: 16 }}>

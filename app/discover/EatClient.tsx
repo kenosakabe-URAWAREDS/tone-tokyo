@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import { objectPositionFromHotspot } from "@/lib/image";
+import { objectPositionFromHotspot, sizedImage } from "@/lib/image";
 
 const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
 const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
@@ -141,7 +141,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
           {filtered.map((a: any) => (
             <Link key={a._id} href={"/article/" + a.slug} style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", gap: 14, padding: 12, border: "1px solid " + C.lightWarm, borderRadius: 8, background: "#fff", cursor: "pointer", transition: "all 0.15s" }}>
-                <img src={a.heroImage || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=220&q=80"} alt={a.title} style={{ width: 100, height: 100, borderRadius: 6, objectFit: "cover" as const, objectPosition: objectPositionFromHotspot(a.heroImageHotspot), flexShrink: 0 }} />
+                <img src={sizedImage(a.heroImage, 300, 80, 300) || "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=300&h=300&fit=crop&q=80"} alt={a.title} style={{ width: 100, height: 100, borderRadius: 6, objectFit: "cover" as const, objectPosition: objectPositionFromHotspot(a.heroImageHotspot), flexShrink: 0 }} />
                 <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, justifyContent: "center", minWidth: 0 }}>
                   <div style={{ fontFamily: F.ui, fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: pillarColor(a.pillar), marginBottom: 3 }}>
                     {a.eatGenre || a.pillar || "Eat"}{isAbroadArticle(a) && a.city ? " \u00B7 " + a.city : a.neighborhood ? " \u00B7 " + a.neighborhood : a.area ? " \u00B7 " + a.area : ""}

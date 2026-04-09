@@ -155,13 +155,15 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
 function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
   // Prefer the Sanity image builder (honors crop & hotspot from
   // Studio, server-side crops at the rendered aspect). Fall back to
-  // sizedImage for the static FEATURED.image placeholder.
+  // sizedImage for the static FEATURED.image placeholder. The hero
+  // is constrained to a 21:9 banner (max 420px desktop / 280px
+  // mobile via .hero-section), so request a matching 1400×600 crop.
   const heroSrc = featured
-    ? urlForArticleImage(featured, { w: 2400, h: 1000, q: 85 })
-    : sizedImage(FEATURED.image, 2000);
+    ? urlForArticleImage(featured, { w: 1400, h: 600, q: 85 })
+    : sizedImage(FEATURED.image, 1400);
   const heroPos = objectPositionFromHotspot(featured?.heroImageHotspot);
   return (
-    <section className="hero-section" style={{ position: "relative", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
+    <section className="hero-section" style={{ position: "relative", overflow: "hidden", background: CHARCOAL }}>
       <img src={heroSrc} alt="" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover",

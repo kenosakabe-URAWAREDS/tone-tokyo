@@ -4,25 +4,34 @@ import { client } from "./sanity";
 const builder = createImageUrlBuilder(client);
 
 /**
- * Inject width / quality params into a plain image URL.
+ * Inject width / height / quality params into a plain image URL.
  *
  * Used as the fallback path when we *don't* have a Sanity image
  * reference (e.g. an Unsplash placeholder URL or a `heroImageUrl`
- * supplied by hand). Mutates the URL's query string via the URL
- * constructor:
+ * supplied by hand) — or when the caller has only the resolved
+ * URL string (e.g. the discover index, which fetches the bare
+ * `heroImage.asset->url`). Mutates the URL's query string via the
+ * URL constructor:
  *
- *   - Sanity CDN (cdn.sanity.io): also sets auto=format & fit=max,
- *     which the Sanity image pipeline reads from any asset URL.
- *   - Other CDNs (Unsplash, etc.): just sets ?w=&q=.
+ *   - Sanity CDN (cdn.sanity.io): also sets auto=format. fit is
+ *     `crop` when a height is supplied (so the CDN serves a
+ *     pre-cropped thumbnail instead of letting the browser cover-
+ *     crop a full-size image), or `max` when only a width is given.
+ *   - Other CDNs (Unsplash, etc.): just sets ?w=&q= (and ?h= when
+ *     supplied).
  *
- * Prefer `urlForArticleImage` for hero/card art — it honors the crop
- * and hotspot the editor set in Sanity Studio, which `sizedImage` on
- * the raw asset URL cannot do.
+ * Prefer `urlForArticleImage` for hero/card art when the raw
+ * Sanity asset reference is available — it honors the crop and
+ * hotspot the editor set in Sanity Studio, which sizedImage on the
+ * resolved URL cannot do. sizedImage paired with
+ * objectPositionFromHotspot is the right call when only the URL +
+ * hotspot are projected into the GROQ result.
  */
 export function sizedImage(
   url: string | undefined | null,
   width: number,
-  quality = 80
+  quality = 80,
+  height?: number
 ): string {
   if (!url) return "";
 
@@ -35,10 +44,11 @@ export function sizedImage(
 
   u.searchParams.set("w", String(width));
   u.searchParams.set("q", String(quality));
+  if (height) u.searchParams.set("h", String(height));
 
   if (u.hostname.includes("cdn.sanity.io")) {
     u.searchParams.set("auto", "format");
-    u.searchParams.set("fit", "max");
+    u.searchParams.set("fit", height ? "crop" : "max");
   }
 
   return u.toString();
