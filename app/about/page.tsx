@@ -18,15 +18,6 @@ const F = {
   jp: "'Noto Sans JP', sans-serif",
 };
 
-const PILLARS_LIST: Array<{ name: string; desc: string }> = [
-  { name: "Fashion", desc: "Japanese brands, stores, and the people behind them" },
-  { name: "Eat", desc: "Restaurants, izakayas, and food culture from someone who eats out every day" },
-  { name: "Culture", desc: "Music, art, nightlife, and the creative scene" },
-  { name: "Experience", desc: "Travel, neighborhoods, and seasonal moments" },
-  { name: "Craft", desc: "Factories, artisans, and how things are made" },
-  { name: "Family", desc: "Kid-friendly restaurants, activities, and day trips" },
-];
-
 export const metadata: Metadata = {
   title: "About",
   description:
@@ -155,73 +146,20 @@ export default function AboutPage() {
           </p>
         </div>
 
-        {/* Six pillars section */}
-        <h2
-          style={{
-            fontFamily: F.display,
-            fontSize: "clamp(22px, 3vw, 28px)",
-            fontWeight: 700,
-            color: C.charcoal,
-            margin: "44px 0 18px 0",
-            lineHeight: 1.3,
-          }}
-        >
-          The Six Pillars
-        </h2>
-        <p
+        {/* Pillars — inline sentence version */}
+        <div
           style={{
             fontFamily: F.body,
             fontSize: "clamp(16px, 1.8vw, 18px)",
             lineHeight: 1.8,
             color: C.charcoal,
-            margin: "0 0 12px 0",
+            marginBottom: 24,
           }}
         >
-          TONE TOKYO covers six pillars:
-        </p>
-
-        <ul style={{ listStyle: "none", padding: 0, margin: "0 0 36px 0" }}>
-          {PILLARS_LIST.map((p) => (
-            <li
-              key={p.name}
-              style={{
-                padding: "16px 0",
-                borderBottom: `1px solid ${C.lightWarm}`,
-                display: "flex",
-                gap: 18,
-                alignItems: "baseline",
-                flexWrap: "wrap" as const,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: F.ui,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase" as const,
-                  color: C.indigo,
-                  minWidth: 96,
-                  flexShrink: 0,
-                }}
-              >
-                {p.name}
-              </span>
-              <span
-                style={{
-                  fontFamily: F.body,
-                  fontSize: "clamp(14px, 1.6vw, 16px)",
-                  color: C.charcoal,
-                  lineHeight: 1.55,
-                  flex: 1,
-                  minWidth: 200,
-                }}
-              >
-                {p.desc}
-              </span>
-            </li>
-          ))}
-        </ul>
+          <p style={{ margin: 0 }}>
+            TONE TOKYO covers six pillars: Fashion, Eat, Culture, Experience, Craft, and Family.
+          </p>
+        </div>
 
         {/* Closing — newsletter + contact */}
         <div

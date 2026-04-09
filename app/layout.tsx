@@ -55,6 +55,9 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  verification: {
+    google: "ZaeooWIXdFmvR-L_GUF65QOHS4IQ7npzKNd6g80oFBQ",
+  },
 };
 
 const websiteJsonLd = {
