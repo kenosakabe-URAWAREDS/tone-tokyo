@@ -126,3 +126,21 @@ export function urlForSanityImage(
   else b = b.fit("max");
   return b.url() || "";
 }
+
+export type Hotspot = { x?: number; y?: number; width?: number; height?: number } | null | undefined;
+
+/**
+ * Convert a Sanity hotspot ({x, y} in 0..1 image-relative coords) into
+ * a CSS `object-position` string. When the hotspot is missing, falls
+ * back to centered.
+ *
+ * Used as a safety net for `<img object-fit:cover>` boxes whose
+ * rendered aspect doesn't exactly match the URL's server-side crop —
+ * this keeps the editor's chosen subject in frame instead of letting
+ * the browser center-crop and lop off heads / plates.
+ */
+export function objectPositionFromHotspot(hotspot: Hotspot): string {
+  const x = typeof hotspot?.x === "number" ? hotspot.x : 0.5;
+  const y = typeof hotspot?.y === "number" ? hotspot.y : 0.5;
+  return `${(x * 100).toFixed(2)}% ${(y * 100).toFixed(2)}%`;
+}

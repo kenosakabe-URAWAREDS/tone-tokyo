@@ -13,6 +13,8 @@ async function getArticles() {
     _id, title, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,
+    "heroImageHotspot": heroImage.hotspot,
+    "heroImageCrop": heroImage.crop,
     tags, readTime, publishedAt
   }`;
   return client.fetch(query);

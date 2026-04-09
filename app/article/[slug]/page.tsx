@@ -19,6 +19,15 @@ type Article = {
   /** Raw Sanity image object (asset + crop + hotspot). Used by
    *  lib/image.urlForArticleImage to generate properly cropped URLs. */
   heroImageRef?: { _type?: string; asset?: unknown; crop?: unknown; hotspot?: unknown } | null;
+  /** Flat hotspot ({x, y, width, height} in 0..1) projected directly
+   *  from heroImage.hotspot. Consumed client-side to compute
+   *  CSS object-position so the editor's chosen subject stays in
+   *  frame even when the rendered box's aspect doesn't match the
+   *  server-cropped URL exactly. */
+  heroImageHotspot?: { x?: number; y?: number; width?: number; height?: number } | null;
+  /** Flat crop projection (0..1 inset edges) — kept alongside the
+   *  hotspot for completeness, currently unused on the client. */
+  heroImageCrop?: { top?: number; bottom?: number; left?: number; right?: number } | null;
   heroCaption?: string;
   body?: unknown;
   locationName?: string;
@@ -70,6 +79,8 @@ async function getArticle(slug: string): Promise<Article | null> {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,
+    "heroImageHotspot": heroImage.hotspot,
+    "heroImageCrop": heroImage.crop,
     heroCaption, body, gallery, locationName, locationNameJa,
     tags, readTime, publishedAt, _updatedAt, sourceType,
     area, neighborhood, address, phone, googleMapsUrl, officialUrl, tabelogUrl, priceRange,
@@ -84,6 +95,8 @@ async function getRelatedArticles(pillar: string, currentSlug: string) {
     _id, title, "slug": slug.current, pillar,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
     "heroImageRef": heroImage,
+    "heroImageHotspot": heroImage.hotspot,
+    "heroImageCrop": heroImage.crop,
     readTime
   }`;
   return client.fetch(query, { pillar, currentSlug });

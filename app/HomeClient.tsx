@@ -1,6 +1,6 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
-import { sizedImage, urlForArticleImage } from "@/lib/image";
+import { sizedImage, urlForArticleImage, objectPositionFromHotspot } from "@/lib/image";
 
 const INDIGO = "#1B3A5C";
 const CHARCOAL = "#2D2D2D";
@@ -159,12 +159,13 @@ function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
   const heroSrc = featured
     ? urlForArticleImage(featured, { w: 2400, h: 1000, q: 85 })
     : sizedImage(FEATURED.image, 2000);
+  const heroPos = objectPositionFromHotspot(featured?.heroImageHotspot);
   return (
     <section className="hero-section" style={{ position: "relative", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
       <img src={heroSrc} alt="" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
         objectFit: "cover",
-        objectPosition: "center center",
+        objectPosition: heroPos,
         filter: "brightness(0.6) saturate(0.85)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
@@ -205,7 +206,7 @@ function ArticleRow({ a, i, vis }: { a: any; i: number; vis: boolean }) {
     }}>
       <div style={{ width: 88, height: 88, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
         {/* a.image is pre-sized at the mapping site (urlForArticleImage / sizedImage). */}
-        <img src={a.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.85)" }} />
+        <img src={a.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: a.objectPosition || "center center", filter: "saturate(0.85)" }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <Tag p={a.pillar} />
@@ -228,11 +229,11 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
       opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(24px)",
       transition: `all 0.7s ease ${i * 0.1}s`,
     }} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}>
-      <div style={{ overflow: "hidden", height: 220, marginBottom: 12, background: LIGHT_WARM }}>
+      <div style={{ overflow: "hidden", aspectRatio: "3/2", marginBottom: 12, background: LIGHT_WARM }}>
         {/* a.image is pre-sized at the mapping site (urlForArticleImage / sizedImage). */}
         <img src={a.image} alt="" style={{
           width: "100%", height: "100%", objectFit: "cover" as const,
-          objectPosition: "center center",
+          objectPosition: a.objectPosition || "center center",
           filter: "saturate(0.85)",
           transform: h ? "scale(1.04)" : "scale(1)", transition: "transform 0.6s ease",
         }} />
@@ -273,6 +274,10 @@ function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
       ? new Date(a.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
       : "",
     readTime: a.readTime || "",
+    // CSS object-position derived from the editor's hotspot.
+    // Used as a safety net when the rendered <img> box doesn't
+    // exactly match the URL's server-side crop aspect.
+    objectPosition: objectPositionFromHotspot(a.heroImageHotspot),
   });
 
   const rows = useSanity
@@ -280,14 +285,16 @@ function ArticlesSection({ articles: sanityArticles }: { articles?: any[] }) {
         ...toBase(a),
         image: urlForArticleImage(a, { w: 240, h: 240 }) || sizedImage(fallbackImg, 240),
       }))
-    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 240) }));
+    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 240), objectPosition: "center center" }));
 
+  // 3/2 aspect — match the .articles-desktop card container so the
+  // browser doesn't re-cover-crop on top of Sanity's server-side crop.
   const cards = useSanity
     ? sanityList.map((a) => ({
         ...toBase(a),
-        image: urlForArticleImage(a, { w: 900, h: 520, q: 85 }) || sizedImage(fallbackImg, 900),
+        image: urlForArticleImage(a, { w: 900, h: 600, q: 85 }) || sizedImage(fallbackImg, 900),
       }))
-    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 900) }));
+    : ARTICLES.map((a) => ({ ...a, image: sizedImage(a.image, 900), objectPosition: "center center" }));
 
   return (
     <section ref={ref} style={{ padding: "40px 16px", maxWidth: 1200, margin: "0 auto" }}>
@@ -329,6 +336,7 @@ function PicksSection({ articles }: { articles?: any[] }) {
     title: a.title,
     pillar: a.pillar?.toUpperCase() || "EAT",
     image: urlForArticleImage(a, { w: 240, h: 240 }) || sizedImage(fallbackPick, 240),
+    objectPosition: objectPositionFromHotspot(a.heroImageHotspot),
     slug: a.slug,
   }));
   return (
@@ -349,7 +357,7 @@ function PicksSection({ articles }: { articles?: any[] }) {
               }}>
                 <div style={{ width: 60, height: 60, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
                   {/* pk.image is pre-sized at the mapping site. */}
-                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center center", filter: "saturate(0.8)" }} />
+                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: pk.objectPosition || "center center", filter: "saturate(0.8)" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Tag p={pk.pillar} />
