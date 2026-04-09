@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useRef } from "react";
 
 const INDIGO = "#1B3A5C";
@@ -76,6 +76,7 @@ function Nav({ scrolled, onMenu }: { scrolled: boolean; onMenu: () => void }) {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a href="/discover" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: scrolled ? CHARCOAL : OFF_WHITE, textDecoration: "none", textTransform: "uppercase" as const, transition: "color 0.4s ease" }}>Discover</a>
           <a href="#newsletter" className="nav-sub" style={{ fontFamily: "var(--sans)", fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", color: OFF_WHITE, background: INDIGO, padding: "6px 14px", textDecoration: "none", textTransform: "uppercase" as const }}>Subscribe</a>
           <button onClick={onMenu} className="nav-menu" aria-label="Menu" style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", flexDirection: "column" as const, gap: 5, alignItems: "flex-end" }}>
             <span style={{ width: 22, height: 1.5, background: scrolled ? CHARCOAL : "#fff", transition: "background 0.4s", display: "block" }} />
