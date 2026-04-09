@@ -68,12 +68,12 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
         <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(248,246,241,0.95)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", borderBottom: `1px solid #E8E4DB` }}>
         <div style={{ padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 52, maxWidth: 1200, margin: "0 auto" }}>
           <Link href="/" style={{ textDecoration: "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#2D2D2D", letterSpacing: "-0.02em", lineHeight: 1 }}>TONE</span>
-                <span style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 6.5, fontWeight: 500, letterSpacing: "0.25em", textTransform: "uppercase" as const, color: "#A39E93", lineHeight: 1 }}>TOKYO</span>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#2D2D2D", letterSpacing: "-0.02em", lineHeight: 1.1 }}>TONE</span>
+                <span style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 6.5, fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase" as const, color: "#A39E93", lineHeight: 1 }}>TOKYO</span>
               </div>
-              <div style={{ fontFamily: "var(--jp)", fontSize: 5.5, fontWeight: 300, letterSpacing: "0.45em", color: "rgba(255,255,255,0.4)", marginTop: 1, lineHeight: 1 }}>{"\u97F3 \u6771\u4EAC"}</div>
+              <div style={{ fontFamily: "var(--jp)", fontSize: 5.5, fontWeight: 300, letterSpacing: "0.45em", color: "rgba(45,45,45,0.4)", marginTop: 1, lineHeight: 1 }}>{"\u97F3 \u6771\u4EAC"}</div>
             </div>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -155,6 +155,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
     </div>
   );
 }
+
 
 
 
