@@ -1,7 +1,7 @@
-import { client } from "@/lib/sanity";
+﻿import { client } from "@/lib/sanity";
 import EatClient from "./EatClient";
 
-const query = '*[_type == "article" && pillar == "EAT"] | order(publishedAt desc) { _id, title, "slug": slug.current, pillar, subtitle, "heroImage": coalesce(heroImage.asset->url, heroImageUrl), tags, readTime, publishedAt, area, neighborhood, editorRating, eatGenre, bookingDifficulty, drinks, scene, eatPriceRange }';
+const query = '*[_type == "article"] | order(publishedAt desc) { _id, title, "slug": slug.current, pillar, subtitle, "heroImage": coalesce(heroImage.asset->url, heroImageUrl), tags, readTime, publishedAt, area, neighborhood, editorRating, eatGenre, bookingDifficulty, drinks, scene, eatPriceRange, fashionCategory, fashionPriceRange, cultureCategory, experienceCategory, craftCategory }';
 
 export const revalidate = 60;
 
