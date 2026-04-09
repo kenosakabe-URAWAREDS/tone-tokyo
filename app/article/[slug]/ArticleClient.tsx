@@ -148,7 +148,13 @@ export default function ArticleClient({ article, related }: { article: any; rela
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}><div style={{ width: 40, height: 40, borderRadius: "50%", background: C.indigo, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F.ui, fontSize: 14, fontWeight: 600, color: C.offWhite }}>T</div><div><div style={{ fontFamily: F.ui, fontSize: 13, fontWeight: 600, color: C.charcoal }}>The Editor</div><div style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray }}>{fmtDate(A.publishedAt)}{A.readTime ? " \u00B7 " + A.readTime : ""}</div></div></div>
       </div>
       {(A.locationName || A.locationNameJa) && <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20, padding: "8px 14px", background: C.cream, borderRadius: 2 }}><span style={{ fontSize: 14 }}>{"\uD83D\uDCCD"}</span><span style={{ fontFamily: F.ui, fontSize: 12, color: C.charcoal }}>{A.locationName}</span>{A.locationNameJa && <span style={{ fontFamily: F.jp, fontSize: 11, color: C.warmGray }}>{A.locationNameJa}</span>}</div>}
-      <div id="article-body">{A.body && Array.isArray(A.body) && A.body.length > 0 ? (A.body[0]?._type ? <PortableText value={A.body} components={ptComponents} /> : A.body.map((block: any, i: number) => {
+      <div id="article-body">{typeof A.body === "string" && A.body.trim() ? (
+        // Plain-text body (the /editor pipeline writes this shape).
+        // Paragraphs are separated by blank lines.
+        A.body.split(/\n{2,}/).map((para: string, i: number) => (
+          <p key={i} style={{ fontFamily: F.body, fontSize: "clamp(16px, 1.8vw, 18px)", lineHeight: 1.8, color: C.charcoal, marginBottom: 24, whiteSpace: "pre-wrap" as const }}>{para.trim()}</p>
+        ))
+      ) : A.body && Array.isArray(A.body) && A.body.length > 0 ? (A.body[0]?._type ? <PortableText value={A.body} components={ptComponents} /> : A.body.map((block: any, i: number) => {
         if (block.type === "lead") return <p key={i} style={{ fontFamily: F.body, fontSize: "clamp(18px, 2.2vw, 20px)", lineHeight: 1.75, color: C.charcoal, marginBottom: 28 }}><span style={{ fontFamily: F.display, fontSize: "clamp(44px, 5vw, 56px)", float: "left", lineHeight: 0.82, marginRight: 10, marginTop: 6, color: C.indigo, fontWeight: 700 }}>{block.text[0]}</span>{block.text.slice(1)}</p>;
         if (block.type === "paragraph") return <p key={i} style={{ fontFamily: F.body, fontSize: "clamp(16px, 1.8vw, 18px)", lineHeight: 1.8, color: C.charcoal, marginBottom: 24 }}>{block.text}</p>;
         if (block.type === "heading") return <h2 key={i} style={{ fontFamily: F.display, fontSize: "clamp(22px, 3vw, 28px)", fontWeight: 700, color: C.charcoal, margin: "44px 0 18px", lineHeight: 1.3 }}>{block.text}</h2>;

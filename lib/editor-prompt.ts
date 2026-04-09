@@ -144,3 +144,77 @@ export const EDITOR_SYSTEM_PROMPT = [
  * voice/format prompt.
  */
 export const EDITOR_BRAND_KNOWLEDGE = BRAND_KNOWLEDGE;
+
+// =====================================================================
+// /editor pipeline — two-step JA draft → EN translate flow
+// =====================================================================
+
+/**
+ * Step 1 prompt for /api/editor/generate-article. The /editor app
+ * expects to review and edit the Japanese draft *before* it is
+ * translated and saved. So Claude returns a JSON object with
+ * Japanese title / subtitle / body and the structured location
+ * fields, all in Japanese. Hallucination rules and length rules from
+ * the English prompt still apply.
+ */
+const JA_OUTPUT_FORMAT = `## 出力フォーマット (日本語ドラフト)
+
+返答は **JSON のみ**。Markdown コードフェンスは付けない。説明文も付けない。以下のフィールドを持つ JSON を返せ。すべての本文系フィールドは **日本語** で書く:
+
+\`\`\`
+{
+  "titleJa":     string  // 日本語タイトル (短く、固有名詞は正確に)
+  "subtitleJa":  string  // 日本語サブタイトル (1-2 行)
+  "bodyJa":      string  // 日本語本文。段落は \\n\\n で区切る。
+  "tags":        string[] // タグ (英語でも日本語でも可、3-6 件)
+  "readTime":    string  // 例: "3 min read"
+  "locationName":   string  // 英語の店名/施設名 (空ならから文字列)
+  "locationNameJa": string  // 日本語の店名/施設名 (空ならから文字列)
+  "address":     string  // 入力に明記がある場合のみ。なければ空。
+  "phone":       string  // 入力に明記がある場合のみ。
+  "hours":       string  // 入力に明記がある場合のみ。
+  "priceRange":  string  // 入力に明記がある場合のみ。
+  "websiteUrl":  string  // 入力に明記がある場合のみ。
+  "isJapaneseAbroad": boolean
+  "city":        string  // isJapaneseAbroad が true の時のみ
+  "country":     string  // isJapaneseAbroad が true の時のみ
+}
+\`\`\`
+
+URL コンテキスト (Google Maps / 食べログ) が渡された場合、住所・営業時間・電話・価格・有名なメニュー名はそこから抽出してよい。レビュー文のコピーは禁止 — 事実だけ抜いて自分の言葉で書く。`;
+
+export const EDITOR_DRAFT_JA_SYSTEM_PROMPT = [
+  VOICE_RULES,
+  ANTI_HALLUCINATION_RULES,
+  BRAND_KNOWLEDGE,
+  JAPANESE_ABROAD_RULES,
+  LENGTH_RULE,
+  JA_OUTPUT_FORMAT,
+].join('\n\n');
+
+/**
+ * Step 2 prompt for /api/editor/translate-and-save. Takes the
+ * editor-approved Japanese draft and produces English in The
+ * Editor's voice. Output is a JSON object covering title / subtitle
+ * / body so a single round-trip to Claude does the whole article.
+ */
+const TRANSLATE_OUTPUT_FORMAT = `## 出力フォーマット
+
+返答は **JSON のみ**。Markdown コードフェンスは付けない。以下を返せ:
+
+\`\`\`
+{
+  "title":    string  // English headline
+  "subtitle": string  // English one-line subtitle (italic context)
+  "body":     string  // English body. 段落は \\n\\n で区切る。
+}
+\`\`\`
+
+これは「翻訳」というより、The Editor が日本語の取材メモから英語版を書き起こすイメージで臨むこと。事実は1つも追加しない。日本語にあるディテールは全部残す。バナードはそのまま使ってはいけない (amazing/incredible/must-visit/hidden gem 等)。`;
+
+export const EDITOR_TRANSLATE_SYSTEM_PROMPT = [
+  VOICE_RULES,
+  ANTI_HALLUCINATION_RULES,
+  BRAND_KNOWLEDGE,
+  TRANSLATE_OUTPUT_FORMAT,
+].join('\n\n');

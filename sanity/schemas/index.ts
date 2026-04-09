@@ -66,6 +66,8 @@ const article = defineType({
     defineField({ name: 'tabelogUrl', title: 'Tabelog URL', type: 'url' }),
     defineField({ name: 'address', title: 'Address', type: 'string' }),
     defineField({ name: 'phone', title: 'Phone', type: 'string', description: '電話番号 (国番号なしでOK: 例 03-1234-5678)' }),
+    defineField({ name: 'hours', title: 'Hours', type: 'string', description: '営業時間 (例: 11:30–14:00 / 18:00–22:00, 月休)' }),
+    defineField({ name: 'websiteUrl', title: 'Website URL', type: 'url', description: 'Independent website (officialUrl と同義 — 新規エディタが書き込む先)' }),
 
     // === JAPANESE ABROAD SERIES ===
     // The Editor's overseas dispatches — Japanese restaurants and
@@ -162,4 +164,55 @@ const lineSession = defineType({
   preview: { select: { title: 'userId', subtitle: 'state' } },
 });
 
-export const schemaTypes = [article, lineSession];
+/**
+ * Inbox of unprocessed ideas captured from LINE / web. Each
+ * stockpile holds the raw text + uploaded photos that LINE Bot or
+ * the editor dashboard collected. The /editor app lists these in
+ * the "ネタ帳" tab and uses one as the seed for AI article
+ * generation. After translate-and-save promotes a stockpile into a
+ * draft article, its `status` flips to "used" so it drops off the
+ * inbox.
+ */
+const stockpile = defineType({
+  name: 'stockpile',
+  title: 'Stockpile (ネタ帳)',
+  type: 'document',
+  fields: [
+    defineField({ name: 'memo', title: 'Memo', type: 'text', rows: 6 }),
+    defineField({
+      name: 'images',
+      title: 'Images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+    }),
+    defineField({ name: 'receivedAt', title: 'Received At', type: 'datetime' }),
+    defineField({
+      name: 'source',
+      title: 'Source',
+      type: 'string',
+      options: { list: ['line', 'web'] },
+    }),
+    defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      options: { list: ['new', 'used'], layout: 'radio' },
+      initialValue: 'new',
+    }),
+    defineField({ name: 'googleMapsUrl', title: 'Google Maps URL', type: 'url' }),
+    defineField({ name: 'tabelogUrl', title: 'Tabelog URL', type: 'url' }),
+    defineField({ name: 'lineUserId', title: 'LINE User ID (audit only)', type: 'string' }),
+  ],
+  preview: {
+    select: { title: 'memo', subtitle: 'status', media: 'images.0' },
+    prepare({ title, subtitle, media }) {
+      return {
+        title: (title as string)?.slice(0, 60) || '(no memo)',
+        subtitle,
+        media,
+      };
+    },
+  },
+});
+
+export const schemaTypes = [article, lineSession, stockpile];
