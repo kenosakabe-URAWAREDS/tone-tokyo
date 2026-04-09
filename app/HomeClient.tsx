@@ -132,9 +132,21 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
         ))}
       </nav>
       <div style={{ display: "flex", gap: 20, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-        {["Instagram", "X", "YouTube"].map(s => (
-          <a key={s} href="#" style={{ fontFamily: "var(--sans)", fontSize: 11, color: WARM_GRAY, textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
-        ))}
+        {["Instagram", "X", "YouTube"].map(s => {
+          const href = s === "Instagram" ? "https://www.instagram.com/tone_tokyo.jp/" : "#";
+          const external = href !== "#";
+          return (
+            <a
+              key={s}
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              style={{ fontFamily: "var(--sans)", fontSize: 11, color: WARM_GRAY, textDecoration: "none", letterSpacing: "0.05em" }}
+            >
+              {s}
+            </a>
+          );
+        })}
       </div>
     </div>
   );
@@ -386,9 +398,21 @@ function About() {
           TONE TOKYO {"\u2014"} Japan, through the eyes of someone who lives it. Every recommendation comes from personal experience.
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 16 }}>
-          {["Instagram", "X", "YouTube"].map(s => (
-            <a key={s} href="#" style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>{s}</a>
-          ))}
+          {["Instagram", "X", "YouTube"].map(s => {
+            const href = s === "Instagram" ? "https://www.instagram.com/tone_tokyo.jp/" : "#";
+            const external = href !== "#";
+            return (
+              <a
+                key={s}
+                href={href}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
+                style={{ fontFamily: "var(--sans)", fontSize: 10, color: "rgba(255,255,255,0.35)", textDecoration: "none" }}
+              >
+                {s}
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>
