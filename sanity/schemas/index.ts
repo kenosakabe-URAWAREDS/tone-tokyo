@@ -89,4 +89,51 @@ const article = defineType({
   preview: { select: { title: 'title', subtitle: 'pillar', media: 'heroImage' } },
 });
 
-export const schemaTypes = [article];
+/**
+ * Ephemeral session state for the LINE bot's templated multi-turn flow.
+ *
+ * One document per LINE user (id deterministically derived from
+ * userId in app/api/line-webhook/route.ts so reads are O(1) by id).
+ * Lifecycle: created when the user sends a photo → updated as they
+ * answer pillar-specific questions → deleted once the article is
+ * generated. Stale sessions can be cleaned with a Studio query.
+ */
+const lineSession = defineType({
+  name: 'lineSession',
+  title: 'LINE Session (ephemeral)',
+  type: 'document',
+  fields: [
+    defineField({ name: 'userId', title: 'LINE User ID', type: 'string' }),
+    defineField({
+      name: 'state',
+      title: 'State',
+      type: 'string',
+      options: { list: ['awaiting-pillar', 'collecting'] },
+    }),
+    defineField({
+      name: 'pillar',
+      title: 'Pillar',
+      type: 'string',
+      options: { list: ['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT'] },
+    }),
+    defineField({
+      name: 'answers',
+      title: 'Collected text answers',
+      type: 'array',
+      of: [{ type: 'string' }],
+    }),
+    defineField({
+      name: 'imageAsset',
+      title: 'Pending photo',
+      type: 'image',
+      description: 'Uploaded immediately on receipt; promoted to article.heroImage when the session resolves.',
+    }),
+    defineField({ name: 'googleMapsUrl', type: 'url' }),
+    defineField({ name: 'tabelogUrl', type: 'url' }),
+    defineField({ name: 'officialUrl', type: 'url' }),
+    defineField({ name: 'updatedAt', type: 'datetime' }),
+  ],
+  preview: { select: { title: 'userId', subtitle: 'state' } },
+});
+
+export const schemaTypes = [article, lineSession];

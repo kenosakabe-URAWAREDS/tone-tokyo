@@ -24,8 +24,73 @@ function compressImage(file: File): Promise<string> {
   });
 }
 
+type Pillar = "FASHION" | "EAT" | "CULTURE" | "EXPERIENCE" | "CRAFT";
+
+const PILLARS: Array<{ key: Pillar; label: string; emoji: string }> = [
+  { key: "FASHION", label: "Fashion", emoji: "👕" },
+  { key: "EAT", label: "Eat", emoji: "🍜" },
+  { key: "CULTURE", label: "Culture", emoji: "🎭" },
+  { key: "EXPERIENCE", label: "Experience", emoji: "🗺️" },
+  { key: "CRAFT", label: "Craft", emoji: "🛠️" },
+];
+
+// Pillar-specific question schemas. Each field maps to a label.
+// All fields are optional except `comment` (the editor's one-liner).
+type PillarFields = Record<string, string>;
+
+const PILLAR_FIELDS: Record<Pillar, Array<{ key: string; label: string; placeholder?: string }>> = {
+  EAT: [
+    { key: "name", label: "店名", placeholder: "麺屋 まる / Mengyo Maru" },
+    { key: "area", label: "場所（エリア）", placeholder: "三軒茶屋 / Sangenjaya" },
+    { key: "ate", label: "何を食べた？おすすめは？", placeholder: "醤油ラーメン、つけ麺。醤油が看板。" },
+    { key: "price", label: "価格帯", placeholder: "¥1,000-2,000" },
+    { key: "comment", label: "一言コメント *", placeholder: "麺がしっかり、スープが絶品" },
+  ],
+  FASHION: [
+    { key: "name", label: "ブランド名 / 店名", placeholder: "AURALEE" },
+    { key: "feature", label: "何が特徴？", placeholder: "素材使い、テクスチャー、生地の選び方" },
+    { key: "audience", label: "誰向け？", placeholder: "30代、ミニマル志向、長く着られる服を探す人" },
+    { key: "price", label: "価格帯", placeholder: "ジャケット ¥50,000~" },
+    { key: "comment", label: "一言コメント *", placeholder: "26AWは特にニットが良かった" },
+  ],
+  CULTURE: [
+    { key: "name", label: "名前 / 場所", placeholder: "Contact Tokyo" },
+    { key: "feature", label: "何が特徴？", placeholder: "クラブ。サウンドシステムが東京随一" },
+    { key: "when", label: "いつ行った？", placeholder: "土曜の深夜" },
+    { key: "audience", label: "誰向け？", placeholder: "テクノ・ハウス好きの大人" },
+    { key: "comment", label: "一言コメント *", placeholder: "音と空気感が他にない" },
+  ],
+  EXPERIENCE: [
+    { key: "name", label: "名前 / 場所", placeholder: "代々木公園エリアの散歩ルート" },
+    { key: "feature", label: "何が特徴？", placeholder: "公園 → 古着屋 → コーヒー → 神社" },
+    { key: "when", label: "いつ行った？", placeholder: "秋の平日昼" },
+    { key: "audience", label: "誰向け？", placeholder: "観光客より地元寄りな人" },
+    { key: "comment", label: "一言コメント *", placeholder: "1日かけてゆっくり歩くのに最適" },
+  ],
+  CRAFT: [
+    { key: "name", label: "名前 / 場所", placeholder: "Collect Mills (岡山)" },
+    { key: "feature", label: "何が特徴？", placeholder: "シャトル織機を残す数少ないデニム工場" },
+    { key: "when", label: "いつ行った？", placeholder: "2026年3月、工場見学" },
+    { key: "audience", label: "誰向け？", placeholder: "デニム好き、Made in Japan に興味のある人" },
+    { key: "comment", label: "一言コメント *", placeholder: "三人の織り手のうち一人が引退する" },
+  ],
+};
+
+/** Compose a structured memo string from form fields for the AI prompt. */
+function composeMemo(pillar: Pillar, fields: PillarFields): string {
+  const schema = PILLAR_FIELDS[pillar];
+  const lines: string[] = [];
+  lines.push(`[Editor's structured input — pillar: ${pillar}]`);
+  for (const f of schema) {
+    const v = fields[f.key]?.trim();
+    if (v) lines.push(`- ${f.label.replace(/ \*$/, "")}: ${v}`);
+  }
+  return lines.join("\n");
+}
+
 export default function InputPage() {
-  const [memo, setMemo] = useState("");
+  const [pillar, setPillar] = useState<Pillar | null>(null);
+  const [fields, setFields] = useState<PillarFields>({});
   const [officialUrl, setOfficialUrl] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [tabelogUrl, setTabelogUrl] = useState("");
@@ -84,8 +149,11 @@ export default function InputPage() {
     setPreviews(prev => prev.filter((_, idx) => idx !== i));
   };
 
+  const comment = fields.comment?.trim() || "";
+  const canSubmit = !!pillar && !!comment;
+
   const submit = async () => {
-    if (!memo && images.length === 0) return;
+    if (!pillar || !comment) return;
     setStatus("sending");
     try {
       const base64Images: string[] = [];
@@ -93,23 +161,37 @@ export default function InputPage() {
         const b64 = await compressImage(f);
         base64Images.push(b64);
       }
+      const memo = composeMemo(pillar, fields);
       const res = await fetch("/api/create-article", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memo, images: base64Images, officialUrl: officialUrl.trim(), googleMapsUrl: googleMapsUrl.trim(), tabelogUrl: tabelogUrl.trim() }),
+        body: JSON.stringify({
+          memo,
+          pillar,
+          images: base64Images,
+          officialUrl: officialUrl.trim(),
+          googleMapsUrl: googleMapsUrl.trim(),
+          tabelogUrl: tabelogUrl.trim(),
+        }),
       });
       const data = await res.json();
       if (data.success) {
         setStatus("done");
         setResult(`📝 ${data.title}\n🇯🇵 ${data.titleJa || ""}\n\ntone-tokyo.com/article/${data.slug}`);
-        setMemo(""); setOfficialUrl(""); setGoogleMapsUrl(""); setTabelogUrl(""); setImages([]); setPreviews([]);
+        setPillar(null);
+        setFields({});
+        setOfficialUrl("");
+        setGoogleMapsUrl("");
+        setTabelogUrl("");
+        setImages([]);
+        setPreviews([]);
       } else {
         setStatus("error");
         setResult(data.error || "Failed");
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       setStatus("error");
-      setResult(e.message);
+      setResult(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -129,10 +211,66 @@ export default function InputPage() {
 
       <div style={{ maxWidth: 560, margin: "0 auto", padding: "32px 20px" }}>
         <h1 style={{ fontFamily: F.display, fontSize: 28, fontWeight: 700, color: C.charcoal, marginBottom: 8 }}>New Article</h1>
-        <p style={{ fontFamily: F.body, fontSize: 15, color: C.warmGray, marginBottom: 32 }}>写真とメモを送信 → AIが記事を自動生成します</p>
+        <p style={{ fontFamily: F.body, fontSize: 15, color: C.warmGray, marginBottom: 8 }}>ピラーを選んで、わかる範囲で答えてください。AIが記事を生成します。</p>
+        <p style={{ fontFamily: F.body, fontSize: 13, color: C.warmGray, marginBottom: 32, fontStyle: "italic" as const }}>※ 情報が少ない場合は短い記事 (200-300語) になります。AI が事実を創作することはありません。</p>
 
-        <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>Memo / メモ</label>
-        <textarea value={memo} onChange={e => setMemo(e.target.value)} placeholder="代官山の新しいラーメン屋。元アフリのシェフ。柚子塩が完璧。" rows={4} style={{ ...inputStyle, resize: "vertical" as const, marginBottom: 20 }} />
+        {/* Pillar selector */}
+        <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>Pillar *</label>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))", gap: 8, marginBottom: 24 }}>
+          {PILLARS.map((p) => {
+            const selected = pillar === p.key;
+            return (
+              <button
+                key={p.key}
+                onClick={() => { setPillar(p.key); setFields({}); }}
+                style={{
+                  padding: "12px 8px",
+                  border: `2px solid ${selected ? C.indigo : C.lightWarm}`,
+                  background: selected ? C.indigo : "#fff",
+                  color: selected ? "#fff" : C.charcoal,
+                  borderRadius: 4,
+                  fontFamily: F.ui,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.05em",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{p.emoji}</div>
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Pillar-specific fields */}
+        {pillar && (
+          <div style={{ marginBottom: 8 }}>
+            {PILLAR_FIELDS[pillar].map((f) => (
+              <div key={f.key} style={{ marginBottom: 16 }}>
+                <label style={{ fontFamily: F.ui, fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: C.charcoal, marginBottom: 6, display: "block" }}>{f.label}</label>
+                {f.key === "comment" || f.key === "ate" || f.key === "feature" ? (
+                  <textarea
+                    value={fields[f.key] || ""}
+                    onChange={(e) => setFields({ ...fields, [f.key]: e.target.value })}
+                    placeholder={f.placeholder || ""}
+                    rows={3}
+                    style={{ ...inputStyle, resize: "vertical" as const }}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={fields[f.key] || ""}
+                    onChange={(e) => setFields({ ...fields, [f.key]: e.target.value })}
+                    placeholder={f.placeholder || ""}
+                    style={inputStyle}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         <label style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 8, display: "block" }}>🔗 Official Site URL（任意）</label>
         <input type="url" value={officialUrl} onChange={e => setOfficialUrl(e.target.value)} placeholder="https://example.com" style={{ ...inputStyle, marginBottom: 20 }} />
@@ -158,7 +296,7 @@ export default function InputPage() {
           </div>
         )}
 
-        <button onClick={submit} disabled={status === "sending" || (!memo && images.length === 0)} style={{ width: "100%", padding: "14px", background: status === "sending" ? C.warmGray : C.indigo, color: "#fff", border: "none", borderRadius: 4, fontFamily: F.ui, fontSize: 15, fontWeight: 600, letterSpacing: "0.06em", cursor: status === "sending" ? "wait" : "pointer", marginBottom: 20, opacity: (!memo && images.length === 0) ? 0.5 : 1 }}>
+        <button onClick={submit} disabled={status === "sending" || !canSubmit} style={{ width: "100%", padding: "14px", background: status === "sending" ? C.warmGray : C.indigo, color: "#fff", border: "none", borderRadius: 4, fontFamily: F.ui, fontSize: 15, fontWeight: 600, letterSpacing: "0.06em", cursor: status === "sending" ? "wait" : "pointer", marginBottom: 20, opacity: canSubmit ? 1 : 0.5 }}>
           {status === "sending" ? "⏳ AI記事生成中..." : "記事を生成する"}
         </button>
 
@@ -172,12 +310,15 @@ export default function InputPage() {
         <div style={{ marginTop: 40, padding: 24, background: C.cream, borderRadius: 4 }}>
           <div style={{ fontFamily: F.ui, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: C.indigo, marginBottom: 12 }}>使い方</div>
           <div style={{ fontFamily: F.body, fontSize: 14, lineHeight: 1.8, color: C.charcoal }}>
-            <p style={{ marginBottom: 8 }}>1. メモを日本語で入力（英語でもOK）</p>
-            <p style={{ marginBottom: 8 }}>2. Google MapsのURLを貼付（住所・営業時間を自動取得）</p>
-            <p style={{ marginBottom: 8 }}>3. 食べログのURLを貼付（メニュー・価格帯を自動取得）</p>
+            <p style={{ marginBottom: 8 }}>1. ピラーを選ぶ（FASHION / EAT / CULTURE / EXPERIENCE / CRAFT）</p>
+            <p style={{ marginBottom: 8 }}>2. わかる範囲でフィールドを埋める（必須は「一言コメント」のみ）</p>
+            <p style={{ marginBottom: 8 }}>3. 必要なら Google Maps / 食べログ URL を貼付（自動取得）</p>
             <p style={{ marginBottom: 8 }}>4. 写真を追加（複数可・自動圧縮）</p>
-            <p style={{ marginBottom: 0 }}>5.「記事を生成する」→ AIが英語記事を自動作成 → Sanityに下書き保存</p>
+            <p style={{ marginBottom: 0 }}>5.「記事を生成する」→ AIが英語記事を作成 → Sanityに下書き保存</p>
           </div>
+          <p style={{ fontFamily: F.body, fontSize: 12, color: C.warmGray, lineHeight: 1.5, marginTop: 14, marginBottom: 0, fontStyle: "italic" as const }}>
+            情報が薄い時は AI が無理に長文を書かず、200-300語の短い記事になります。AI は事実を創作しないので、知らないオーナー名や住所は省略されます。
+          </p>
         </div>
 
         {/* === Translate Body (Ja → En) ===

@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from 'next-sanity';
 import Anthropic from '@anthropic-ai/sdk';
+import { EDITOR_SYSTEM_PROMPT } from '@/lib/editor-prompt';
 
 const sanity = createClient({
   projectId: 'w757ks40',
@@ -12,11 +13,7 @@ const sanity = createClient({
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM_PROMPT = `You are The Editor of TONE TOKYO, an English-language media about Japanese fashion, food, culture, and craft. You write from a first-person perspective as a Tokyo-based insider who travels the world and knows Japan deeply. Your voice is: specific not generic, opinionated but fair, insider casual, never touristy. Never use words like amazing, incredible, must-visit, hidden gem, off the beaten path, bucket list. Lead with a specific detail, end with practical info (address, hours, price). Explain Japanese terms naturally in context. Write 300-500 words.
-
-When Google Maps or Tabelog URLs are provided, use the extracted information (address, hours, rating, menu items, price range, reviews) to make the article more accurate and detailed. Do NOT copy reviews verbatim - use them only as reference for factual details like popular dishes, atmosphere, and practical tips.
-
-Output JSON with fields: title, subtitle, pillar (one of FASHION/EAT/CULTURE/EXPERIENCE/CRAFT), body (the article text as a single string), tags (array of strings), readTime (like "3 min read"), locationName (English name), locationNameJa (Japanese name if applicable), titleJa (Japanese title for review purposes), address (full address if available), hours (business hours if available), priceRange (e.g. "ﾂ･1,000-2,000"). Return ONLY valid JSON, no markdown.`;
+const VALID_PILLARS = new Set(['FASHION', 'EAT', 'CULTURE', 'EXPERIENCE', 'CRAFT']);
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 96);
@@ -44,11 +41,18 @@ async function fetchUrlContent(url: string): Promise<string> {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    const { memo, images, googleMapsUrl, tabelogUrl, officialUrl } = data;
+    const { memo, images, googleMapsUrl, tabelogUrl, officialUrl, pillar } = data;
 
     if (!memo && (!images || images.length === 0)) {
       return NextResponse.json({ error: 'Memo or image required' }, { status: 400 });
     }
+
+    // Validate caller-supplied pillar hint (optional). When present
+    // we lock the AI's pillar choice via an explicit prompt prefix.
+    const lockedPillar: string | null =
+      typeof pillar === 'string' && VALID_PILLARS.has(pillar.toUpperCase())
+        ? pillar.toUpperCase()
+        : null;
 
     // Fetch additional context from URLs
     let urlContext = '';
@@ -62,7 +66,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Build prompt
-    let promptText = 'Write an article based on this input from The Editor:\n\n' + memo;
+    let promptText = 'Write an article based on this input from The Editor:\n\n' + (memo || '');
+    if (lockedPillar) {
+      promptText =
+        `[LOCKED PILLAR — the editor has explicitly chosen pillar: ${lockedPillar}. ` +
+        `Use this pillar in your output. Do not override.]\n\n` +
+        promptText;
+    }
     if (googleMapsUrl) promptText += '\n\nGoogle Maps URL: ' + googleMapsUrl;
     if (tabelogUrl) promptText += '\n\nTabelog URL: ' + tabelogUrl;
     if (urlContext) promptText += '\n\nReference information from URLs (use for accuracy, do NOT copy reviews):' + urlContext;
@@ -79,7 +89,7 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
-      system: SYSTEM_PROMPT,
+      system: EDITOR_SYSTEM_PROMPT,
       messages: [{ role: 'user', content }],
     });
 
@@ -89,6 +99,12 @@ export async function POST(req: NextRequest) {
       article = JSON.parse(aiText.replace(/```json|```/g, '').trim());
     } catch {
       return NextResponse.json({ error: 'AI generation failed' }, { status: 500 });
+    }
+
+    // Belt-and-suspenders: even if the model ignores the locked
+    // pillar prompt prefix, force the field server-side.
+    if (lockedPillar) {
+      article.pillar = lockedPillar;
     }
 
     const slug = slugify(article.title);
