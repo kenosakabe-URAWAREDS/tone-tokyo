@@ -14,7 +14,11 @@ type Article = {
   slug: string;
   pillar?: string;
   subtitle?: string;
+  /** Coalesced URL string from `coalesce(heroImage.asset->url, heroImageUrl)`. */
   heroImage?: string;
+  /** Raw Sanity image object (asset + crop + hotspot). Used by
+   *  lib/image.urlForArticleImage to generate properly cropped URLs. */
+  heroImageRef?: { _type?: string; asset?: unknown; crop?: unknown; hotspot?: unknown } | null;
   heroCaption?: string;
   body?: unknown;
   locationName?: string;
@@ -38,9 +42,14 @@ type Article = {
 };
 
 async function getArticle(slug: string): Promise<Article | null> {
+  // heroImageRef is the raw Sanity image object (asset + crop + hotspot)
+  // and feeds @sanity/image-url so ArticleClient can render a properly
+  // cropped, high-res hero. The coalesced `heroImage` URL string is
+  // kept as a fallback for OG metadata and other consumers.
   const query = `*[_type == "article" && slug.current == $slug][0] {
     _id, title, titleJa, "slug": slug.current, pillar, subtitle,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
+    "heroImageRef": heroImage,
     heroCaption, body, locationName, locationNameJa,
     tags, readTime, publishedAt, _updatedAt, sourceType,
     area, neighborhood, address, googleMapsUrl, officialUrl, tabelogUrl, priceRange,
@@ -53,6 +62,7 @@ async function getRelatedArticles(pillar: string, currentSlug: string) {
   const query = `*[_type == "article" && pillar == $pillar && slug.current != $currentSlug] | order(publishedAt desc) [0..2] {
     _id, title, "slug": slug.current, pillar,
     "heroImage": coalesce(heroImage.asset->url, heroImageUrl),
+    "heroImageRef": heroImage,
     readTime
   }`;
   return client.fetch(query, { pillar, currentSlug });
