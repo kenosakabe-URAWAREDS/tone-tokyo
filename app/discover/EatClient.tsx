@@ -70,10 +70,10 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
           <Link href="/" style={{ textDecoration: "none" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#2D2D2D", letterSpacing: "-0.02em", lineHeight: 1.1 }}>TONE</span>
-                <span style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 6.5, fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase" as const, color: "#A39E93", lineHeight: 1 }}>TOKYO</span>
+                <span style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 24, fontWeight: 700, color: "#2D2D2D", letterSpacing: "-0.02em", lineHeight: 1 }}>TONE</span>
+                <span style={{ fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 16, fontWeight: 400, letterSpacing: "0.15em", textTransform: "uppercase" as const, color: "#A39E93", lineHeight: 1 }}>TOKYO</span>
               </div>
-              <div style={{ fontFamily: "var(--jp)", fontSize: 5.5, fontWeight: 300, letterSpacing: "0.45em", color: "rgba(45,45,45,0.4)", marginTop: 1, lineHeight: 1 }}>{"\u97F3 \u6771\u4EAC"}</div>
+              <div style={{ fontFamily: "var(--jp)", fontSize: 9, fontWeight: 300, letterSpacing: "0.3em", color: "rgba(45,45,45,0.4)", marginTop: 1, lineHeight: 1 }}>{"\u97F3 \u6771\u4EAC"}</div>
             </div>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -155,6 +155,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
     </div>
   );
 }
+
 
 
 
