@@ -142,9 +142,9 @@ function Menu({ open, onClose }: { open: boolean; onClose: () => void }) {
 function Hero({ vis, featured }: { vis: boolean; featured?: any }) {
   return (
     <section style={{ position: "relative", height: "85vh", minHeight: 480, overflow: "hidden", background: CHARCOAL }}>
-      <img src={(featured && featured.heroImage) || FEATURED.image} alt="" style={{
+      <img src={(featured && featured.heroImage) || FEATURED.image} alt="" className="hero-image" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%",
-        objectFit: "cover", objectPosition: "center 60%",
+        objectFit: "cover",
         filter: "brightness(0.6) saturate(0.85)",
         transform: vis ? "scale(1)" : "scale(1.05)",
         transition: "transform 5s ease",
@@ -209,7 +209,9 @@ function ArticleCard({ a, i, vis }: { a: any; i: number; vis: boolean }) {
     }} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}>
       <div style={{ overflow: "hidden", aspectRatio: "3/2", marginBottom: 12, background: LIGHT_WARM }}>
         <img src={a.image} alt="" style={{
-          width: "100%", height: "100%", objectFit: "cover" as const, filter: "saturate(0.85)",
+          width: "100%", height: "100%", objectFit: "cover" as const,
+          objectPosition: "center 35%",
+          filter: "saturate(0.85)",
           transform: h ? "scale(1.04)" : "scale(1)", transition: "transform 0.6s ease",
         }} />
       </div>
@@ -280,7 +282,7 @@ function PicksSection({ articles }: { articles?: any[] }) {
                 transition: `all 0.5s ease ${i * 0.08}s`,
               }}>
                 <div style={{ width: 60, height: 60, flexShrink: 0, overflow: "hidden", background: LIGHT_WARM }}>
-                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, filter: "saturate(0.8)" }} />
+                  <img src={pk.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: "center 35%", filter: "saturate(0.8)" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Tag p={pk.pillar} />

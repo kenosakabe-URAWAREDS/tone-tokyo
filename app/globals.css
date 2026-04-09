@@ -30,6 +30,22 @@ body {
 .articles-desktop {
   display: none;
 }
+
+/*
+ * Hero photo cropping.
+ *
+ * On mobile the hero is a tall narrow box, so biasing the visible band
+ * toward the lower portion (60%) keeps subjects from being clipped at
+ * the bottom. On desktop the hero is a wide short box — the same crop
+ * pushes subjects off-frame, so we bias toward the upper third instead.
+ *
+ * Defined as a CSS class (rather than inline style) so it can switch on
+ * a media query; React inline styles can't express @media rules.
+ */
+.hero-image {
+  object-position: center 60%;
+}
+
 @media (min-width: 768px) {
   .articles-mobile {
     display: none;
@@ -38,5 +54,8 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
+  }
+  .hero-image {
+    object-position: center 30%;
   }
 }
