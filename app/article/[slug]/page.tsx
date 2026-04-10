@@ -5,7 +5,7 @@ import ArticleClient from "./ArticleClient";
 
 const SITE_URL = "https://tone-tokyo.com";
 const SITE_NAME = "TONE TOKYO";
-const FALLBACK_OG = `${SITE_URL}/og-default.jpg`;
+const FALLBACK_OG = `${SITE_URL}/opengraph-image`;
 
 type Article = {
   _id: string;
