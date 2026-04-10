@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import heic2any from 'heic2any';
 import { C, F } from './styles';
 
 /* ------------------------------------------------------------------ */
@@ -197,20 +198,31 @@ export default function EditorDashboard() {
 /*  Photo Library Tab                                                  */
 /* ================================================================== */
 
-/** Load a File into an HTMLImageElement */
-function loadImage(file: File): Promise<HTMLImageElement> {
+/** Load a File/Blob into an HTMLImageElement */
+function loadImage(file: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(`Failed to load image: ${file.name}`)); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Failed to load image')); };
     img.src = url;
   });
 }
 
 /** Resize on canvas and return a JPEG Blob (max 2048px on longest side, quality 0.85) */
+function isHeic(file: File): boolean {
+  const name = file.name.toLowerCase();
+  return name.endsWith('.heic') || name.endsWith('.heif') ||
+    file.type === 'image/heic' || file.type === 'image/heif';
+}
+
 async function compressToBlob(file: File): Promise<Blob> {
-  const img = await loadImage(file);
+  // Convert HEIC/HEIF to JPEG blob first
+  let sourceFile: File | Blob = file;
+  if (isHeic(file)) {
+    sourceFile = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }) as Blob;
+  }
+  const img = await loadImage(sourceFile);
   const MAX = 2048;
   let { width, height } = img;
   if (width > MAX || height > MAX) {
@@ -389,7 +401,7 @@ function PhotoLibrary() {
   return (
     <div>
       {/* Upload area */}
-      <input ref={fileRef} type="file" accept="image/*" multiple onChange={(e) => handleUpload(e.target.files)} style={{ display: 'none' }} />
+      <input ref={fileRef} type="file" accept="image/*,.heic,.heif" multiple onChange={(e) => handleUpload(e.target.files)} style={{ display: 'none' }} />
       <button
         onClick={() => fileRef.current?.click()}
         disabled={uploading}
