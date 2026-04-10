@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
       additionalImages,
       googleMapsUrl,
       tabelogUrl,
+      officialUrl,
+      referenceUrls,
       pillar,
       isJapaneseAbroad,
       city,
@@ -63,6 +65,8 @@ export async function POST(req: NextRequest) {
       additionalImages?: string[];
       googleMapsUrl?: string;
       tabelogUrl?: string;
+      officialUrl?: string;
+      referenceUrls?: string[];
       pillar?: string;
       isJapaneseAbroad?: boolean;
       city?: string;
@@ -119,6 +123,16 @@ export async function POST(req: NextRequest) {
       const c = await fetchUrlContent(tabelogUrl);
       if (c) urlContext += '\n\n[Tabelog info]:\n' + c;
     }
+    if (officialUrl) {
+      const c = await fetchUrlContent(officialUrl);
+      if (c) urlContext += '\n\n[公式サイト情報]: コンセプト、メニュー、価格帯、シェフ/デザイナー情報を参考に:\n' + c;
+    }
+    if (Array.isArray(referenceUrls)) {
+      for (const refUrl of referenceUrls.filter(Boolean)) {
+        const c = await fetchUrlContent(refUrl);
+        if (c) urlContext += `\n\n[参考情報] ${refUrl}:\n` + c;
+      }
+    }
 
     let promptText = `[LOCKED PILLAR — エディターが pillar: ${lockedPillar} を選択。出力では必ずこの pillar を反映し、覆さないこと。]
 
@@ -132,6 +146,7 @@ ${finalMemo || '(メモなし — 写真と URL から判断)'}`;
 
     if (googleMapsUrl) promptText += '\n\nGoogle Maps URL: ' + googleMapsUrl;
     if (tabelogUrl) promptText += '\n\nTabelog URL: ' + tabelogUrl;
+    if (officialUrl) promptText += '\n\n公式サイト URL: ' + officialUrl;
     if (urlContext)
       promptText +=
         '\n\nURL から取得した参考情報 (事実だけ抜き、レビュー文の逐語コピー禁止):' +

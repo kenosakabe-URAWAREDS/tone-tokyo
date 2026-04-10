@@ -68,6 +68,7 @@ const article = defineType({
     defineField({ name: 'phone', title: 'Phone', type: 'string', description: '電話番号 (国番号なしでOK: 例 03-1234-5678)' }),
     defineField({ name: 'hours', title: 'Hours', type: 'string', description: '営業時間 (例: 11:30–14:00 / 18:00–22:00, 月休)' }),
     defineField({ name: 'websiteUrl', title: 'Website URL', type: 'url', description: 'Independent website (officialUrl と同義 — 新規エディタが書き込む先)' }),
+    defineField({ name: 'referenceUrls', title: 'Reference URLs', type: 'array', of: [{ type: 'url' }], description: '参考URL (Instagram, EC, YouTube など)' }),
 
     // === JAPANESE ABROAD SERIES ===
     // The Editor's overseas dispatches — Japanese restaurants and

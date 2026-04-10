@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
       googleMapsUrl,
       tabelogUrl,
       websiteUrl,
+      referenceUrls,
       isJapaneseAbroad,
       city,
       country,
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
       googleMapsUrl?: string;
       tabelogUrl?: string;
       websiteUrl?: string;
+      referenceUrls?: string[];
       isJapaneseAbroad?: boolean;
       city?: string;
       country?: string;
@@ -217,6 +219,7 @@ Respond with the JSON object specified in the system prompt.`;
       tabelogUrl: tabelogUrl || '',
       websiteUrl: websiteUrl || '',
       officialUrl: websiteUrl || '',
+      referenceUrls: Array.isArray(referenceUrls) ? referenceUrls.filter(Boolean) : [],
       isJapaneseAbroad: Boolean(isJapaneseAbroad),
       city: isJapaneseAbroad ? city || '' : '',
       country: isJapaneseAbroad ? country || '' : '',

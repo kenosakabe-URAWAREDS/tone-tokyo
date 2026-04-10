@@ -83,6 +83,9 @@ export default function GenerateClient({ id }: { id: string }) {
   const [pillar, setPillar] = useState<Pillar>('EAT');
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
   const [tabelogUrl, setTabelogUrl] = useState('');
+  const [officialUrl, setOfficialUrl] = useState('');
+  const [referenceUrls, setReferenceUrls] = useState<string[]>([]);
+  const [refUrlCount, setRefUrlCount] = useState(0);
   const [isAbroad, setIsAbroad] = useState(false);
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
@@ -150,6 +153,8 @@ export default function GenerateClient({ id }: { id: string }) {
           additionalImages: extraImages,
           googleMapsUrl: googleMapsUrl.trim(),
           tabelogUrl: tabelogUrl.trim(),
+          officialUrl: officialUrl.trim(),
+          referenceUrls: referenceUrls.map((u) => u.trim()).filter(Boolean),
           pillar,
           isJapaneseAbroad: isAbroad,
           city: isAbroad ? city.trim() : '',
@@ -196,7 +201,8 @@ export default function GenerateClient({ id }: { id: string }) {
           priceRange: draft.priceRange || '',
           googleMapsUrl: googleMapsUrl.trim(),
           tabelogUrl: tabelogUrl.trim(),
-          websiteUrl: draft.websiteUrl || '',
+          websiteUrl: draft.websiteUrl || officialUrl.trim(),
+          referenceUrls: referenceUrls.map((u) => u.trim()).filter(Boolean),
           isJapaneseAbroad: isAbroad,
           city: isAbroad ? city.trim() : '',
           country: isAbroad ? country.trim() : '',
@@ -380,6 +386,72 @@ export default function GenerateClient({ id }: { id: string }) {
                 placeholder="https://tabelog.com/..."
                 style={inputStyle}
               />
+            </Section>
+
+            <Section label="公式サイト URL">
+              <input
+                type="url"
+                value={officialUrl}
+                onChange={(e) => setOfficialUrl(e.target.value)}
+                placeholder="https://..."
+                style={inputStyle}
+              />
+            </Section>
+
+            <Section label="参考URL">
+              {Array.from({ length: refUrlCount }, (_, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <input
+                    type="url"
+                    value={referenceUrls[i] || ''}
+                    onChange={(e) => {
+                      const next = [...referenceUrls];
+                      next[i] = e.target.value;
+                      setReferenceUrls(next);
+                    }}
+                    placeholder="Instagram, EC, YouTube など"
+                    style={{ ...inputStyle, flex: 1 }}
+                  />
+                  <button
+                    onClick={() => {
+                      setReferenceUrls((prev) => prev.filter((_, idx) => idx !== i));
+                      setRefUrlCount((c) => c - 1);
+                    }}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: C.charcoal,
+                      color: '#fff',
+                      border: 'none',
+                      fontSize: 14,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      alignSelf: 'center',
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {refUrlCount < 3 && (
+                <button
+                  onClick={() => setRefUrlCount((c) => c + 1)}
+                  style={{
+                    width: '100%',
+                    padding: 10,
+                    border: `2px dashed ${C.lightWarm}`,
+                    background: 'transparent',
+                    borderRadius: 4,
+                    fontFamily: F.ui,
+                    fontSize: 12,
+                    color: C.warmGray,
+                    cursor: 'pointer',
+                  }}
+                >
+                  + 参考URLを追加
+                </button>
+              )}
             </Section>
 
             <Section label="Pillar">
