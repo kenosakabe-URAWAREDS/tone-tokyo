@@ -154,6 +154,9 @@ export default function EditorDashboard() {
           </div>
         </Link>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <Link href="/editor/about" style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, textDecoration: 'none', letterSpacing: '0.08em' }}>
+            Tech Stack
+          </Link>
           <Link href="/" style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, textDecoration: 'none', letterSpacing: '0.08em' }}>
             ↗ Site
           </Link>
