@@ -215,20 +215,34 @@ function isHeic(file: File): boolean {
     file.type === 'image/heic' || file.type === 'image/heif';
 }
 
-async function compressToBlob(file: File): Promise<Blob> {
-  // Convert HEIC/HEIF to JPEG blob first, with fallback on failure
-  let sourceFile: Blob = file;
+/** Convert file to an uploadable Blob. HEIC → JPEG via heic2any, others via canvas resize. */
+async function prepareBlob(file: File): Promise<{ blob: Blob; contentType: string }> {
+  // HEIC/HEIF: convert to JPEG first
   if (isHeic(file)) {
+    console.log(`[prepareBlob] HEIC detected: ${file.name} (${file.size} bytes, type=${file.type})`);
     try {
-      const heic2any = (await import('heic2any')).default;
+      const heic2anyModule = await import('heic2any');
+      const heic2any = heic2anyModule.default;
+      console.log('[prepareBlob] heic2any loaded successfully');
       const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
-      sourceFile = Array.isArray(converted) ? converted[0] : converted;
+      const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
+      console.log(`[prepareBlob] HEIC→JPEG conversion OK: ${jpegBlob.size} bytes`);
+      // Now resize the converted JPEG via canvas
+      return { blob: await resizeViaCanvas(jpegBlob), contentType: 'image/jpeg' };
     } catch (e) {
-      console.warn('[compressToBlob] HEIC conversion failed, using original file:', e);
-      // Fall through — try to load the original file as-is
+      console.warn('[prepareBlob] HEIC conversion failed, uploading original HEIC to Sanity:', e);
+      // Sanity accepts HEIC — upload the raw file directly without canvas
+      return { blob: file, contentType: file.type || 'image/heic' };
     }
   }
-  const img = await loadImage(sourceFile);
+
+  // Standard image: resize via canvas
+  return { blob: await resizeViaCanvas(file), contentType: 'image/jpeg' };
+}
+
+/** Resize a Blob via canvas → JPEG (max 2048px, quality 0.85) */
+async function resizeViaCanvas(source: Blob): Promise<Blob> {
+  const img = await loadImage(source);
   const MAX = 2048;
   let { width, height } = img;
   if (width > MAX || height > MAX) {
@@ -328,15 +342,17 @@ function PhotoLibrary() {
 
     for (let i = 0; i < fileArr.length; i++) {
       try {
-        // Compress image on canvas → JPEG blob
-        const blob = await compressToBlob(fileArr[i]);
-        const filename = `photo-${Date.now()}-${i}.jpg`;
+        // Prepare blob (HEIC→JPEG conversion + canvas resize, or raw fallback)
+        const { blob, contentType } = await prepareBlob(fileArr[i]);
+        const ext = contentType === 'image/jpeg' ? '.jpg' : contentType === 'image/png' ? '.png' : '.heic';
+        const filename = `photo-${Date.now()}-${i}${ext}`;
+        console.log(`[editor] Uploading ${filename}: ${blob.size} bytes, contentType=${contentType}`);
 
         // Upload directly to Sanity Assets API (bypasses Vercel body limit)
         const sanityRes = await fetch(`${SANITY_UPLOAD_URL}?filename=${encodeURIComponent(filename)}`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'image/jpeg',
+            'Content-Type': contentType,
             Authorization: `Bearer ${sanityToken}`,
           },
           body: blob,
