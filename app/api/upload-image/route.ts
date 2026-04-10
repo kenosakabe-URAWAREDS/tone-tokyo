@@ -64,18 +64,33 @@ export async function POST(req: NextRequest) {
     const uploadFilename = (filename || 'photo') + ext;
     console.log(`[upload-image] Uploading to Sanity as "${uploadFilename}" (${mimeType})...`);
 
-    // Try upload with processed buffer; if Sanity rejects it, retry with raw buffer
+    // Upload via Sanity HTTP API (direct fetch avoids SDK metadata-parsing issues)
     let asset: any;
-    try {
-      asset = await sanityWrite.assets.upload('image', buffer, {
-        filename: uploadFilename,
-        contentType: mimeType,
+    const sanityUploadUrl = `https://w757ks40.api.sanity.io/v2024-01-01/assets/images/production?filename=${encodeURIComponent(uploadFilename)}`;
+    const sanityToken = process.env.SANITY_WRITE_TOKEN!;
+
+    const uploadBuffer = async (buf: Buffer, contentType: string) => {
+      const res = await fetch(sanityUploadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': contentType,
+          Authorization: `Bearer ${sanityToken}`,
+        },
+        body: buf,
       });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Sanity upload failed (${res.status}): ${text}`);
+      }
+      const json = await res.json();
+      return json.document;
+    };
+
+    try {
+      asset = await uploadBuffer(buffer, mimeType);
     } catch (uploadErr: any) {
       console.warn(`[upload-image] Sanity rejected processed buffer: ${uploadErr?.message}. Retrying with raw buffer...`);
-      asset = await sanityWrite.assets.upload('image', rawBuffer, {
-        filename: uploadFilename,
-      });
+      asset = await uploadBuffer(rawBuffer, mimeType);
     }
 
     console.log(`[upload-image] Sanity upload success: _id=${asset._id}, url=${asset.url}`);
