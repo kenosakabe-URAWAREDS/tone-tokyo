@@ -220,19 +220,30 @@ async function prepareBlob(file: File): Promise<{ blob: Blob; contentType: strin
   // HEIC/HEIF: convert to JPEG first
   if (isHeic(file)) {
     console.log(`[prepareBlob] HEIC detected: ${file.name} (${file.size} bytes, type=${file.type})`);
+
+    // Step 1: dynamic import heic2any
+    let heic2any: any;
     try {
-      const heic2anyModule = await import('heic2any');
-      const heic2any = heic2anyModule.default;
-      console.log('[prepareBlob] heic2any loaded successfully');
+      const mod = await import('heic2any');
+      heic2any = mod.default ?? mod;
+      console.log(`[prepareBlob] heic2any loaded: type=${typeof heic2any}`);
+    } catch (importErr) {
+      console.error('[prepareBlob] heic2any import failed:', importErr);
+      throw new Error('HEIC変換ライブラリの読み込みに失敗しました。iPhoneの設定 → カメラ → フォーマットで「互換性優先」に変更してJPEGで撮影してください。');
+    }
+
+    // Step 2: convert HEIC → JPEG
+    try {
+      console.log('[prepareBlob] Starting HEIC→JPEG conversion...');
       const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
-      const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
-      console.log(`[prepareBlob] HEIC→JPEG conversion OK: ${jpegBlob.size} bytes`);
-      // Now resize the converted JPEG via canvas
+      console.log(`[prepareBlob] heic2any returned: type=${typeof converted}, isArray=${Array.isArray(converted)}`);
+      const jpegBlob: Blob = Array.isArray(converted) ? converted[0] : converted;
+      console.log(`[prepareBlob] HEIC→JPEG OK: ${jpegBlob.size} bytes, type=${jpegBlob.type}`);
+      // Resize the converted JPEG via canvas
       return { blob: await resizeViaCanvas(jpegBlob), contentType: 'image/jpeg' };
-    } catch (e) {
-      console.warn('[prepareBlob] HEIC conversion failed, uploading original HEIC to Sanity:', e);
-      // Sanity accepts HEIC — upload the raw file directly without canvas
-      return { blob: file, contentType: file.type || 'image/heic' };
+    } catch (convErr) {
+      console.error('[prepareBlob] HEIC→JPEG conversion failed:', convErr);
+      throw new Error('HEIC→JPEG変換に失敗しました。iPhoneの設定 → カメラ → フォーマットで「互換性優先」に変更してJPEGで撮影してください。');
     }
   }
 
