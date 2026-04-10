@@ -1,55 +1,54 @@
 /**
- * Server-side image processing pipeline using sharp.
+ * Server-side image processing pipeline.
  *
- * All uploaded images pass through processImage() for consistent
- * tone and sizing before being stored in Sanity:
- *   1. Auto-rotate from EXIF orientation
- *   2. Resize (longest side ≤ 2000 px, preserve aspect ratio)
- *   3. normalize + modulate + gamma for the TONE TOKYO look
- *      (slightly warm, slightly desaturated — Kinfolk / Popeye feel)
- *   4. Output as JPEG quality 85
+ * Uses sharp when available for consistent TONE TOKYO image tone.
+ * If sharp cannot be loaded (e.g. missing native binaries on some
+ * deploy targets), every function gracefully returns the original
+ * buffer so uploads never break.
  *
- * If sharp throws for any reason, the original buffer is returned
- * unchanged so the upload still succeeds.
- *
- * sharp is loaded via dynamic import so it never leaks into client
- * bundles and stays a pure server-side dependency.
+ * sharp is loaded via createRequire to hide it from the bundler.
  */
 
-async function getSharp() {
-  const mod = await import('sharp');
-  return mod.default;
+/* eslint-disable @typescript-eslint/no-require-imports */
+let _sharp: any = null;
+let _sharpChecked = false;
+
+function getSharp(): any {
+  if (_sharpChecked) return _sharp;
+  _sharpChecked = true;
+  try {
+    const { createRequire } = require('module');
+    const req = createRequire(__filename);
+    _sharp = req('sharp');
+  } catch {
+    console.warn('image-processor: sharp not available — images will be uploaded without processing');
+    _sharp = null;
+  }
+  return _sharp;
 }
 
 export async function processImage(input: Buffer): Promise<Buffer> {
+  const sharp = getSharp();
+  if (!sharp) return input;
   try {
-    const sharp = await getSharp();
-    const processed = await sharp(input)
-      .rotate() // auto-rotate from EXIF
-      .resize({
-        width: 2000,
-        height: 2000,
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .normalize() // auto brightness / contrast
+    return await sharp(input)
+      .rotate()
+      .resize({ width: 2000, height: 2000, fit: 'inside', withoutEnlargement: true })
+      .normalize()
       .modulate({ brightness: 1.02, saturation: 0.92 })
-      .gamma(1.1) // lift shadows slightly (dark interiors)
+      .gamma(1.1)
       .jpeg({ quality: 85 })
       .toBuffer();
-    return processed;
   } catch (e) {
     console.error('image-processor: sharp failed, returning original', e);
     return input;
   }
 }
 
-/**
- * Resize an image to a 1080×1080 square (center crop) for Instagram.
- */
 export async function processImageForInstagram(input: Buffer): Promise<Buffer> {
+  const sharp = getSharp();
+  if (!sharp) return input;
   try {
-    const sharp = await getSharp();
     return await sharp(input)
       .rotate()
       .resize(1080, 1080, { fit: 'cover', position: 'centre' })

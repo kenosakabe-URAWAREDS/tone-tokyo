@@ -1,15 +1,32 @@
 /**
  * EXIF extraction + reverse geocoding + place lookup.
  *
- * Uses `exifr` to pull GPS coords, timestamp, and camera model
- * from uploaded images. When GPS data is present and
- * GOOGLE_MAPS_API_KEY is set, calls Places Nearby Search to find
- * the closest restaurant / shop. Gracefully degrades when either
- * piece is missing.
+ * Uses exifr when available. If the module cannot be loaded the
+ * readExif function returns an empty object so uploads still work.
+ *
+ * exifr is loaded via createRequire to hide it from the bundler.
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+let _exifr: any = null;
+let _exifrChecked = false;
+
+function getExifr(): any {
+  if (_exifrChecked) return _exifr;
+  _exifrChecked = true;
+  try {
+    const { createRequire } = require('module');
+    const req = createRequire(__filename);
+    _exifr = req('exifr');
+  } catch {
+    console.warn('exif-reader: exifr not available — EXIF data will be skipped');
+    _exifr = null;
+  }
+  return _exifr;
+}
+
 export type ExifData = {
-  takenAt?: string;       // ISO 8601
+  takenAt?: string;
   latitude?: number;
   longitude?: number;
   cameraModel?: string;
@@ -24,15 +41,16 @@ export type PlaceCandidate = {
 };
 
 export type GeoArea = {
-  area?: string;          // district / neighborhood name
+  area?: string;
 };
 
 /**
  * Read EXIF metadata from an image buffer.
  */
 export async function readExif(buffer: Buffer): Promise<ExifData> {
+  const exifr = getExifr();
+  if (!exifr) return {};
   try {
-    const exifr = (await import('exifr')).default;
     const exif = await exifr.parse(buffer, {
       gps: true,
       pick: ['DateTimeOriginal', 'CreateDate', 'Model', 'Make'],
@@ -58,8 +76,7 @@ export async function readExif(buffer: Buffer): Promise<ExifData> {
 }
 
 /**
- * Reverse-geocode GPS coords into a rough area name using
- * Google Maps Geocoding API.
+ * Reverse-geocode GPS coords into a rough area name.
  */
 export async function reverseGeocode(lat: number, lng: number): Promise<GeoArea> {
   const key = process.env.GOOGLE_MAPS_API_KEY;
@@ -69,7 +86,6 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeoArea>
     const res = await fetch(url);
     const data = await res.json();
     if (data.status !== 'OK' || !data.results?.length) return {};
-    // Find the most specific locality / sublocality
     for (const result of data.results) {
       for (const comp of result.address_components || []) {
         if (
@@ -90,7 +106,6 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeoArea>
 
 /**
  * Find nearby places using Google Maps Places Nearby Search.
- * Returns up to 5 candidates sorted by distance.
  */
 export async function findNearbyPlaces(
   lat: number,
@@ -119,8 +134,7 @@ export async function findNearbyPlaces(
 }
 
 /**
- * Generate a group ID for a photo based on placeId, or fallback to
- * proximity (50m radius + 2hr window).
+ * Generate a group ID for a photo.
  */
 export function generateGroupId(
   placeId?: string,
@@ -130,7 +144,6 @@ export function generateGroupId(
 ): string | undefined {
   if (placeId) return `place-${placeId}`;
   if (lat != null && lng != null && takenAt) {
-    // Round to ~50m grid + 2hr time bucket
     const latBucket = Math.round(lat * 1000) / 1000;
     const lngBucket = Math.round(lng * 1000) / 1000;
     const timeBucket = Math.floor(new Date(takenAt).getTime() / (2 * 60 * 60 * 1000));
