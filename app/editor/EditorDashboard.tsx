@@ -210,11 +210,13 @@ function PhotoLibrary() {
     try {
       const params = new URLSearchParams();
       if (search) params.set('search', search);
-      const res = await fetch(`/api/photos?${params}`);
+      const res = await fetch(`/api/photos?${params.toString()}`);
+      if (!res.ok) throw new Error('photos fetch failed');
       const data = await res.json();
-      setPhotos(data.photos || []);
+      setPhotos(Array.isArray(data.photos) ? data.photos : []);
     } catch (e) {
       console.error('Failed to load photos:', e);
+      setPhotos([]);
     } finally {
       setLoading(false);
     }
@@ -223,17 +225,23 @@ function PhotoLibrary() {
   const loadGroups = useCallback(async () => {
     try {
       const res = await fetch('/api/photos/groups');
+      if (!res.ok) throw new Error('groups fetch failed');
       const data = await res.json();
-      setGroups(data.groups || []);
+      setGroups(Array.isArray(data.groups) ? data.groups : []);
     } catch (e) {
       console.error('Failed to load groups:', e);
+      setGroups([]);
     }
   }, []);
 
+  // Load on mount. Search triggers via button/enter, not on every keystroke.
   useEffect(() => {
     loadPhotos();
     loadGroups();
-  }, [loadPhotos, loadGroups]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const doSearch = () => { loadPhotos(); };
 
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -323,7 +331,7 @@ function PhotoLibrary() {
           placeholder="店名・エリアで検索"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && loadPhotos()}
+          onKeyDown={(e) => e.key === 'Enter' && doSearch()}
           style={{ flex: 1, minWidth: 200, padding: '8px 12px', border: `1px solid ${C.lightWarm}`, borderRadius: 4, fontFamily: F.ui, fontSize: 13, outline: 'none' }}
         />
         <button
@@ -411,11 +419,13 @@ function DashboardPanel() {
   const [newsletter, setNewsletter] = useState<any>(null);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     fetch(`/api/analytics?period=${period}`)
       .then(r => r.json())
-      .then(d => { setAnalytics(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then(d => { if (!cancelled) { setAnalytics(d); setLoading(false); } })
+      .catch(() => { if (!cancelled) { setAnalytics({ error: true }); setLoading(false); } });
+    return () => { cancelled = true; };
   }, [period]);
 
   const generateNewsletter = async () => {
