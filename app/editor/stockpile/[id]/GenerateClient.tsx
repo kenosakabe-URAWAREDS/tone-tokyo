@@ -92,6 +92,7 @@ export default function GenerateClient({ id }: { id: string }) {
 
   const [extraImages, setExtraImages] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
 
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState('');
@@ -128,11 +129,18 @@ export default function GenerateClient({ id }: { id: string }) {
   const addImages = async (files: FileList | null) => {
     if (!files) return;
     const arr = Array.from(files);
-    const compressed: string[] = [];
-    for (const f of arr) {
-      compressed.push(await compressImage(f));
+    // Enforce 100-image cap
+    const remaining = 100 - extraImages.length;
+    if (remaining <= 0) return;
+    const batch = arr.slice(0, remaining);
+    const total = batch.length;
+    setUploadProgress({ current: 0, total });
+    for (let i = 0; i < batch.length; i++) {
+      setUploadProgress({ current: i + 1, total });
+      const compressed = await compressImage(batch[i]);
+      setExtraImages((prev) => [...prev, compressed]);
     }
-    setExtraImages((prev) => [...prev, ...compressed]);
+    setUploadProgress(null);
   };
 
   const removeExtraImage = (i: number) => {
@@ -295,7 +303,7 @@ export default function GenerateClient({ id }: { id: string }) {
               )}
             </Section>
 
-            <Section label="追加の写真 (任意)">
+            <Section label={`追加の写真 (${extraImages.length}/100)`}>
               <input
                 ref={fileRef}
                 type="file"
@@ -304,8 +312,43 @@ export default function GenerateClient({ id }: { id: string }) {
                 onChange={(e) => addImages(e.target.files)}
                 style={{ display: 'none' }}
               />
+              {uploadProgress && (
+                <div style={{ marginBottom: 10 }}>
+                  <div
+                    style={{
+                      fontFamily: F.ui,
+                      fontSize: 12,
+                      color: C.indigo,
+                      marginBottom: 6,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {uploadProgress.current}/{uploadProgress.total}枚 アップロード中...
+                  </div>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: 6,
+                      background: C.lightWarm,
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+                        height: '100%',
+                        background: C.indigo,
+                        borderRadius: 3,
+                        transition: 'width 0.2s ease',
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               <button
                 onClick={() => fileRef.current?.click()}
+                disabled={!!uploadProgress || extraImages.length >= 100}
                 style={{
                   width: '100%',
                   padding: 14,
@@ -315,10 +358,11 @@ export default function GenerateClient({ id }: { id: string }) {
                   fontFamily: F.ui,
                   fontSize: 13,
                   color: C.warmGray,
-                  cursor: 'pointer',
+                  cursor: uploadProgress || extraImages.length >= 100 ? 'not-allowed' : 'pointer',
+                  opacity: uploadProgress ? 0.5 : 1,
                 }}
               >
-                + 写真を追加
+                {extraImages.length >= 100 ? '上限 100枚に達しました' : '+ 写真を追加'}
               </button>
               {extraImages.length > 0 && (
                 <div
@@ -346,6 +390,7 @@ export default function GenerateClient({ id }: { id: string }) {
                       />
                       <button
                         onClick={() => removeExtraImage(i)}
+                        disabled={!!uploadProgress}
                         style={{
                           position: 'absolute',
                           top: -6,
