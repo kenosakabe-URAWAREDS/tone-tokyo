@@ -148,6 +148,12 @@ export default function InputPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: trSlug.trim(), bodyJa: trBodyJa }),
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        let errMsg = `Server error (${res.status})`;
+        try { errMsg = JSON.parse(errText).error || errMsg; } catch {}
+        throw new Error(errMsg);
+      }
       const data = await res.json();
       if (data.success) {
         setTrStatus("done");
@@ -186,14 +192,28 @@ export default function InputPage() {
     setStatus("sending");
     setUploadProgress("");
     try {
-      const base64Images: string[] = [];
+      // Upload images one by one to avoid Request Entity Too Large
+      const uploadedAssets: Array<{ assetId: string; url: string }> = [];
       for (let i = 0; i < images.length; i++) {
-        setUploadProgress(`写真を圧縮中... (${i + 1}/${images.length})`);
+        setUploadProgress(`写真をアップロード中... (${i + 1}/${images.length})`);
         try {
           const b64 = await compressImage(images[i]);
-          base64Images.push(b64);
+          const uploadRes = await fetch("/api/upload-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: b64, filename: `photo-${i}` }),
+          });
+          if (!uploadRes.ok) {
+            const errText = await uploadRes.text();
+            console.error(`Image ${i + 1} upload failed (${uploadRes.status}):`, errText);
+            continue;
+          }
+          const uploadData = await uploadRes.json();
+          if (uploadData.success) {
+            uploadedAssets.push({ assetId: uploadData.assetId, url: uploadData.url });
+          }
         } catch (e) {
-          console.error(`Image ${i + 1} compression failed:`, e);
+          console.error(`Image ${i + 1} upload failed:`, e);
         }
       }
       setUploadProgress("記事を生成中...");
@@ -208,7 +228,7 @@ export default function InputPage() {
         body: JSON.stringify({
           memo,
           pillar,
-          images: base64Images,
+          imageAssets: uploadedAssets,
           officialUrl: officialUrl.trim(),
           googleMapsUrl: googleMapsUrl.trim(),
           tabelogUrl: tabelogUrl.trim(),
@@ -217,6 +237,14 @@ export default function InputPage() {
           country: isAbroad ? country.trim() : "",
         }),
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        let errMsg = `Server error (${res.status})`;
+        try { errMsg = JSON.parse(errText).error || errMsg; } catch {}
+        setStatus("error");
+        setResult(errMsg);
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setStatus("done");

@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     const {
       memo,
       images,
+      imageAssets,
       googleMapsUrl,
       tabelogUrl,
       officialUrl,
@@ -56,6 +57,11 @@ export async function POST(req: NextRequest) {
       city: clientCity,
       country: clientCountry,
     } = data;
+
+    // imageAssets: pre-uploaded Sanity assets [{assetId, url}] from /api/upload-image
+    // images: legacy base64 array (kept for LINE webhook compatibility)
+    const hasPreUploaded = Array.isArray(imageAssets) && imageAssets.length > 0;
+    const hasLegacyImages = Array.isArray(images) && images.length > 0;
 
     if (!memo && (!images || images.length === 0)) {
       return NextResponse.json({ error: 'Memo or image required' }, { status: 400 });
@@ -92,7 +98,13 @@ export async function POST(req: NextRequest) {
     if (urlContext) promptText += '\n\nReference information from URLs (use for accuracy, do NOT copy reviews):' + urlContext;
 
     const content: any[] = [];
-    if (images && images.length > 0) {
+    if (hasPreUploaded) {
+      // Use Sanity CDN URLs for Claude (images already uploaded)
+      for (const asset of imageAssets) {
+        content.push({ type: 'image', source: { type: 'url', url: asset.url } });
+      }
+    } else if (hasLegacyImages) {
+      // Legacy path: base64 images (LINE webhook)
       for (const img of images) {
         const base64 = img.replace(/^data:image\/\w+;base64,/, '');
         content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } });
@@ -138,22 +150,29 @@ export async function POST(req: NextRequest) {
 
     const slug = slugify(article.title);
 
-    // Upload first image to Sanity as heroImage
+    // Resolve image assets for Sanity document
     let heroImageAsset: any = null;
-  const galleryAssets: any[] = [];
-  if (images && images.length > 0) {
-    for (let i = 0; i < images.length; i++) {
-      try {
-        const base64 = images[i].replace(/^data:image\/\w+;base64,/, "");
-        const rawBuffer = Buffer.from(base64, "base64");
-        const buffer = await processImage(rawBuffer);
-        const asset = await sanity.assets.upload("image", buffer, { filename: slug + "-" + i + ".jpg", contentType: "image/jpeg" });
-        if (i === 0) { heroImageAsset = asset; } else { galleryAssets.push(asset); }
-      } catch (e) {
-        console.error("Image upload failed:", e);
+    const galleryAssets: any[] = [];
+    if (hasPreUploaded) {
+      // Images already uploaded via /api/upload-image — use asset IDs directly
+      for (let i = 0; i < imageAssets.length; i++) {
+        const ref = { _id: imageAssets[i].assetId, url: imageAssets[i].url };
+        if (i === 0) { heroImageAsset = ref; } else { galleryAssets.push(ref); }
+      }
+    } else if (hasLegacyImages) {
+      // Legacy path: upload base64 images one by one (LINE webhook)
+      for (let i = 0; i < images.length; i++) {
+        try {
+          const base64 = images[i].replace(/^data:image\/\w+;base64,/, "");
+          const rawBuffer = Buffer.from(base64, "base64");
+          const buffer = await processImage(rawBuffer);
+          const asset = await sanity.assets.upload("image", buffer, { filename: slug + "-" + i + ".jpg", contentType: "image/jpeg" });
+          if (i === 0) { heroImageAsset = asset; } else { galleryAssets.push(asset); }
+        } catch (e) {
+          console.error("Image upload failed:", e);
+        }
       }
     }
-  }
 
     const doc = await sanity.create({
       _type: 'article',
