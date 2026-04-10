@@ -82,10 +82,13 @@ function fmtDateTime(iso?: string): string {
 /* ------------------------------------------------------------------ */
 
 export default function EditorDashboard() {
-  const [tab, setTab] = useState<Tab>('photos');
+  const [tab, setTab] = useState<Tab>('stockpile');
   const [data, setData] = useState<ListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Debug: confirm this version is running (remove later)
+  useEffect(() => { console.log('[EditorDashboard] v2 — 5-tab build loaded'); }, []);
 
   const load = async () => {
     setLoading(true);
@@ -117,14 +120,14 @@ export default function EditorDashboard() {
         key={key}
         onClick={() => setTab(key)}
         style={{
-          flex: 1,
-          padding: '14px 4px',
+          flexShrink: 0,
+          padding: '14px 12px',
           background: active ? C.indigo : 'transparent',
           color: active ? '#fff' : C.charcoal,
           border: 'none',
           borderBottom: active ? `2px solid ${C.indigo}` : `2px solid transparent`,
           fontFamily: F.ui,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 600,
           letterSpacing: '0.04em',
           cursor: 'pointer',
@@ -160,13 +163,13 @@ export default function EditorDashboard() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', background: '#fff', borderBottom: `1px solid ${C.lightWarm}`, overflowX: 'auto' }}>
-        {tabBtn('photos', '写真')}
-        {tabBtn('stockpile', 'ネタ帳', data?.stockpiles.length || 0)}
-        {tabBtn('drafts', '下書き', data?.drafts.length || 0)}
-        {tabBtn('published', '公開済', data?.published.length || 0)}
-        {tabBtn('dashboard', 'ダッシュ')}
+      {/* Tabs — 5 tabs: 写真ライブラリ / ネタ帳 / 下書き / 公開済 / ダッシュボード */}
+      <div style={{ display: 'flex', background: '#fff', borderBottom: `1px solid ${C.lightWarm}`, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        {tabBtn('photos', '写真ライブラリ')}
+        {tabBtn('stockpile', 'ネタ帳', data?.stockpiles?.length ?? 0)}
+        {tabBtn('drafts', '下書き', data?.drafts?.length ?? 0)}
+        {tabBtn('published', '公開済', data?.published?.length ?? 0)}
+        {tabBtn('dashboard', 'ダッシュボード')}
       </div>
 
       {/* Content */}
