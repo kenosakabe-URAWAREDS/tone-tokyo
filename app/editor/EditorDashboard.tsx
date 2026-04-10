@@ -1,7 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import heic2any from 'heic2any';
 import { C, F } from './styles';
 
 /* ------------------------------------------------------------------ */
@@ -217,10 +216,17 @@ function isHeic(file: File): boolean {
 }
 
 async function compressToBlob(file: File): Promise<Blob> {
-  // Convert HEIC/HEIF to JPEG blob first
-  let sourceFile: File | Blob = file;
+  // Convert HEIC/HEIF to JPEG blob first, with fallback on failure
+  let sourceFile: Blob = file;
   if (isHeic(file)) {
-    sourceFile = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }) as Blob;
+    try {
+      const heic2any = (await import('heic2any')).default;
+      const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      sourceFile = Array.isArray(converted) ? converted[0] : converted;
+    } catch (e) {
+      console.warn('[compressToBlob] HEIC conversion failed, using original file:', e);
+      // Fall through — try to load the original file as-is
+    }
   }
   const img = await loadImage(sourceFile);
   const MAX = 2048;
@@ -353,9 +359,12 @@ function PhotoLibrary() {
         if (!docRes.ok) throw new Error(docData.error || 'Photo doc creation failed');
 
         console.log(`[editor] Photo ${i + 1}/${fileArr.length} uploaded: assetId=${assetId}`);
-      } catch (e) {
+      } catch (e: any) {
         console.error(`[editor] Photo ${i + 1} failed:`, e);
-        errors.push(`Photo ${i + 1}: ${e instanceof Error ? e.message : String(e)}`);
+        const msg = e instanceof Error ? e.message
+          : typeof e === 'string' ? e
+          : JSON.stringify(e);
+        errors.push(`Photo ${i + 1}: ${msg}`);
       }
       completed++;
       setUploadProgress(Math.round((completed / fileArr.length) * 100));
