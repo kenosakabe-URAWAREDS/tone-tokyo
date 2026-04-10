@@ -5,9 +5,11 @@ const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhit
 const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
 
 function compressImage(file: File): Promise<string> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
+      URL.revokeObjectURL(url);
       const canvas = document.createElement("canvas");
       const MAX = 1200;
       let w = img.width, h = img.height;
@@ -18,9 +20,13 @@ function compressImage(file: File): Promise<string> {
       canvas.width = w;
       canvas.height = h;
       canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL("image/jpeg", 0.7));
+      resolve(canvas.toDataURL("image/jpeg", 0.8));
     };
-    img.src = URL.createObjectURL(file);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error(`Failed to load image: ${file.name}`));
+    };
+    img.src = url;
   });
 }
 
@@ -119,6 +125,7 @@ export default function InputPage() {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle"|"sending"|"done"|"error">("idle");
+  const [uploadProgress, setUploadProgress] = useState("");
   const [result, setResult] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -177,12 +184,19 @@ export default function InputPage() {
   const submit = async () => {
     if (!pillar || !comment) return;
     setStatus("sending");
+    setUploadProgress("");
     try {
       const base64Images: string[] = [];
-      for (const f of images) {
-        const b64 = await compressImage(f);
-        base64Images.push(b64);
+      for (let i = 0; i < images.length; i++) {
+        setUploadProgress(`写真を圧縮中... (${i + 1}/${images.length})`);
+        try {
+          const b64 = await compressImage(images[i]);
+          base64Images.push(b64);
+        } catch (e) {
+          console.error(`Image ${i + 1} compression failed:`, e);
+        }
       }
+      setUploadProgress("記事を生成中...");
       const memo = composeMemo(pillar, fields, {
         isAbroad,
         city: city.trim(),
@@ -371,7 +385,7 @@ export default function InputPage() {
         )}
 
         <button onClick={submit} disabled={status === "sending" || !canSubmit} style={{ width: "100%", padding: "14px", background: status === "sending" ? C.warmGray : C.indigo, color: "#fff", border: "none", borderRadius: 4, fontFamily: F.ui, fontSize: 15, fontWeight: 600, letterSpacing: "0.06em", cursor: status === "sending" ? "wait" : "pointer", marginBottom: 20, opacity: canSubmit ? 1 : 0.5 }}>
-          {status === "sending" ? "⏳ AI記事生成中..." : "記事を生成する"}
+          {status === "sending" ? `⏳ ${uploadProgress || "準備中..."}` : "記事を生成する"}
         </button>
 
         {status === "done" && (
