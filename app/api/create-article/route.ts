@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
     // images: legacy base64 array (kept for LINE webhook compatibility)
     const hasPreUploaded = Array.isArray(imageAssets) && imageAssets.length > 0;
     const hasLegacyImages = Array.isArray(images) && images.length > 0;
+    console.log(`[create-article] imageAssets: ${JSON.stringify(imageAssets)}, hasPreUploaded=${hasPreUploaded}, hasLegacyImages=${hasLegacyImages}`);
 
     if (!memo && (!images || images.length === 0)) {
       return NextResponse.json({ error: 'Memo or image required' }, { status: 400 });
@@ -156,9 +157,17 @@ export async function POST(req: NextRequest) {
     if (hasPreUploaded) {
       // Images already uploaded via /api/upload-image — use asset IDs directly
       for (let i = 0; i < imageAssets.length; i++) {
-        const ref = { _id: imageAssets[i].assetId, url: imageAssets[i].url };
-        if (i === 0) { heroImageAsset = ref; } else { galleryAssets.push(ref); }
+        const assetId = imageAssets[i].assetId;
+        const assetUrl = imageAssets[i].url;
+        console.log(`[create-article] Pre-uploaded asset ${i}: assetId=${assetId}, url=${assetUrl}`);
+        if (!assetId) {
+          console.error(`[create-article] Skipping asset ${i}: missing assetId`);
+          continue;
+        }
+        const ref = { _id: assetId, url: assetUrl };
+        if (heroImageAsset === null) { heroImageAsset = ref; } else { galleryAssets.push(ref); }
       }
+      console.log(`[create-article] heroImageAsset=${JSON.stringify(heroImageAsset)}, gallery count=${galleryAssets.length}`);
     } else if (hasLegacyImages) {
       // Legacy path: upload base64 images one by one (LINE webhook)
       for (let i = 0; i < images.length; i++) {
@@ -174,6 +183,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    console.log(`[create-article] Creating document with heroImage=${JSON.stringify(heroImageAsset ? { _type: "image", asset: { _type: "reference", _ref: heroImageAsset._id } } : undefined)}`);
     const doc = await sanity.create({
       _type: 'article',
       title: article.title,

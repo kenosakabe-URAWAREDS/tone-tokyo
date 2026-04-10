@@ -194,10 +194,13 @@ export default function InputPage() {
     try {
       // Upload images one by one to avoid Request Entity Too Large
       const uploadedAssets: Array<{ assetId: string; url: string }> = [];
+      const uploadErrors: string[] = [];
+      console.log(`[input] Starting upload of ${images.length} image(s)`);
       for (let i = 0; i < images.length; i++) {
         setUploadProgress(`写真をアップロード中... (${i + 1}/${images.length})`);
         try {
           const b64 = await compressImage(images[i]);
+          console.log(`[input] Image ${i + 1}: compressed, base64 length=${b64.length}`);
           const uploadRes = await fetch("/api/upload-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -205,16 +208,27 @@ export default function InputPage() {
           });
           if (!uploadRes.ok) {
             const errText = await uploadRes.text();
-            console.error(`Image ${i + 1} upload failed (${uploadRes.status}):`, errText);
+            console.error(`[input] Image ${i + 1} upload failed (${uploadRes.status}):`, errText);
+            uploadErrors.push(`Photo ${i + 1}: server error (${uploadRes.status})`);
             continue;
           }
           const uploadData = await uploadRes.json();
-          if (uploadData.success) {
+          console.log(`[input] Image ${i + 1} response:`, JSON.stringify(uploadData));
+          if (uploadData.success && uploadData.assetId) {
             uploadedAssets.push({ assetId: uploadData.assetId, url: uploadData.url });
+            console.log(`[input] Image ${i + 1} uploaded: assetId=${uploadData.assetId}`);
+          } else {
+            console.error(`[input] Image ${i + 1}: success=false or missing assetId`, uploadData);
+            uploadErrors.push(`Photo ${i + 1}: upload returned no asset ID`);
           }
         } catch (e) {
-          console.error(`Image ${i + 1} upload failed:`, e);
+          console.error(`[input] Image ${i + 1} upload exception:`, e);
+          uploadErrors.push(`Photo ${i + 1}: ${e instanceof Error ? e.message : String(e)}`);
         }
+      }
+      console.log(`[input] Upload complete: ${uploadedAssets.length}/${images.length} succeeded`);
+      if (uploadErrors.length > 0) {
+        console.warn(`[input] Upload errors:`, uploadErrors);
       }
       setUploadProgress("記事を生成中...");
       const memo = composeMemo(pillar, fields, {
