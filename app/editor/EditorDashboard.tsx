@@ -197,12 +197,38 @@ export default function EditorDashboard() {
 /*  Photo Library Tab                                                  */
 /* ================================================================== */
 
-function fileToBase64(file: File): Promise<string> {
+/** Load a File into an HTMLImageElement */
+function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
-    reader.readAsDataURL(file);
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(`Failed to load image: ${file.name}`)); };
+    img.src = url;
+  });
+}
+
+/** Resize on canvas and return a JPEG Blob (max 2048px on longest side, quality 0.85) */
+async function compressToBlob(file: File): Promise<Blob> {
+  const img = await loadImage(file);
+  const MAX = 2048;
+  let { width, height } = img;
+  if (width > MAX || height > MAX) {
+    const ratio = MAX / Math.max(width, height);
+    width = Math.round(width * ratio);
+    height = Math.round(height * ratio);
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0, width, height);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error('canvas.toBlob returned null')),
+      'image/jpeg',
+      0.85,
+    );
   });
 }
 
@@ -215,7 +241,16 @@ function PhotoLibrary() {
   const [viewMode, setViewMode] = useState<'all' | 'groups'>('all');
   const [search, setSearch] = useState('');
   const [recommending, setRecommending] = useState<string | null>(null);
+  const [sanityToken, setSanityToken] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Fetch Sanity token once on mount
+  useEffect(() => {
+    fetch('/api/editor/sanity-token')
+      .then(r => r.ok ? r.json() : Promise.reject('token fetch failed'))
+      .then(d => setSanityToken(d.token))
+      .catch(e => console.error('[editor] Failed to get Sanity token:', e));
+  }, []);
 
   const loadPhotos = useCallback(async () => {
     setLoading(true);
@@ -261,25 +296,51 @@ function PhotoLibrary() {
       alert('一度に最大30枚までアップロードできます');
       return;
     }
+    if (!sanityToken) {
+      alert('Sanityトークンが取得できていません。ページを再読み込みしてください。');
+      return;
+    }
     setUploading(true);
     setUploadProgress(0);
 
+    const SANITY_UPLOAD_URL = 'https://w757ks40.api.sanity.io/v2024-01-01/assets/images/production';
     const fileArr = Array.from(files);
     const errors: string[] = [];
     let completed = 0;
 
     for (let i = 0; i < fileArr.length; i++) {
       try {
-        const b64 = await fileToBase64(fileArr[i]);
-        const res = await fetch('/api/upload-image', {
+        // Compress image on canvas → JPEG blob
+        const blob = await compressToBlob(fileArr[i]);
+        const filename = `photo-${Date.now()}-${i}.jpg`;
+
+        // Upload directly to Sanity Assets API (bypasses Vercel body limit)
+        const sanityRes = await fetch(`${SANITY_UPLOAD_URL}?filename=${encodeURIComponent(filename)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'image/jpeg',
+            Authorization: `Bearer ${sanityToken}`,
+          },
+          body: blob,
+        });
+        if (!sanityRes.ok) {
+          const errText = await sanityRes.text();
+          throw new Error(`Sanity upload failed (${sanityRes.status}): ${errText}`);
+        }
+        const sanityData = await sanityRes.json();
+        const assetId = sanityData.document?._id;
+        if (!assetId) throw new Error('No asset ID in Sanity response');
+
+        // Create photo document via our API (small JSON payload, no image data)
+        const docRes = await fetch('/api/photos/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: b64, filename: `photo-${Date.now()}-${i}`, createPhotoDoc: true }),
+          body: JSON.stringify({ assetId, filename }),
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Upload failed');
-        if (!data.success) throw new Error('Upload returned success=false');
-        console.log(`[editor] Photo ${i + 1}/${fileArr.length} uploaded: assetId=${data.assetId}`);
+        const docData = await docRes.json();
+        if (!docRes.ok) throw new Error(docData.error || 'Photo doc creation failed');
+
+        console.log(`[editor] Photo ${i + 1}/${fileArr.length} uploaded: assetId=${assetId}`);
       } catch (e) {
         console.error(`[editor] Photo ${i + 1} failed:`, e);
         errors.push(`Photo ${i + 1}: ${e instanceof Error ? e.message : String(e)}`);
