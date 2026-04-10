@@ -11,12 +11,19 @@
  *
  * If sharp throws for any reason, the original buffer is returned
  * unchanged so the upload still succeeds.
+ *
+ * sharp is loaded via dynamic import so it never leaks into client
+ * bundles and stays a pure server-side dependency.
  */
 
-import sharp from 'sharp';
+async function getSharp() {
+  const mod = await import('sharp');
+  return mod.default;
+}
 
 export async function processImage(input: Buffer): Promise<Buffer> {
   try {
+    const sharp = await getSharp();
     const processed = await sharp(input)
       .rotate() // auto-rotate from EXIF
       .resize({
@@ -42,6 +49,7 @@ export async function processImage(input: Buffer): Promise<Buffer> {
  */
 export async function processImageForInstagram(input: Buffer): Promise<Buffer> {
   try {
+    const sharp = await getSharp();
     return await sharp(input)
       .rotate()
       .resize(1080, 1080, { fit: 'cover', position: 'centre' })

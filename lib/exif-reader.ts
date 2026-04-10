@@ -8,8 +8,6 @@
  * piece is missing.
  */
 
-import exifr from 'exifr';
-
 export type ExifData = {
   takenAt?: string;       // ISO 8601
   latitude?: number;
@@ -34,6 +32,7 @@ export type GeoArea = {
  */
 export async function readExif(buffer: Buffer): Promise<ExifData> {
   try {
+    const exifr = (await import('exifr')).default;
     const exif = await exifr.parse(buffer, {
       gps: true,
       pick: ['DateTimeOriginal', 'CreateDate', 'Model', 'Make'],
