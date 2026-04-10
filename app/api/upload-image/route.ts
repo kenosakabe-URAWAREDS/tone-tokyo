@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': contentType,
           Authorization: `Bearer ${sanityToken}`,
         },
-        body: buf,
+        body: new Uint8Array(buf),
       });
       if (!res.ok) {
         const text = await res.text();
