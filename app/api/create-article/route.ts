@@ -2,6 +2,7 @@
 import { createClient } from 'next-sanity';
 import Anthropic from '@anthropic-ai/sdk';
 import { EDITOR_SYSTEM_PROMPT } from '@/lib/editor-prompt';
+import { processImage } from '@/lib/image-processor';
 
 const sanity = createClient({
   projectId: 'w757ks40',
@@ -144,7 +145,8 @@ export async function POST(req: NextRequest) {
     for (let i = 0; i < images.length; i++) {
       try {
         const base64 = images[i].replace(/^data:image\/\w+;base64,/, "");
-        const buffer = Buffer.from(base64, "base64");
+        const rawBuffer = Buffer.from(base64, "base64");
+        const buffer = await processImage(rawBuffer);
         const asset = await sanity.assets.upload("image", buffer, { filename: slug + "-" + i + ".jpg", contentType: "image/jpeg" });
         if (i === 0) { heroImageAsset = asset; } else { galleryAssets.push(asset); }
       } catch (e) {

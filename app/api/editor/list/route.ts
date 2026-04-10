@@ -25,12 +25,14 @@ export async function GET() {
         }`
       ),
       sanityWrite.fetch(
-        `*[_type == "article" && status == "draft"] | order(_updatedAt desc) [0..49] {
+        `*[_type == "article" && (status == "draft" || status == "scheduled")] | order(_updatedAt desc) [0..49] {
           _id,
           title,
           titleJa,
           "slug": slug.current,
           pillar,
+          status,
+          scheduledAt,
           _updatedAt,
           publishedAt,
           "thumb": coalesce(heroImage.asset->url, heroImageUrl)

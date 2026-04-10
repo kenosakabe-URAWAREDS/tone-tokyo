@@ -37,7 +37,10 @@ const ARTICLE_PROJECTION = `{
   officialUrl,
   isJapaneseAbroad,
   city,
-  country
+  country,
+  scheduledAt,
+  seoTitle,
+  seoDescription
 }`;
 
 export async function GET(

@@ -31,7 +31,7 @@ type Article = {
   subtitle?: string;
   body?: unknown;
   bodyJa?: string;
-  status?: 'draft' | 'published';
+  status?: 'draft' | 'published' | 'scheduled';
   tags?: string[];
   readTime?: string;
   locationName?: string;
@@ -51,6 +51,9 @@ type Article = {
   heroAssetRef?: string;
   gallery?: GalleryItem[];
   publishedAt?: string;
+  scheduledAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 // Convert whatever shape the existing body might be in (string, PT
@@ -122,6 +125,14 @@ export default function EditClient({ id }: { id: string }) {
   const [isAbroad, setIsAbroad] = useState(false);
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [igCaption, setIgCaption] = useState('');
+  const [igImage, setIgImage] = useState('');
+  const [igLoading, setIgLoading] = useState(false);
+  const [showPhotoLibrary, setShowPhotoLibrary] = useState(false);
+  const [libraryPhotos, setLibraryPhotos] = useState<Array<{ _id: string; imageUrl?: string; assetRef?: string; placeName?: string; isRecommended?: boolean }>>([])
 
   // Image state. `gallery` is the ordered list of images we'll
   // persist (existing + new). New ones get a base64 dataUrl in
@@ -175,6 +186,9 @@ export default function EditClient({ id }: { id: string }) {
         setIsAbroad(Boolean(data.isJapaneseAbroad));
         setCity(data.city || '');
         setCountry(data.country || '');
+        setSeoTitle(data.seoTitle || '');
+        setSeoDescription(data.seoDescription || '');
+        setScheduledAt(data.scheduledAt || '');
 
         // Build the editable gallery: hero first, then gallery
         // entries. Both come from the API as image refs.
@@ -293,6 +307,8 @@ export default function EditClient({ id }: { id: string }) {
           gallery: galleryRefs,
           newImages,
           heroAssetRef,
+          seoTitle,
+          seoDescription,
         }),
       });
       const data = await res.json();
@@ -341,6 +357,120 @@ export default function EditClient({ id }: { id: string }) {
       setBusy(false);
     }
   };
+
+  const schedulePublish = async () => {
+    if (!scheduledAt) { alert('公開日時を選択してください'); return; }
+    setBusy(true);
+    setStatusMsg(null);
+    try {
+      const res = await fetch('/api/editor/update-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'scheduled', scheduledAt }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Failed');
+      setArticle((prev) => prev ? { ...prev, status: 'scheduled', scheduledAt } : prev);
+      setStatusMsg({ kind: 'success', text: `予約公開を設定しました: ${new Date(scheduledAt).toLocaleString('ja-JP')}` });
+    } catch (e) {
+      setStatusMsg({ kind: 'error', text: e instanceof Error ? e.message : String(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const generateIgCaption = async () => {
+    if (!article) return;
+    setIgLoading(true);
+    try {
+      const res = await fetch('/api/instagram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId: id, action: 'generate' }),
+      });
+      const data = await res.json();
+      if (data.caption) setIgCaption(data.caption);
+      if (data.squareImageBase64) setIgImage(data.squareImageBase64);
+    } catch (e) {
+      alert('IG caption generation failed');
+    } finally {
+      setIgLoading(false);
+    }
+  };
+
+  const openPhotoLibrary = async () => {
+    setShowPhotoLibrary(true);
+    try {
+      const res = await fetch('/api/photos?limit=100');
+      const data = await res.json();
+      setLibraryPhotos(data.photos || []);
+    } catch (e) {
+      console.error('Failed to load photo library:', e);
+    }
+  };
+
+  const addFromLibrary = (photo: typeof libraryPhotos[0]) => {
+    if (!photo.imageUrl || !photo.assetRef) return;
+    const newItem = {
+      key: `lib-${photo._id}`,
+      url: photo.imageUrl,
+      assetRef: photo.assetRef,
+    };
+    setGallery((prev) => {
+      const next = [...prev, newItem];
+      if (!heroKey && next[0]) setHeroKey(next[0].key);
+      return next;
+    });
+  };
+
+  // SEO score calculation
+  const seoScore = (() => {
+    let score = 0;
+    const checks: Array<{ label: string; passed: boolean; suggestion?: string }> = [];
+
+    const t = title || '';
+    const titleOk = t.length >= 30 && t.length <= 60;
+    checks.push({ label: 'タイトル 30〜60文字', passed: titleOk, suggestion: titleOk ? undefined : `現在 ${t.length}文字` });
+    if (titleOk) score += 15;
+
+    const desc = seoDescription || '';
+    const descOk = desc.length >= 120 && desc.length <= 160;
+    checks.push({ label: 'SEO Description 120〜160文字', passed: descOk, suggestion: descOk ? undefined : `現在 ${desc.length}文字` });
+    if (descOk) score += 15;
+
+    const bodyLen = body.split(/\s+/).length;
+    const bodyOk = bodyLen >= 300;
+    checks.push({ label: '本文 300語以上', passed: bodyOk, suggestion: bodyOk ? undefined : `現在 ${bodyLen}語` });
+    if (bodyOk) score += 10;
+
+    const hasHero = gallery.length > 0;
+    checks.push({ label: 'Hero画像あり', passed: hasHero });
+    if (hasHero) score += 10;
+
+    const tagsArr = tagsText.split(',').map(t => t.trim()).filter(Boolean);
+    const tagsOk = tagsArr.length >= 2;
+    checks.push({ label: 'タグ 2つ以上', passed: tagsOk, suggestion: tagsOk ? undefined : `現在 ${tagsArr.length}個` });
+    if (tagsOk) score += 10;
+
+    const hasLocation = Boolean(address || locationName);
+    checks.push({ label: '住所/場所情報あり', passed: hasLocation });
+    if (hasLocation) score += 10;
+
+    const kw = tagsArr[0] || '';
+    const titleHasKw = kw && t.toLowerCase().includes(kw.toLowerCase());
+    checks.push({ label: 'タイトルにキーワード', passed: Boolean(titleHasKw) });
+    if (titleHasKw) score += 10;
+
+    const first100 = body.split(/\s+/).slice(0, 100).join(' ').toLowerCase();
+    const bodyHasKw = kw && first100.includes(kw.toLowerCase());
+    checks.push({ label: '冒頭100語にキーワード', passed: Boolean(bodyHasKw) });
+    if (bodyHasKw) score += 10;
+
+    checks.push({ label: '内部リンクあり', passed: false, suggestion: '関連記事の追加を検討' });
+    checks.push({ label: '画像alt属性あり', passed: false, suggestion: 'Sanity Studioで設定' });
+
+    return { score, checks };
+  })();
 
   const remove = async () => {
     if (!confirm('この記事を削除しますか？元に戻せません。')) return;
@@ -804,8 +934,158 @@ export default function EditClient({ id }: { id: string }) {
           value={tagsText}
           onChange={(e) => setTagsText(e.target.value)}
           placeholder="ramen, sangenjaya, late night"
-          style={{ ...inputStyle, marginBottom: 24 }}
+          style={{ ...inputStyle, marginBottom: 18 }}
         />
+
+        {/* Photo Library button */}
+        <button
+          onClick={openPhotoLibrary}
+          style={{ width: '100%', padding: 12, border: `1px solid ${C.indigo}`, background: 'transparent', borderRadius: 4, fontFamily: F.ui, fontSize: 13, color: C.indigo, cursor: 'pointer', marginBottom: 18, fontWeight: 600 }}
+        >
+          写真ライブラリから選ぶ
+        </button>
+
+        {/* Photo Library Modal */}
+        {showPhotoLibrary && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+            <div style={{ background: '#fff', borderRadius: 8, maxWidth: 600, width: '100%', maxHeight: '80vh', overflow: 'auto', padding: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <SectionLabel>写真ライブラリ</SectionLabel>
+                <button onClick={() => setShowPhotoLibrary(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: C.charcoal }}>×</button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8 }}>
+                {libraryPhotos.map(p => (
+                  <div
+                    key={p._id}
+                    onClick={() => { addFromLibrary(p); setShowPhotoLibrary(false); }}
+                    style={{ cursor: 'pointer', borderRadius: 4, overflow: 'hidden', border: `1px solid ${C.lightWarm}`, position: 'relative' }}
+                  >
+                    <div style={{ aspectRatio: '1', background: C.cream }}>
+                      {p.imageUrl && <img src={`${p.imageUrl}?w=200&h=200&fit=crop&auto=format`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                    </div>
+                    {p.isRecommended && (
+                      <div style={{ position: 'absolute', top: 4, left: 4, background: C.indigo, color: '#fff', fontFamily: F.ui, fontSize: 8, padding: '1px 5px', borderRadius: 6 }}>AI</div>
+                    )}
+                    <div style={{ padding: '4px 6px', fontFamily: F.ui, fontSize: 10, color: C.charcoal, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.placeName || '場所不明'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {libraryPhotos.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 20, fontFamily: F.ui, fontSize: 13, color: C.warmGray }}>写真がありません</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* SEO section */}
+        <SectionLabel>SEO</SectionLabel>
+        <input
+          type="text"
+          value={seoTitle}
+          onChange={(e) => setSeoTitle(e.target.value)}
+          placeholder="SEO Title（空なら記事タイトルを使用）"
+          style={{ ...inputStyle, marginBottom: 8 }}
+        />
+        <textarea
+          value={seoDescription}
+          onChange={(e) => setSeoDescription(e.target.value)}
+          placeholder="Meta Description（120〜160文字推奨）"
+          rows={3}
+          style={{ ...inputStyle, marginBottom: 12, resize: 'vertical' }}
+        />
+        {/* SEO Score Panel */}
+        <div style={{ padding: 16, background: '#fff', border: `1px solid ${C.lightWarm}`, borderRadius: 6, marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{
+              width: 48, height: 48, borderRadius: '50%',
+              border: `3px solid ${seoScore.score >= 80 ? C.green : seoScore.score >= 60 ? '#FF9800' : C.red}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: F.ui, fontSize: 18, fontWeight: 700,
+              color: seoScore.score >= 80 ? C.green : seoScore.score >= 60 ? '#FF9800' : C.red,
+            }}>
+              {seoScore.score}
+            </div>
+            <div style={{ fontFamily: F.ui, fontSize: 13, fontWeight: 600, color: C.charcoal }}>SEO Score</div>
+          </div>
+          {seoScore.checks.map((c, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6, fontFamily: F.ui, fontSize: 12 }}>
+              <span style={{ color: c.passed ? C.green : C.red, flexShrink: 0 }}>{c.passed ? '✅' : '❌'}</span>
+              <span style={{ color: C.charcoal }}>{c.label}</span>
+              {c.suggestion && <span style={{ color: C.warmGray, fontSize: 11 }}>({c.suggestion})</span>}
+            </div>
+          ))}
+        </div>
+
+        {/* Scheduled Publish */}
+        <SectionLabel>予約公開</SectionLabel>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+          <input
+            type="datetime-local"
+            value={scheduledAt ? scheduledAt.slice(0, 16) : ''}
+            onChange={(e) => setScheduledAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+          <button
+            onClick={schedulePublish}
+            disabled={busy || !scheduledAt}
+            style={{
+              padding: '10px 16px',
+              background: scheduledAt ? '#FF9800' : C.lightWarm,
+              color: '#fff', border: 'none', borderRadius: 4,
+              fontFamily: F.ui, fontSize: 12, fontWeight: 600,
+              cursor: scheduledAt && !busy ? 'pointer' : 'default',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            予約公開
+          </button>
+        </div>
+
+        {/* Instagram Preview */}
+        <SectionLabel>Instagram Preview</SectionLabel>
+        <div style={{ padding: 16, background: '#fff', border: `1px solid ${C.lightWarm}`, borderRadius: 6, marginBottom: 18 }}>
+          <button
+            onClick={generateIgCaption}
+            disabled={igLoading}
+            style={{ padding: '8px 16px', background: C.indigo, color: '#fff', border: 'none', borderRadius: 4, fontFamily: F.ui, fontSize: 12, cursor: igLoading ? 'wait' : 'pointer', marginBottom: 12 }}
+          >
+            {igLoading ? 'キャプション生成中...' : 'キャプション自動生成'}
+          </button>
+          {igImage && (
+            <div style={{ marginBottom: 12 }}>
+              <img src={igImage} alt="IG preview" style={{ width: '100%', maxWidth: 300, aspectRatio: '1', objectFit: 'cover', borderRadius: 4 }} />
+            </div>
+          )}
+          {igCaption && (
+            <>
+              <textarea
+                value={igCaption}
+                onChange={(e) => setIgCaption(e.target.value)}
+                rows={6}
+                style={{ ...inputStyle, marginBottom: 8, fontSize: 13 }}
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => { navigator.clipboard.writeText(igCaption); alert('コピーしました'); }}
+                  style={{ ...secondaryButtonStyle, flex: 1, padding: '8px', fontSize: 12 }}
+                >
+                  キャプションをコピー
+                </button>
+                {igImage && (
+                  <a
+                    href={igImage}
+                    download="ig-image.jpg"
+                    style={{ ...secondaryButtonStyle, flex: 1, padding: '8px', fontSize: 12, textAlign: 'center', textDecoration: 'none' }}
+                  >
+                    画像ダウンロード
+                  </a>
+                )}
+              </div>
+            </>
+          )}
+        </div>
 
         {statusMsg && (
           <div

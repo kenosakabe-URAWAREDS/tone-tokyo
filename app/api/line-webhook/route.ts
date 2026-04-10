@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from 'next-sanity';
+import { processImage } from '@/lib/image-processor';
 
 /**
  * LINE webhook — capture-only mode.
@@ -140,7 +141,8 @@ export async function POST(req: NextRequest) {
         for (let i = 0; i < bucket.imageMessageIds.length; i++) {
           const messageId = bucket.imageMessageIds[i];
           try {
-            const buf = await getLineContent(messageId);
+            const rawBuf = await getLineContent(messageId);
+            const buf = await processImage(rawBuf);
             const asset = await sanity.assets.upload('image', buf, {
               filename: `stockpile-${bucket.userId.slice(-8)}-${Date.now()}-${i}.jpg`,
               contentType: 'image/jpeg',

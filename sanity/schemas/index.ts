@@ -107,11 +107,14 @@ const article = defineType({
       name: 'status',
       title: 'Status',
       type: 'string',
-      options: { list: ['draft', 'review', 'published'], layout: 'radio' },
+      options: { list: ['draft', 'review', 'published', 'scheduled'], layout: 'radio' },
       initialValue: 'draft',
       description: 'draft / review はサイト側のクエリでフィルタされ公開ページには表示されません。published のみ表示されます。既存記事は status 未設定として扱われ、自動的に公開状態になります。',
     }),
     defineField({ name: 'publishedAt', title: 'Published At', type: 'datetime' }),
+    defineField({ name: 'scheduledAt', title: 'Scheduled Publish At', type: 'datetime', description: '予約公開日時。この時刻になると自動で published に切り替わります。' }),
+    defineField({ name: 'seoTitle', title: 'SEO Title', type: 'string', description: '検索結果に表示されるタイトル（空なら title を使用）' }),
+    defineField({ name: 'seoDescription', title: 'SEO Description', type: 'text', rows: 3, description: 'メタディスクリプション（120〜160文字推奨）' }),
     defineField({ name: 'sourceType', title: 'Source Type', type: 'string', options: { list: ['kentaro-initiated', 'ai-curated'] } }),
   ],
   preview: { select: { title: 'title', subtitle: 'pillar', media: 'heroImage' } },
@@ -215,4 +218,33 @@ const stockpile = defineType({
   },
 });
 
-export const schemaTypes = [article, lineSession, stockpile];
+const photo = defineType({
+  name: 'photo',
+  title: 'Photo',
+  type: 'document',
+  fields: [
+    defineField({ name: 'image', title: 'Image', type: 'image' }),
+    defineField({ name: 'takenAt', title: 'Taken At', type: 'datetime' }),
+    defineField({ name: 'latitude', title: 'Latitude', type: 'number' }),
+    defineField({ name: 'longitude', title: 'Longitude', type: 'number' }),
+    defineField({ name: 'placeName', title: 'Place Name', type: 'string' }),
+    defineField({ name: 'placeNameJa', title: 'Place Name (JA)', type: 'string' }),
+    defineField({ name: 'googlePlaceId', title: 'Google Place ID', type: 'string' }),
+    defineField({ name: 'area', title: 'Area', type: 'string' }),
+    defineField({ name: 'groupId', title: 'Group ID', type: 'string' }),
+    defineField({ name: 'cameraModel', title: 'Camera Model', type: 'string' }),
+    defineField({ name: 'isRecommended', title: 'AI Recommended', type: 'boolean', initialValue: false }),
+    defineField({ name: 'uploadedAt', title: 'Uploaded At', type: 'datetime' }),
+    defineField({ name: 'source', title: 'Source', type: 'string', options: { list: ['library', 'line', 'input'] } }),
+    defineField({ name: 'usedInArticle', title: 'Used In Article', type: 'reference', to: [{ type: 'article' }] }),
+    defineField({ name: 'fileSize', title: 'File Size', type: 'number' }),
+  ],
+  preview: {
+    select: { title: 'placeName', subtitle: 'area', media: 'image' },
+    prepare({ title, subtitle, media }) {
+      return { title: title || '(unnamed)', subtitle: subtitle || '', media };
+    },
+  },
+});
+
+export const schemaTypes = [article, lineSession, stockpile, photo];

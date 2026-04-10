@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sanityWrite } from '@/lib/sanity-write';
+import { processImage } from '@/lib/image-processor';
 
 type SanityImageRef = {
   _type: 'image';
@@ -50,6 +51,10 @@ export async function POST(req: NextRequest) {
       gallery,
       newImages,
       heroAssetRef,
+      seoTitle,
+      seoDescription,
+      status,
+      scheduledAt,
     } = data as {
       id?: string;
       title?: string;
@@ -75,6 +80,10 @@ export async function POST(req: NextRequest) {
       gallery?: Array<{ assetRef: string }>;
       newImages?: string[];
       heroAssetRef?: string;
+      seoTitle?: string;
+      seoDescription?: string;
+      status?: string;
+      scheduledAt?: string;
     };
 
     if (!id) {
@@ -99,7 +108,8 @@ export async function POST(req: NextRequest) {
       for (let i = 0; i < newImages.length; i++) {
         try {
           const base64 = newImages[i].replace(/^data:image\/\w+;base64,/, '');
-          const buffer = Buffer.from(base64, 'base64');
+          const rawBuffer = Buffer.from(base64, 'base64');
+          const buffer = await processImage(rawBuffer);
           const asset = await sanityWrite.assets.upload('image', buffer, {
             filename: `editor-update-${Date.now()}-${i}.jpg`,
             contentType: 'image/jpeg',
@@ -154,6 +164,11 @@ export async function POST(req: NextRequest) {
       set.city = isJapaneseAbroad ? city || '' : '';
       set.country = isJapaneseAbroad ? country || '' : '';
     }
+
+    if (typeof seoTitle === 'string') set.seoTitle = seoTitle;
+    if (typeof seoDescription === 'string') set.seoDescription = seoDescription;
+    if (typeof status === 'string') set.status = status;
+    if (typeof scheduledAt === 'string') set.scheduledAt = scheduledAt || null;
 
     if (heroImage) set.heroImage = heroImage;
     set.gallery = galleryRefs.length ? galleryRefs : null;
