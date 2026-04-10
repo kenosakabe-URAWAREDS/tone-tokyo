@@ -197,6 +197,15 @@ export default function EditorDashboard() {
 /*  Photo Library Tab                                                  */
 /* ================================================================== */
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
+    reader.readAsDataURL(file);
+  });
+}
+
 function PhotoLibrary() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [groups, setGroups] = useState<PhotoGroup[]>([]);
@@ -255,24 +264,37 @@ function PhotoLibrary() {
     setUploading(true);
     setUploadProgress(0);
 
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append('photos', files[i]);
+    const fileArr = Array.from(files);
+    const errors: string[] = [];
+    let completed = 0;
+
+    for (let i = 0; i < fileArr.length; i++) {
+      try {
+        const b64 = await fileToBase64(fileArr[i]);
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: b64, filename: `photo-${Date.now()}-${i}`, createPhotoDoc: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+        if (!data.success) throw new Error('Upload returned success=false');
+        console.log(`[editor] Photo ${i + 1}/${fileArr.length} uploaded: assetId=${data.assetId}`);
+      } catch (e) {
+        console.error(`[editor] Photo ${i + 1} failed:`, e);
+        errors.push(`Photo ${i + 1}: ${e instanceof Error ? e.message : String(e)}`);
+      }
+      completed++;
+      setUploadProgress(Math.round((completed / fileArr.length) * 100));
     }
 
-    try {
-      const res = await fetch('/api/photos/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-      setUploadProgress(100);
-      await loadPhotos();
-      await loadGroups();
-    } catch (e) {
-      alert('アップロードに失敗しました: ' + (e instanceof Error ? e.message : String(e)));
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
+    if (errors.length > 0) {
+      alert(`${errors.length}/${fileArr.length} 枚のアップロードに失敗しました:\n${errors.join('\n')}`);
     }
+    await loadPhotos();
+    await loadGroups();
+    setUploading(false);
+    setUploadProgress(0);
   };
 
   const handleDelete = async (id: string) => {
