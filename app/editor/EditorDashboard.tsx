@@ -57,7 +57,15 @@ type PhotoGroup = {
   latestDate?: string;
 };
 
-type Tab = 'photos' | 'stockpile' | 'drafts' | 'published' | 'dashboard';
+type Tab =
+  | 'photos'
+  | 'input'
+  | 'stockpile'
+  | 'drafts'
+  | 'published'
+  | 'generate'
+  | 'precheck'
+  | 'dashboard';
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -88,7 +96,7 @@ export default function EditorDashboard() {
   const [error, setError] = useState('');
 
   // Debug: confirm this version is running (remove later)
-  useEffect(() => { console.log('[EditorDashboard] v2 — 5-tab build loaded'); }, []);
+  useEffect(() => { console.log('[EditorDashboard] v3 — 8-tab build loaded'); }, []);
 
   const load = async () => {
     setLoading(true);
@@ -166,18 +174,21 @@ export default function EditorDashboard() {
         </div>
       </div>
 
-      {/* Tabs — 5 tabs: 写真ライブラリ / ネタ帳 / 下書き / 公開済 / ダッシュボード */}
+      {/* Tabs — 8 tabs (Part 4). Order groups: ingest / workflow / AI tools / monitor. */}
       <div style={{ display: 'flex', background: '#fff', borderBottom: `1px solid ${C.lightWarm}`, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {tabBtn('photos', '写真ライブラリ')}
+        {tabBtn('input', '入力')}
         {tabBtn('stockpile', 'ネタ帳', data?.stockpiles?.length ?? 0)}
         {tabBtn('drafts', '下書き', data?.drafts?.length ?? 0)}
         {tabBtn('published', '公開済', data?.published?.length ?? 0)}
+        {tabBtn('generate', 'AI生成')}
+        {tabBtn('precheck', '公開前チェック')}
         {tabBtn('dashboard', 'ダッシュボード')}
       </div>
 
       {/* Content */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px 60px' }}>
-        {loading && tab !== 'photos' && tab !== 'dashboard' && (
+        {loading && tab !== 'photos' && tab !== 'dashboard' && tab !== 'input' && tab !== 'generate' && tab !== 'precheck' && (
           <div style={{ fontFamily: F.ui, fontSize: 13, color: C.warmGray, textAlign: 'center', padding: '40px 0' }}>Loading...</div>
         )}
         {error && (
@@ -187,9 +198,12 @@ export default function EditorDashboard() {
         )}
 
         {tab === 'photos' && <PhotoLibrary />}
+        {tab === 'input' && <InputTab />}
         {tab === 'stockpile' && !loading && data && <StockpileList items={data.stockpiles} />}
         {tab === 'drafts' && !loading && data && <ArticleList items={data.drafts} kind="draft" />}
         {tab === 'published' && !loading && data && <ArticleList items={data.published} kind="published" />}
+        {tab === 'generate' && <GenerateTab />}
+        {tab === 'precheck' && <PreCheckTab />}
         {tab === 'dashboard' && <DashboardPanel />}
       </div>
     </div>
@@ -780,6 +794,410 @@ function ArticleList({ items, kind }: { items: Article[]; kind: 'draft' | 'publi
           </div>
         </Link>
       ))}
+    </div>
+  );
+}
+
+/* ================================================================== */
+/*  Input Tab — placeholder (Part 4-D)                                 */
+/* ================================================================== */
+
+function InputTab() {
+  return (
+    <StubPanel
+      icon="✏️"
+      title="入力タブ"
+      subtitle="パート4-D で実装予定"
+      note={
+        <>
+          現在は{' '}
+          <a href="/input" style={{ color: C.indigo, textDecoration: 'underline' }}>
+            /input
+          </a>{' '}
+          ページをご利用ください。パート4-D で統合後は{' '}
+          <code style={{ padding: '2px 6px', background: C.cream, borderRadius: 2 }}>
+            /input
+          </code>{' '}
+          から自動リダイレクトされます。
+        </>
+      }
+    />
+  );
+}
+
+/* ================================================================== */
+/*  Generate Tab — placeholder (Part 4-C / Part 5)                     */
+/* ================================================================== */
+
+function GenerateTab() {
+  return (
+    <StubPanel
+      icon="🤖"
+      title="AI生成タブ"
+      subtitle="パート4-C で実装予定（深掘り対話の本実装はパート5）"
+      note={
+        <>
+          現在は「ネタ帳」タブから個別のネタを開いて AI 生成画面へ遷移してください。
+        </>
+      }
+    />
+  );
+}
+
+/* ================================================================== */
+/*  PreCheck Tab — Part 4-B implementation                             */
+/* ================================================================== */
+
+type PrecheckItem = {
+  _id: string;
+  slug: string;
+  title: string;
+  articleType?: string;
+  brandMentionLevel?: number;
+  wordCount?: number;
+};
+
+type PrecheckCheck = {
+  key: string;
+  label: string;
+  icon: string;
+  description: string;
+  deadline: string;
+  count: number;
+  items: PrecheckItem[];
+  pending?: boolean;
+  pendingReason?: string;
+};
+
+type PrecheckResponse = {
+  totalPublishedArticles: number;
+  generatedAt: string;
+  checks: PrecheckCheck[];
+};
+
+function PreCheckTab() {
+  const [data, setData] = useState<PrecheckResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/editor/precheck', { cache: 'no-store' });
+      if (res.status === 401) {
+        window.location.href = '/editor';
+        return;
+      }
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to load precheck');
+      setData(json as PrecheckResponse);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (loading && !data) {
+    return (
+      <div style={{ fontFamily: F.ui, fontSize: 13, color: C.warmGray, textAlign: 'center', padding: '40px 0' }}>
+        Loading pre-check results...
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div style={{ padding: 16, background: '#fce4ec', borderRadius: 4, fontFamily: F.ui, fontSize: 13, color: C.red }}>
+        {error}
+      </div>
+    );
+  }
+  if (!data) return null;
+
+  // Sort: "live" checks first (pending=false), by count descending;
+  // then the pending ones at the bottom in their original order.
+  const live = data.checks.filter((c) => !c.pending).sort((a, b) => b.count - a.count);
+  const pending = data.checks.filter((c) => c.pending);
+
+  const anyIssues = live.some((c) => c.count > 0);
+
+  return (
+    <div>
+      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div>
+          <div style={{ fontFamily: F.display, fontSize: 22, fontWeight: 700, color: C.charcoal }}>
+            公開前チェック
+          </div>
+          <div style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, marginTop: 4 }}>
+            公開済 {data.totalPublishedArticles} 件をスキャン · {new Date(data.generatedAt).toLocaleString('ja-JP')}
+          </div>
+        </div>
+        <button
+          onClick={load}
+          style={{
+            padding: '6px 12px',
+            background: 'transparent',
+            border: `1px solid ${C.lightWarm}`,
+            borderRadius: 4,
+            fontFamily: F.ui,
+            fontSize: 11,
+            color: C.charcoal,
+            cursor: 'pointer',
+          }}
+        >
+          ↻ 再スキャン
+        </button>
+      </div>
+
+      {!anyIssues && (
+        <div
+          style={{
+            padding: 16,
+            background: '#e8f5e9',
+            borderLeft: `3px solid ${C.green}`,
+            borderRadius: 4,
+            fontFamily: F.ui,
+            fontSize: 13,
+            color: C.charcoal,
+            marginBottom: 16,
+          }}
+        >
+          ✅ Phase 1 blockers クリア。全 live チェックで問題なし。
+        </div>
+      )}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: 14,
+        }}
+      >
+        {live.map((c) => (
+          <PreCheckCard key={c.key} check={c} />
+        ))}
+        {pending.map((c) => (
+          <PreCheckCard key={c.key} check={c} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreCheckCard({ check }: { check: PrecheckCheck }) {
+  const isPending = !!check.pending;
+  const isBlocker = !isPending && check.count > 0;
+
+  return (
+    <div
+      style={{
+        background: '#fff',
+        border: `1px solid ${isBlocker ? C.red : C.lightWarm}`,
+        borderRadius: 6,
+        padding: 16,
+        opacity: isPending ? 0.68 : 1,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>{check.icon}</span>
+          <div
+            style={{
+              fontFamily: F.display,
+              fontSize: 15,
+              fontWeight: 700,
+              color: C.charcoal,
+              lineHeight: 1.3,
+            }}
+          >
+            {check.label}
+          </div>
+        </div>
+        <div
+          style={{
+            fontFamily: F.display,
+            fontSize: 28,
+            fontWeight: 700,
+            color: isPending ? C.warmGray : isBlocker ? C.red : C.charcoal,
+            lineHeight: 1,
+            flexShrink: 0,
+          }}
+        >
+          {isPending ? '—' : check.count}
+        </div>
+      </div>
+
+      <div
+        style={{
+          fontFamily: F.ui,
+          fontSize: 11,
+          color: C.warmGray,
+          marginTop: 8,
+          lineHeight: 1.5,
+        }}
+      >
+        {check.description}
+      </div>
+      <div
+        style={{
+          fontFamily: F.ui,
+          fontSize: 10,
+          color: isPending ? C.warmGray : isBlocker ? C.red : C.warmGray,
+          marginTop: 6,
+          letterSpacing: '0.04em',
+        }}
+      >
+        期限: {check.deadline}
+      </div>
+
+      {isPending && check.pendingReason && (
+        <div
+          style={{
+            marginTop: 10,
+            padding: 10,
+            background: C.cream,
+            borderRadius: 4,
+            fontFamily: F.ui,
+            fontSize: 11,
+            color: C.charcoal,
+            lineHeight: 1.5,
+          }}
+        >
+          {check.pendingReason}
+        </div>
+      )}
+
+      {!isPending && check.items.length > 0 && (
+        <ul style={{ margin: '12px 0 0 0', padding: 0, listStyle: 'none', borderTop: `1px solid ${C.lightWarm}` }}>
+          {check.items.map((it) => (
+            <li
+              key={it._id}
+              style={{
+                padding: '8px 0',
+                borderBottom: `1px solid ${C.lightWarm}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                gap: 8,
+              }}
+            >
+              <Link
+                href={`/editor/article/${it._id}`}
+                style={{
+                  fontFamily: F.body,
+                  fontSize: 12,
+                  color: C.indigo,
+                  textDecoration: 'none',
+                  lineHeight: 1.4,
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap' as const,
+                }}
+                title={it.title}
+              >
+                {it.title}
+              </Link>
+              {typeof it.wordCount === 'number' && (
+                <span
+                  style={{
+                    fontFamily: F.ui,
+                    fontSize: 10,
+                    color: C.red,
+                    flexShrink: 0,
+                  }}
+                >
+                  {it.wordCount} 語
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!isPending && check.items.length === 0 && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: 8,
+            background: '#e8f5e9',
+            borderRadius: 4,
+            fontFamily: F.ui,
+            fontSize: 11,
+            color: C.green,
+            textAlign: 'center' as const,
+          }}
+        >
+          ✓ 問題なし
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Shared stub panel used by the three Part-4 placeholder tabs. */
+function StubPanel({
+  icon,
+  title,
+  subtitle,
+  note,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  note: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        padding: '48px 24px',
+        textAlign: 'center' as const,
+        background: '#fff',
+        border: `1px solid ${C.lightWarm}`,
+        borderRadius: 6,
+      }}
+    >
+      <div style={{ fontSize: 48, marginBottom: 12 }}>{icon}</div>
+      <div
+        style={{
+          fontFamily: F.display,
+          fontSize: 20,
+          fontWeight: 700,
+          color: C.charcoal,
+          marginBottom: 6,
+        }}
+      >
+        {title}
+      </div>
+      <div
+        style={{
+          fontFamily: F.ui,
+          fontSize: 12,
+          color: C.warmGray,
+          letterSpacing: '0.06em',
+          marginBottom: 20,
+        }}
+      >
+        {subtitle}
+      </div>
+      <div
+        style={{
+          fontFamily: F.body,
+          fontSize: 13,
+          color: C.charcoal,
+          lineHeight: 1.7,
+          maxWidth: 420,
+          margin: '0 auto',
+        }}
+      >
+        {note}
+      </div>
     </div>
   );
 }
