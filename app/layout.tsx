@@ -69,19 +69,20 @@ export const metadata: Metadata = {
   },
 };
 
+// Linked via @id so the WebSite node's publisher can reference this
+// Organization without duplicating the publisher payload.
+const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
   name: SITE_NAME,
   alternateName: "TONE TOKYO Magazine",
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   inLanguage: "en",
-  publisher: {
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: SITE_URL,
-  },
+  publisher: { "@id": ORGANIZATION_ID },
   potentialAction: {
     "@type": "SearchAction",
     target: {
@@ -92,15 +93,31 @@ const websiteJsonLd = {
   },
 };
 
+// TONE TOKYO is the publication; KAKEHASHI Inc. is the operating
+// legal entity. `legalName` makes that relationship explicit to
+// search engines without requiring a second sibling Organization.
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": ORGANIZATION_ID,
   name: SITE_NAME,
+  legalName: "KAKEHASHI Inc.",
+  alternateName: "TONE TOKYO Magazine",
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   foundingLocation: {
     "@type": "Place",
-    name: "Tokyo, Japan",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Tokyo",
+      addressCountry: "JP",
+    },
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "editorial",
+    email: "contact@tone-tokyo.com",
+    availableLanguage: ["en", "ja"],
   },
 };
 

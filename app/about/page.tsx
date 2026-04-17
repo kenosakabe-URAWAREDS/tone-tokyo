@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 // Design tokens kept in sync with app/article/[slug]/ArticleClient.tsx
 // (the project hasn't extracted a shared theme — see CLAUDE.md note).
@@ -17,6 +18,41 @@ const F = {
   ui: "'DM Sans', 'Helvetica Neue', sans-serif",
   jp: "'Noto Sans JP', sans-serif",
 };
+
+const kickerStyle = {
+  fontFamily: F.ui,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase" as const,
+  color: C.indigo,
+  marginBottom: 16,
+};
+const h1Style = {
+  fontFamily: F.display,
+  fontSize: "clamp(30px, 5vw, 44px)",
+  fontWeight: 700,
+  lineHeight: 1.18,
+  color: C.charcoal,
+  margin: "0 0 24px 0",
+};
+const h2Style = {
+  fontFamily: F.display,
+  fontSize: "clamp(22px, 3vw, 28px)",
+  fontWeight: 700,
+  lineHeight: 1.3,
+  color: C.charcoal,
+  margin: "44px 0 18px 0",
+};
+const proseStyle = {
+  fontFamily: F.body,
+  fontSize: "clamp(16px, 1.8vw, 18px)",
+  lineHeight: 1.8,
+  color: C.charcoal,
+};
+const pStyle = { margin: "0 0 24px 0" };
+const ulStyle = { paddingLeft: 22, margin: "0 0 24px 0" };
+const liStyle = { marginBottom: 10 };
 
 export const metadata: Metadata = {
   title: "About",
@@ -99,82 +135,109 @@ export default function AboutPage() {
 
       {/* Main content — same 720px column ArticleClient uses */}
       <main style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px 40px" }}>
-        <div
-          style={{
-            fontFamily: F.ui,
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase" as const,
-            color: C.indigo,
-            marginBottom: 16,
-          }}
-        >
-          About
-        </div>
-        <h1
-          style={{
-            fontFamily: F.display,
-            fontSize: "clamp(30px, 5vw, 44px)",
-            fontWeight: 700,
-            lineHeight: 1.18,
-            color: C.charcoal,
-            margin: "0 0 24px 0",
-          }}
-        >
-          About TONE TOKYO
-        </h1>
+        <div style={kickerStyle}>About</div>
+        <h1 style={h1Style}>About TONE TOKYO</h1>
         <div style={{ width: 60, height: 2, background: C.indigo, marginBottom: 36 }} />
 
-        {/* Intro paragraphs — matches ArticleClient body styles */}
-        <div
-          style={{
-            fontFamily: F.body,
-            fontSize: "clamp(16px, 1.8vw, 18px)",
-            lineHeight: 1.8,
-            color: C.charcoal,
-          }}
-        >
-          <p style={{ margin: "0 0 24px 0" }}>
-            TONE TOKYO is an independent guide to Japanese fashion, food, culture, and craft — written from the inside.
+        <div style={proseStyle}>
+          <p style={pStyle}>
+            TONE TOKYO is an independent guide to Japanese fashion, food, culture, experience, and
+            craft — written from the inside.
           </p>
-          <p style={{ margin: "0 0 24px 0" }}>
-            Every recommendation on this site comes from personal experience. No press trips, no sponsored rankings, no algorithmic curation. Just years of living in Tokyo, eating at neighborhood counters, visiting factories, and paying attention to what&apos;s actually good.
-          </p>
-          <p style={{ margin: "0 0 24px 0" }}>
-            The Editor behind TONE TOKYO works in Japan&apos;s fashion industry and has spent years building relationships with makers, chefs, and creators across the country. This site exists to share that access with an international audience — the restaurants that don&apos;t appear in guidebooks, the brands that don&apos;t need hype, and the experiences that make Japan worth paying attention to.
+          <p style={pStyle}>
+            Every recommendation on this site comes from personal experience. No press trips, no
+            sponsored rankings, no algorithmic curation. Just years of living in Tokyo, eating at
+            neighborhood counters, visiting factories, and paying attention to what&apos;s actually
+            good.
           </p>
         </div>
 
-        {/* Pillars — inline sentence version */}
-        <div
-          style={{
-            fontFamily: F.body,
-            fontSize: "clamp(16px, 1.8vw, 18px)",
-            lineHeight: 1.8,
-            color: C.charcoal,
-            marginBottom: 24,
-          }}
-        >
-          <p style={{ margin: 0 }}>
-            TONE TOKYO covers six pillars: Fashion, Eat, Culture, Experience, Craft, and Family.
+        <h2 style={h2Style}>Who we are</h2>
+        <div style={proseStyle}>
+          <p style={pStyle}>
+            TONE TOKYO is operated by <strong>KAKEHASHI Inc.</strong>, a Tokyo-based company founded
+            to publish first-person dispatches about Japan for an international audience. The
+            magazine is edited by The Editor, who has spent years working inside Japan&apos;s
+            fashion industry and building relationships with makers, chefs, and creators across the
+            country.
+          </p>
+          <p style={pStyle}>
+            This isn&apos;t a travel aggregator. We don&apos;t republish press releases. The
+            articles on this site are the places and people The Editor actually visits — the
+            restaurants that don&apos;t appear in guidebooks, the brands that don&apos;t need hype,
+            and the experiences that make Japan worth paying attention to.
           </p>
         </div>
 
-        {/* Closing — newsletter + contact */}
-        <div
-          style={{
-            fontFamily: F.body,
-            fontSize: "clamp(16px, 1.8vw, 18px)",
-            lineHeight: 1.8,
-            color: C.charcoal,
-          }}
-        >
-          <p style={{ margin: "0 0 24px 0" }}>
-            New articles are published regularly. Subscribe to the weekly newsletter for a curated dispatch every Friday.
+        <h2 style={h2Style}>What we cover</h2>
+        <div style={proseStyle}>
+          <p style={pStyle}>TONE TOKYO covers six pillars:</p>
+          <ul style={ulStyle}>
+            <li style={liStyle}>
+              <strong>Fashion</strong> — brands, shops, and collections from the people making
+              clothes with conviction.
+            </li>
+            <li style={liStyle}>
+              <strong>Eat</strong> — restaurants, cafés, izakaya, and bars, from everyday counters
+              to once-in-a-lifetime counters.
+            </li>
+            <li style={liStyle}>
+              <strong>Culture</strong> — music, art, film, design, and the city&apos;s after-hours.
+            </li>
+            <li style={liStyle}>
+              <strong>Experience</strong> — neighborhood walks, day trips, shrines, sentō, and
+              seasonal Japan.
+            </li>
+            <li style={liStyle}>
+              <strong>Craft</strong> — the workshops behind what we wear and live with: denim
+              mills, ceramic kilns, indigo vats, eyewear benches.
+            </li>
+            <li style={liStyle}>
+              <strong>Family</strong> — traveling in Japan with kids, and navigating daily life as
+              a Tokyo parent.
+            </li>
+          </ul>
+        </div>
+
+        <h2 style={h2Style}>Editorial standards</h2>
+        <div style={proseStyle}>
+          <p style={pStyle}>
+            We only write about places and products we have personally experienced. We do not
+            accept payment in exchange for coverage. We do not run sponsored posts or native
+            advertising.
           </p>
-          <p style={{ margin: "0 0 24px 0" }}>
-            For press inquiries or collaborations:{" "}
+          <p style={pStyle}>
+            The Editor is a founder or co-founder of <strong>KURO</strong>,{" "}
+            <strong>VONN</strong>, <strong>THE BLUE STORE</strong>,{" "}
+            <strong>AIZOME REWEAR</strong>, <strong>LYNARC</strong>, <strong>PRAS</strong>,{" "}
+            <strong>INDIO &amp; SELVEDGE</strong>, and <strong>THE UNION</strong>.
+          </p>
+          <p style={pStyle}>
+            Additionally, Blues Inc. (KAKEHASHI Inc.&apos;s sister company) is the Japanese
+            distributor of <strong>Rylee+Cru</strong>, <strong>Quincy Mae</strong>, and{" "}
+            <strong>Noralee</strong>.
+          </p>
+          <p style={pStyle}>
+            Articles that cover any of these brands carry a disclosure at the end of the piece so
+            readers can see the exact relationship for themselves. Editorial decisions on those
+            articles — what we cover, how we cover it, and what we leave out — remain independent.
+          </p>
+          <p style={pStyle}>
+            When AI is used in our production process, it supports the editorial work rather than
+            replacing it. Every article is grounded in The Editor&apos;s first-hand experience,
+            with AI helping to structure and sharpen the writing — never to invent facts or
+            generate dispatches from scratch.
+          </p>
+        </div>
+
+        <h2 style={h2Style}>Stay in touch</h2>
+        <div style={proseStyle}>
+          <p style={pStyle}>
+            New articles are published regularly. Subscribe to the weekly newsletter for a curated
+            dispatch every Friday.
+          </p>
+          <p style={pStyle}>
+            For press inquiries, collaborations, or editorial questions:{" "}
             <a
               href="mailto:contact@tone-tokyo.com"
               style={{
@@ -189,59 +252,7 @@ export default function AboutPage() {
         </div>
       </main>
 
-      {/* Footer — mirrors the bottom block on the article page */}
-      <footer
-        style={{
-          borderTop: `1px solid ${C.lightWarm}`,
-          padding: "32px 24px 60px",
-          textAlign: "center" as const,
-        }}
-      >
-        <Link href="/" style={{ textDecoration: "none", display: "inline-block" }}>
-          <div style={{ display: "inline-flex", alignItems: "baseline", gap: 5 }}>
-            <span
-              style={{
-                fontFamily: F.display,
-                fontSize: 20,
-                fontWeight: 700,
-                color: C.charcoal,
-              }}
-            >
-              TONE
-            </span>
-            <span
-              style={{
-                fontFamily: F.ui,
-                fontSize: 8,
-                fontWeight: 500,
-                letterSpacing: "0.25em",
-                color: C.warmGray,
-                textTransform: "uppercase" as const,
-              }}
-            >
-              TOKYO
-            </span>
-          </div>
-          <div
-            style={{
-              fontFamily: F.jp,
-              fontSize: 6,
-              fontWeight: 300,
-              letterSpacing: "0.45em",
-              color: C.warmGray,
-              marginTop: 4,
-            }}
-          >
-            {"\u97F3 \u6771\u4EAC"}
-          </div>
-        </Link>
-        <p style={{ fontFamily: F.ui, fontSize: 11, color: C.warmGray, marginTop: 16 }}>
-          Japan, through the eyes of someone who lives it.
-        </p>
-        <p style={{ fontFamily: F.ui, fontSize: 10, color: C.lightWarm, marginTop: 8 }}>
-          {"\u00A9"} 2026 TONE TOKYO
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

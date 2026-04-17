@@ -1,0 +1,55 @@
+ID: 2VaIONP0XCgRyozIsGiSkD
+Title: Inside Okayama: The Last Generation of Selvedge Denim Weavers
+readTime: 8 min
+wordCount: 194
+hasNeedsVerificationMarker: true
+
+--- BODY (first 2000 chars) ---
+The sound hits you before anything else. A rhythmic clatter of wood and metal, echoing through a concrete building in the hills outside Kojima. Inside, three men work shuttle looms that were built in the 1960s. These machines are slower, louder, and more temperamental than modern projectile looms. They also produce fabric with a character that no modern machine can replicate.
+
+I visit Collect Mills three or four times a year, usually to check on fabric development for KURO. Each time, I notice the same thing: the average age of the weavers is getting older. The youngest is in his fifties. [NEEDS VERIFICATION]: exact age of youngest weaver There is no training program, no apprenticeship pipeline. When these men retire, their specific knowledge of tension, humidity, and the particular feel of a perfectly woven selvedge will retire with them.
+
+The fabric they produce is extraordinary. A 14oz right-hand twill with a depth of color that comes from running the loom at roughly half the speed of a modern machine. The slower pace allows the indigo to settle differently into the yarn, creating variation that raw denim enthusiasts describe as the soul of the fabric.
+
+--- MARKER CONTEXT ---
+ on fabric development for KURO. Each time, I notice the same thing: the average age of the weavers is getting older. The youngest is in his fifties. [NEEDS VERIFICATION]: exact age of youngest weaver There is no training program, no apprenticeship pipeline. When these men retire, their specific knowledge of tension, humidity, and the particular fe
+
+
+=== ALL ARTICLES: [NEEDS VERIFICATION] SCAN ===
+  - okayama-selvedge-denim-weavers (2VaIONP0XCgRyozIsGiSkD)
+  - twenty-years-of-slurping-at-umegaoka-s-katsuya (ESvEjc6swyeoEqIQrBd61O)
+  - the-price-of-perfection-at-kioi-cho-mitani-bettei (O1FwaiP2hPMYlgcH4N1o1n)
+  - the-unchanging-comfort-of-yoshokuya-b-in-ikejiri-ohashi (SR7iN3MY3sWdrYyXFKK0yU)
+  - lynarc-s-hematine-infused-hair-care-creates-salon-results-at-home (SR7iN3MY3sWdrYyXFKuzb2)
+  - okayama-s-hidden-sushi-institution-delivers-edo-style-excellence (SR7iN3MY3sWdrYyXFLPMyG)
+  - the-rice-makes-the-difference-at-sushi-senpa-in-fukuoka (SR7iN3MY3sWdrYyXFLVIpm)
+  - the-blue-store-tokyo-s-most-understated-cool (cbF5URwD8NwlNtnKdNrEQM)
+file:///C:/Users/kenta/tone-tokyo/scripts/check-okayama.mjs:66
+    .filter((b) => b._type === 'block')
+     ^
+
+TypeError: (a.body || []).filter is not a function
+    at file:///C:/Users/kenta/tone-tokyo/scripts/check-okayama.mjs:66:6
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.14.0
+
+I visit Collect Mills three or four times a year, usually to check on fabric development for KURO. Each time, I notice the same thing: the average age of the weavers is getting older. The youngest is in his fifties. [NEEDS VERIFICATION]: exact age of youngest weaver There is no training program, no apprenticeship pipeline. When these men retire, their specific knowledge of tension, humidity, and the particular feel of a perfectly woven selvedge will retire with them.
+
+The fabric they produce is extraordinary. A 14oz right-hand twill with a depth of color that comes from running the loom at roughly half the speed of a modern machine. The slower pace allows the indigo to settle differently into the yarn, creating variation that raw denim enthusiasts describe as the soul of the fabric.
+
+--- MARKER CONTEXT ---
+ on fabric development for KURO. Each time, I notice the same thing: the average age of the weavers is getting older. The youngest is in his fifties. [NEEDS VERIFICATION]: exact age of youngest weaver There is no training program, no apprenticeship pipeline. When these men retire, their specific knowledge of tension, humidity, and the particular fe
+
+
+=== ALL ARTICLES: [NEEDS VERIFICATION] SCAN ===
+  - okayama-selvedge-denim-weavers (2VaIONP0XCgRyozIsGiSkD)
+  - twenty-years-of-slurping-at-umegaoka-s-katsuya (ESvEjc6swyeoEqIQrBd61O)
+  - the-price-of-perfection-at-kioi-cho-mitani-bettei (O1FwaiP2hPMYlgcH4N1o1n)
+  - the-unchanging-comfort-of-yoshokuya-b-in-ikejiri-ohashi (SR7iN3MY3sWdrYyXFKK0yU)
+  - lynarc-s-hematine-infused-hair-care-creates-salon-results-at-home (SR7iN3MY3sWdrYyXFKuzb2)
+  - okayama-s-hidden-sushi-institution-delivers-edo-style-excellence (SR7iN3MY3sWdrYyXFLPMyG)
+  - the-rice-makes-the-difference-at-sushi-senpa-in-fukuoka (SR7iN3MY3sWdrYyXFLVIpm)
+  - the-blue-store-tokyo-s-most-understated-cool (cbF5URwD8NwlNtnKdNrEQM)
+
+Total: 8 / 11 articles contain [NEEDS VERIFICATION]

@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState, useEffect, useRef } from "react";
 import { sizedImage, urlForArticleImage, objectPositionFromHotspot } from "@/lib/image";
+import Footer from "@/components/Footer";
 
 const INDIGO = "#1B3A5C";
 const CHARCOAL = "#2D2D2D";
@@ -426,25 +427,6 @@ function About() {
         </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{ padding: "24px 16px", background: OFF_WHITE, borderTop: `1px solid ${LIGHT_WARM}` }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-          <span style={{ fontFamily: "var(--serif)", fontSize: 15, fontWeight: 700, color: CHARCOAL }}>TONE</span>
-          <span style={{ fontFamily: "var(--sans)", fontSize: 7, fontWeight: 500, letterSpacing: "0.2em", color: WARM_GRAY, textTransform: "uppercase" as const }}>TOKYO</span>
-        </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          {["About", "Contact"].map(l => (
-            <a key={l} href={l === "About" ? "/about" : "#"} style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY, textDecoration: "none" }}>{l}</a>
-          ))}
-          <span style={{ fontFamily: "var(--sans)", fontSize: 10, color: WARM_GRAY }}>{"\u00A9"} 2026</span>
-        </div>
-      </div>
-    </footer>
   );
 }
 

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { objectPositionFromHotspot, sizedImage } from "@/lib/image";
+import Footer from "@/components/Footer";
 
 const C = { indigo: "#1B3A5C", charcoal: "#2D2D2D", warmGray: "#A39E93", offWhite: "#F8F6F1", cream: "#F0EDE6", lightWarm: "#E8E4DB" };
 const F = { display: "'Playfair Display', Georgia, serif", body: "'Source Serif 4', Georgia, serif", ui: "'DM Sans', 'Helvetica Neue', sans-serif" };
@@ -163,6 +164,7 @@ export default function EatClient({ articles, initialPillar = "All" }: { article
           <div style={{ textAlign: "center" as const, padding: 40, color: C.warmGray, fontFamily: F.ui, fontSize: 14 }}>No places match your filters. Try adjusting them.</div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

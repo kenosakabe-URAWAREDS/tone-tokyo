@@ -1,0 +1,192 @@
+═══════════════════════════════════════════════════════════════
+SLUG: okayama-selvedge-denim-weavers
+PILLAR: CRAFT
+TITLE: Inside Okayama: The Last Generation of Selvedge Denim Weavers
+_ID: 2VaIONP0XCgRyozIsGiSkD
+MARKER COUNT: 1
+───────────────────────────────────────────────────────────────
+
+  [marker 1/1] at char 596
+  --- BEFORE ---
+  s. They also produce fabric with a character that no modern machine can replicate.
+  
+  I visit Collect Mills three or four times a year, usually to check on fabric development for KURO. Each time, I notice the same thing: the average age of the weavers is getting older. The youngest is in his fifties. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: exact age of youngest weaver There is no training program, no apprenticeship pipeline. When these men retire, their specific knowledge of tension, humidity, and the particular feel of a perfectly woven selvedge will retire with them.
+  --- AFTER ---
+  
+  
+  The fabric they produce is extraordinary. A 14oz right-hand twill with a depth of color that comes from running the loom at roughly half the speed of a modern machine. The slower pace allows the indigo to settle differently into the yarn, creating variation that raw denim enthusiasts describe as t
+
+═══════════════════════════════════════════════════════════════
+SLUG: okayama-s-hidden-sushi-institution-delivers-edo-style-excellence
+PILLAR: EAT
+TITLE: Okayama's Hidden Sushi Institution Delivers Edo-Style Excellence
+_ID: SR7iN3MY3sWdrYyXFLPMyG
+MARKER COUNT: 2
+───────────────────────────────────────────────────────────────
+
+  [marker 1/2] at char 266
+  --- BEFORE ---
+  The wasabi sits freshly grated in a small ceramic dish, its sharp bite dissolving into sweetness as chef Yamamoto Jun watches me taste it. This is how every meal begins at Uomasa, a long-running sushi institution tucked away in Okayama's quiet Daiun-ji neighborhood 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: founding year / 30-year claim. While Tokyo's top sushi counters now charge upwards of ¥40,000 for omakase, Yamamoto-san maintains his course at around ¥25,000—a price point that feels almost rebellious in today's inflated market.
+  --- AFTER ---
+  
+  
+  The eight-seat counter faces a modest kitchen where Yamamoto works alone, his movements precise from decades of repetition. His shari runs slightly warm, seasoned with aged red vinegar that gives each piece a subtle tang. The neta selection reads like a greatest hits of Edo-mae classics: wild blue
+
+  [marker 2/2] at char 2131
+  --- BEFORE ---
+  rved without ceremony, priced fairly for the quality delivered. In an era when luxury often means overpaying for atmosphere, Uomasa proves that true value lies in consistency and craft.
+  
+  Uomasa is located in Okayama's Daiun-ji area. Dinner omakase runs approximately ¥25,000. Reservations essential. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: nearest station, exact omakase price, days closed
+  --- AFTER ---
+  
+
+═══════════════════════════════════════════════════════════════
+SLUG: the-price-of-perfection-at-kioi-cho-mitani-bettei
+PILLAR: EAT
+TITLE: The Price of Perfection at Kioi-cho Mitani Bettei
+_ID: O1FwaiP2hPMYlgcH4N1o1n
+MARKER COUNT: 2
+───────────────────────────────────────────────────────────────
+
+  [marker 1/2] at char 1160
+  --- BEFORE ---
+  00 per person before drinks, you're paying premium prices for what should be standard at this level. The wine pairing, while thoughtfully curated with selections that complement the delicate fish, adds another ¥20,000 to your evening. That's ¥70,000 for dinner—the cost of a decent weekend in Kyoto. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: per-person price and wine pairing cost
+  --- AFTER ---
+  
+  
+  The omakase format means no choices, just submission to Mitani's vision. Fifteen pieces plus appetizers unfold over two hours in the hushed dining room overlooking the Imperial Palace grounds. [NEEDS VERIFICATION]: course count and duration The atmosphere feels more like a temple than a restaurant
+
+  [marker 2/2] at char 1415
+  --- BEFORE ---
+  inner—the cost of a decent weekend in Kyoto. [NEEDS VERIFICATION]: per-person price and wine pairing cost
+  
+  The omakase format means no choices, just submission to Mitani's vision. Fifteen pieces plus appetizers unfold over two hours in the hushed dining room overlooking the Imperial Palace grounds. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: course count and duration The atmosphere feels more like a temple than a restaurant, which seems intentional. You're not just eating; you're participating in a ritual that demands reverence—and your credit card's complete surrender.
+  --- AFTER ---
+  
+  
+  Is the sushi exceptional? Absolutely. Will you remember every bite? Probably. Will you feel like you got fair value? That depends on how much money means to you. For most of us, this is a once-in-a-lifetime splurge that better be worth the financial hangover.
+  
+  Dinner reservations essential, typica
+
+═══════════════════════════════════════════════════════════════
+SLUG: the-rice-makes-the-difference-at-sushi-senpa-in-fukuoka
+PILLAR: EAT
+TITLE: The Rice Makes the Difference at Sushi Senpa in Fukuoka
+_ID: SR7iN3MY3sWdrYyXFLVIpm
+MARKER COUNT: 2
+───────────────────────────────────────────────────────────────
+
+  [marker 1/2] at char 753
+  --- BEFORE ---
+  emperature hovers at human body warmth—not the ice-cold shari you'll find at tourist traps, but rice that dissolves on your tongue while releasing the fish's flavor. This attention to the foundation is what separates serious sushi from Instagram props.
+  
+  He sources fish through wholesale connections 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: market source — Tsukiji vs Toyosu vs Fukuoka local. His rice philosophy is purely personal. He adjusts the vinegar blend daily based on humidity and temperature, treating each grain like it matters. Because it does. The maguro here tastes different not just because of the tuna quality, but because the shari provides the perfect acidic counterpoint to the fish's richness.
+  --- AFTER ---
+  
+  
+  The progression moves through seasonal selections—sweet amaebi, buttery uni from Hokkaido, silver-skinned fish that showcase his curing techniques. Each piece arrives with rice that's been shaped just firm enough to hold together until it hits your mouth, then falls apart to let the fish shine. Th
+
+  [marker 2/2] at char 1691
+  --- BEFORE ---
+  ts your mouth, then falls apart to let the fish shine. This is traditional Edo-mae technique executed with Kyushu precision.
+  
+  Reservations are essential and often booked weeks ahead. The omakase runs around ¥25,000, which reflects both the fish quality and the rice mastery most diners never notice. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: omakase price and counter seat count But once you taste shari this carefully crafted, you'll understand why Senpa has earned its place among Fukuoka's top counters.
+  --- AFTER ---
+  
+
+═══════════════════════════════════════════════════════════════
+SLUG: the-unchanging-comfort-of-yoshokuya-b-in-ikejiri-ohashi
+PILLAR: EAT
+TITLE: The Unchanging Comfort of Yoshokuya B in Ikejiri-Ohashi
+_ID: SR7iN3MY3sWdrYyXFKK0yU
+MARKER COUNT: 1
+───────────────────────────────────────────────────────────────
+
+  [marker 1/1] at char 1928
+  --- BEFORE ---
+   to build a following, humble enough to stay affordable, consistent enough to become part of your routine. In a city that changes as quickly as Tokyo does, these constants matter more than innovation.
+  
+  Yoshokuya B is a short walk from Ikejiri-Ohashi Station. Expect to pay roughly ¥1,500 per person. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: walking distance, opening days/hours, exact average spend
+  --- AFTER ---
+  
+
+═══════════════════════════════════════════════════════════════
+SLUG: twenty-years-of-slurping-at-umegaoka-s-katsuya
+PILLAR: EAT
+TITLE: Twenty Years of Slurping at Umegaoka's Katsuya
+_ID: ESvEjc6swyeoEqIQrBd61O
+MARKER COUNT: 1
+───────────────────────────────────────────────────────────────
+
+  [marker 1/1] at char 2023
+  --- BEFORE ---
+  , time moves differently. The same faded photographs hang on the walls, the same worn counter stools wobble slightly, and the same steady rhythm of orders and preparation continues from lunch through dinner.
+  
+  Katsuya is in Umegaoka. The chashu wonton ramen sits in the under-¥1,000 range. Cash only. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: opening days, opening hours, exact bowl price
+  --- AFTER ---
+  
+
+═══════════════════════════════════════════════════════════════
+SLUG: lynarc-s-hematine-infused-hair-care-creates-salon-results-at-home
+PILLAR: FASHION
+TITLE: LYNARC's Hematine-Infused Hair Care Creates Salon Results at Home
+_ID: SR7iN3MY3sWdrYyXFKuzb2
+MARKER COUNT: 2
+───────────────────────────────────────────────────────────────
+
+  [marker 1/2] at char 367
+  --- BEFORE ---
+  rent from typical drugstore bottles—dense and creamy, with the kind of texture that only comes from serious formulation. Born in a private salon in Nakameguro, this premium hair care line channels over twenty years of professional experience into products designed to extend that post-salon feeling. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: Nakameguro origin and 20+ year tenure claim
+  --- AFTER ---
+  
+  
+  What sets LYNARC apart is hematine, a protein compound derived from hemoglobin that penetrates damaged hair cuticles to rebuild structure from within. It's the same ingredient high-end salons use in their most intensive treatments, but here it's formulated for daily maintenance. The shampoo produc
+
+  [marker 2/2] at char 2216
+  --- BEFORE ---
+  rketing. At ¥6,600 per bottle, LYNARC positions itself as accessible luxury—less expensive than monthly salon visits, but far more sophisticated than convenience store alternatives.
+  
+  LYNARC products are available online, with an introductory Total Care Set roughly half the price of the full lineup. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: official URL, exact set price, regular price
+  --- AFTER ---
+  
+
+═══════════════════════════════════════════════════════════════
+SLUG: the-blue-store-tokyo-s-most-understated-cool
+PILLAR: FASHION
+TITLE: The Blue Store: Tokyo's Most Understated Cool
+_ID: cbF5URwD8NwlNtnKdNrEQM
+MARKER COUNT: 1
+───────────────────────────────────────────────────────────────
+
+  [marker 1/1] at char 1256
+  --- BEFORE ---
+  gh that walking in feels like a conversation rather than a transaction. There's no rush, no upsell, no theater.
+  
+  THE BLUE STORE is in Tomigaya, Shibuya-ku, Tokyo. Opening hours and the exact street address shift periodically — it's worth confirming via the brand's official channels before visiting. 
+  --- MARKER ---
+  >>> [NEEDS VERIFICATION]: street address, opening hours, days closed
+  --- AFTER ---
+  
+
