@@ -1,5 +1,35 @@
 # 保留タスク管理
-最終更新: 2026-04-17（パート3完了時点）
+最終更新: 2026-04-18（パート4 Step 4-A/4-B 完了時点）
+
+## NEXT_SESSION_001: パート4 残作業（Step 4-C / 4-D / 4-E / 4-F）
+- 状態: 次セッションで着手
+- 前提: Step 4-A + 4-B 完了済（commit `5afc062`）
+- 想定合計時間: 約2時間40分
+- タスク内訳:
+  - **4-C: GenerateTab 本実装**（約 30 分）
+    - 未処理ネタ帳 (`stockpile` の `status == "new"`) 一覧を表示
+    - 各カードから既存 `/editor/stockpile/[id]` (AI生成画面) へ遷移
+    - `/api/editor/list` を再利用可能
+  - **4-D: InputTab 実装**（約 1 時間 30 分）
+    - `app/input/page.tsx` の client ロジック（ピラー別フォーム 6種 + 写真アップロード + URL 入力）を抽出
+    - `<InputTab>` として `EditorDashboard.tsx` または分離ファイルに移植
+    - 既存 `/api/create-article` エンドポイントは変更せず利用
+  - **4-E: `/input` → `/editor?tab=input` 301 リダイレクト**（約 10 分）
+    - `app/input/page.tsx` を `redirect('/editor?tab=input')` に置換
+  - **4-F: TypeScript/ESLint + 動作確認 + パート4完了報告**（約 30 分）
+
+## IMPROVEMENT_001: パート4-F で確認する軽微な改善ポイント
+- 状態: 観察済、次セッション 4-F で検証
+- 優先度: 低
+- 内容:
+  - **ダッシュボードの「読み込み中...」が残る件:**
+    - DashboardPanel のロード完了後も spinner が消えないように見えるケースがある
+    - 原因推測: `loading` state が PhotoLibrary / dashboard / precheck では skip されるが、`<DashboardPanel>` 内部で別の loading state がある可能性
+    - 対応: 4-F で実機確認、必要なら修正
+  - **公開済タブに Mitani Bettei が2回表示される件:**
+    - Published 11件のはずが13件表示
+    - 原因推測: `/api/editor/list` が draft/published 両方を返している可能性（`perspective: 'raw'` を使っているか、drafts を別枠で返している）
+    - 対応: 4-F で `/api/editor/list` の挙動を確認、必要なら重複排除
 
 ## SKIP_LATER_001: B分類8箇所マーカー削除
 - 状態: 保留
